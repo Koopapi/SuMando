@@ -186,40 +186,40 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 6 — PWA, calidad y publicación
 
-- [ ] **T30 — Instalación y página sin conexión**
+- [x] **T30 — Instalación y página sin conexión**
   - RF: RF-39, RF-40
   - Depende de: T29
   - Hecho cuando: `manifest.webmanifest` (nombre, iconos 192 y 512, `display: standalone`, color), `public/sw.js`
     (precaché de `/offline` y respuesta de reserva al fallar una navegación), registro del service worker;
     E2E «RF-39» comprueba el manifest y «RF-40» pone el contexto sin conexión y ve la página propia con «Reintentar».
-- [ ] **T31 — Barrido de pantallas**
+- [x] **T31 — Barrido de pantallas**
   - RF: NF
   - Depende de: T30
   - Hecho cuando: `e2e/qa-sweep.spec.ts` recorre todas las páginas con dueño y con administrador en escritorio,
     tableta y móvil sin errores de consola, respuestas fallidas, desbordes ni controles sin nombre; en verde.
-- [ ] **T32 — E2E del recorrido completo y proyectos móviles**
+- [x] **T32 — E2E del recorrido completo y proyectos móviles**
   - RF: RF-1, RF-2, RF-11, RF-12, RF-13, RF-17, RF-23, RF-25, RF-28, RF-33, RF-35
   - Depende de: T31
   - Hecho cuando: `e2e/recorrido-001.spec.ts` sigue el criterio de finalización de la spec con un paso «RF-N» por
     requisito; la suite completa pasa en `chromium-desktop`, `pixel-7` e `iphone-14` (se avisa antes de correrla).
-- [ ] **T33 — CI en GitHub**
+- [x] **T33 — CI en GitHub**
   - RF: NF publicación
   - Depende de: T32
   - Hecho cuando: `.github/workflows/ci.yml` (Postgres 16 como servicio; `pnpm lint`, `typecheck`, `test`, `build`,
     E2E de escritorio) corre en pull requests y en `pruebas` y `main`, y el primer pull request a `pruebas` sale en verde.
-- [ ] **T34 — Imagen Docker y migración al arrancar**
+- [x] **T34 — Imagen Docker y migración al arrancar**
   - RF: NF publicación
   - Depende de: T2, T30
   - Hecho cuando: `Dockerfile` multietapa (`node:24-bookworm-slim`, `pnpm install --frozen-lockfile`, `next build`
-    standalone), `scripts/migrate.mjs` y `docker-entrypoint.sh` (migra y arranca); `docker build` y `docker run`
-    locales contra un Postgres de Docker sirven `/setup` con HTTP 200.
-- [ ] **T35 — App de pruebas en Coolify**
+    standalone) y migración al arrancar desde `src/instrumentation.ts` (`MIGRATE_ON_START=1`); `docker build` y
+    `docker run` locales contra un Postgres de Docker sirven `/api/setup` con HTTP 200.
+- [ ] **T35 — App de pruebas en Coolify** (pendiente del dueño: pasos en `docs/despliegue.md`; requiere el repo en GitHub y acceso al VPS)
   - RF: NF publicación, criterio de finalización
   - Depende de: T33, T34
   - Hecho cuando: en Coolify, Postgres 16 y la app desde la rama `pruebas` con el Dockerfile, variables
     (`DATABASE_URL`, `NODE_ENV=production`), dominio provisional con HTTPS y despliegue automático al subir a
     `pruebas`; la dirección responde, el dueño crea su cuenta, instala Mando en su teléfono y hace el recorrido a mano.
-- [ ] **T36 — Validación RF por RF y cierre**
+- [ ] **T36 — Validación RF por RF y cierre** (hecho `validation.md` 42/42, reglas en «Vigente», `AGENTS.md` y arquitectura al día; falta el pull request, que no existe sin remoto)
   - RF: todos
   - Depende de: T35
   - Hecho cuando: `node ../../scripts/rf-coverage.mjs ../../specs/001-esqueleto-cuentas-y-negocios` escribe

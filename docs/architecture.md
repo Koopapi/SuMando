@@ -42,6 +42,18 @@ Lo construido en la spec 001:
 - **Componentes base** (`src/ui`): botón, campo de texto y de contraseña, aviso, tarjeta, estructura de página,
   diálogo y estado vacío, con `tokens.css` (Tailwind 4 `@theme`). La spec 002 los formaliza.
 
+## Instalación, despliegue y CI (spec 001)
+
+- **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea
+  `/offline` y guarda los estáticos ya vistos. Cualquier otra función sin conexión entra por su spec.
+- **Imagen**: `Dockerfile` en la raíz (Next `standalone`, usuario sin privilegios, `HEALTHCHECK` a `/api/setup`).
+  Las migraciones se aplican al arrancar desde `src/instrumentation.ts` con `MIGRATE_ON_START=1`; si fallan, el
+  servidor no arranca. Guía de Coolify en `docs/despliegue.md`.
+- **CI**: `.github/workflows/ci.yml` con PostgreSQL 16 como servicio: lint, tipos, Vitest y E2E de escritorio contra
+  la versión compilada.
+- **Barrido de pantallas**: `e2e/qa-sweep.spec.ts` recorre todas las páginas con cada perfil en escritorio, tableta y
+  móvil.
+
 ## Varios negocios
 
 - Cada tabla de negocio lleva `business_id`. Los repositorios reciben el negocio activo y filtran siempre por él;

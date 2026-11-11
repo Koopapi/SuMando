@@ -23,9 +23,10 @@ describe("spec 001 — proxy", () => {
     expect(proxy(req("/cambiar-contrasena", cookie)).status).toBe(200);
   });
 
-  it("test_s001_rf4_con_sesion_entrar_y_primer_arranque_mandan_al_inicio", () => {
-    expect(location(proxy(req("/login", "mando_session=tok")))).toBe("/");
-    expect(location(proxy(req("/setup", "mando_session=tok")))).toBe("/");
+  it("test_s001_rf4_con_cookie_de_sesion_el_proxy_deja_pasar_y_la_pagina_decide", () => {
+    // Una cookie revocada o caducada no debe producir un bucle: /login se deja pasar y la página comprueba la sesión.
+    expect(proxy(req("/login", "mando_session=tok")).status).toBe(200);
+    expect(proxy(req("/setup", "mando_session=tok")).status).toBe(200);
     expect(proxy(req("/negocios", "mando_session=tok")).status).toBe(200);
   });
 });

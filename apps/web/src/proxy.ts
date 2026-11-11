@@ -13,11 +13,12 @@ export function proxy(request: NextRequest) {
   const mustChange = request.cookies.has(PASSWORD_CHANGE_COOKIE);
   const to = (path: string) => NextResponse.redirect(new URL(path, request.url));
   if (!hasSession) return PUBLIC.has(pathname) ? NextResponse.next() : to("/login");
-  if (mustChange && pathname !== PASSWORD_CHANGE) return to(PASSWORD_CHANGE);
-  if (pathname === "/login" || pathname === "/setup") return to("/");
+  if (mustChange && pathname !== PASSWORD_CHANGE && !PUBLIC.has(pathname)) return to(PASSWORD_CHANGE);
+  // Con cookie (quizá ya caducada o revocada) se deja pasar: la página de entrada decide con la sesión real,
+  // así una cookie vieja nunca produce un bucle entre /login y /.
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icons/|manifest.webmanifest|sw.js|robots.txt).*)"],
+  matcher: ["/((?!_next/|favicon.ico|icon.png|icons/|manifest.webmanifest|sw.js|robots.txt).*)"],
 };

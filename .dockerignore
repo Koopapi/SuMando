@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+**/.next*
+**/test-results
+**/playwright-report
+**/var
+.git
+Referencias
+Diseño
+docs
+specs
+recursos
+**/.env
+**/.env.*
+!**/.env.example

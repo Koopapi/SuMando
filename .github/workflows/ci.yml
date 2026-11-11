@@ -1,0 +1,64 @@
+# Spec 001 (NF publicación): en cada pull request y en pruebas y main, revisión de código, tipos, Vitest (unidad e
+# integración) y E2E de escritorio contra la versión compilada.
+name: CI
+
+on:
+  push:
+    branches: [main, pruebas]
+    paths-ignore: ["docs/**", "specs/**", "**/*.md"]
+  pull_request:
+    paths-ignore: ["docs/**", "specs/**", "**/*.md"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Las URLs de los tests no llevan usuario: el cliente de PostgreSQL lo toma de aquí.
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      NEXT_TELEMETRY_DISABLED: "1"
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - name: Revisión de código
+        run: pnpm lint
+      - name: Tipos
+        run: pnpm typecheck
+      - name: Vitest (unidad e integración)
+        run: pnpm test
+      - name: Navegador de Playwright
+        run: pnpm exec playwright install --with-deps chromium
+      - name: E2E de escritorio (versión compilada)
+        run: pnpm e2e:desktop
+      - name: Resultados del E2E si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: apps/web/test-results
+          retention-days: 7

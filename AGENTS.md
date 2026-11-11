@@ -34,6 +34,11 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
 - Textos de la interfaz: nunca literales en componentes; van en `src/i18n/es/<área>.ts`. Errores de negocio:
   `new AppError("codigo", params)` (`src/server/errors.ts`) con su mensaje en `src/i18n/es/errors.ts`;
   `src/i18n/i18n.test.ts` falla si hay texto suelto o un código sin mensaje.
+- PWA: `src/app/manifest.ts`, iconos en `public/icons` (se regeneran con `node scripts/make-icons.mjs`) y `public/sw.js`
+  (solo la página `/offline` y los estáticos ya vistos; nada de captura sin conexión).
+- Imagen de producción: `docker build -t mando .` desde la raíz; migra sola al arrancar (`MIGRATE_ON_START=1`, ver
+  `src/instrumentation.ts`). Pasos de Coolify en `docs/despliegue.md`.
+- CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `pruebas` y `main`.
 - Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones

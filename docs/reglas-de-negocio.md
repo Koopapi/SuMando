@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 11 de noviembre de 2026. Spec 001 aprobada.
+Última actualización: 11 de noviembre de 2026. Spec 001 vigente (42 RF con test en verde).
 
 ---
 
@@ -16,7 +16,7 @@ Vienen de la constitución (`docs/constitution.md`) y mandan sobre cualquier otr
 
 ## 2. Cuentas, negocios y permisos
 
-Origen: spec 001 (aprobada el 11 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 001 (aprobada el 11 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Solo entran administrativos, con correo y contraseña. Los empleados de piso no tienen cuenta ni PIN (spec 001).
 - Dos roles: **dueño** (acceso a todos los negocios y sucursales, incluidos los futuros; crea negocios, da de alta
