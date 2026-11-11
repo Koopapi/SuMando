@@ -1,0 +1,18 @@
+export const shell = {
+  brand: "Mando",
+  change: "Cambiar",
+  switchBranch: "Cambiar de sucursal",
+  noBranch: "Sin sucursal",
+  activeBranch: (business: string, branch: string) => `${business} · ${branch}`,
+  nav: "Navegación",
+  home: "Inicio",
+  businesses: "Negocios",
+  people: "Personas",
+  password: "Cambiar contraseña",
+  chooseTitle: "Elegir sucursal",
+  chooseIntro: "¿En qué sucursal vas a trabajar?",
+  current: "Actual",
+  chooseBranch: (business: string, branch: string) => `Trabajar en ${business} · ${branch}`,
+  noBusinessesOwner: "Aún no hay negocios. Crea el primero para empezar a trabajar.",
+  goBusinesses: "Ir a Negocios",
+} as const;

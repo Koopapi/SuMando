@@ -15,7 +15,7 @@ test("negocios y sucursales", async ({ page }) => {
     await dialog.getByLabel("Primera sucursal").fill("Sendero");
     await dialog.getByRole("button", { name: "Guardar" }).click();
     await expect(page.getByRole("heading", { name: "Pastatti" })).toBeVisible();
-    await expect(page.getByText("Sendero")).toBeVisible();
+    await expect(page.getByText("Sendero", { exact: true })).toBeVisible();
   });
 
   await test.step("RF-18 añade una sucursal y renombra el negocio", async () => {

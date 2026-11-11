@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { isOwner } from "@/domain/access/owner";
 import { appCtx } from "../app-context";
 import { AppError } from "../errors";
+import { resolveBranchState, type ActiveBranch } from "../services/active-branch";
 import { authenticate, type Authenticated, type LoginResult } from "../services/auth";
 import type { Ctx } from "../services/context";
 import { clearSessionCookie, passwordChangeCookie, readCookie, SESSION_COOKIE, sessionCookie } from "./cookies";
@@ -50,4 +51,12 @@ export function withoutSessionCookies(response: Response): Response {
   response.headers.append("set-cookie", clearSessionCookie());
   response.headers.append("set-cookie", passwordChangeCookie(false));
   return response;
+}
+
+/** Para handlers que operan sobre la sucursal activa: sin una activa, `no_branch` (RF-38). */
+export async function requireBranch(request: Request): Promise<Authenticated & { active: ActiveBranch }> {
+  const auth = await requireSession(request);
+  const state = await resolveBranchState(appCtx(), auth);
+  if (state.kind !== "active") throw new AppError("no_branch");
+  return { ...auth, active: state.active };
 }

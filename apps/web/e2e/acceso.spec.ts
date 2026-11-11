@@ -1,6 +1,6 @@
 // Criterios de la spec 001: primer arranque, entrada, salida y contraseña temporal (entrega 2).
 import { expect, test } from "./fixtures";
-import { OWNER, alertBox, expectNoHorizontalOverflow, login, seedOwner, temporaryPasswordFor } from "./helpers";
+import { OWNER, alertBox, expectNoHorizontalOverflow, login, seedBusiness, seedOwner, temporaryPasswordFor } from "./helpers";
 
 test("primer arranque, entrada y salida", async ({ page }) => {
   await test.step("RF-1 sin cuentas, la dirección de inicio lleva a crear al dueño", async () => {
@@ -9,13 +9,14 @@ test("primer arranque, entrada y salida", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Crear la cuenta del dueño" })).toBeVisible();
   });
 
-  await test.step("RF-2 crear al dueño inicia su sesión y lleva al inicio", async () => {
+  await test.step("RF-2 crear al dueño inicia su sesión; sin negocios, invita a crear el primero", async () => {
     await page.getByLabel("Nombre").fill(OWNER.name);
     await page.getByLabel("Correo").fill(OWNER.email);
     await page.getByLabel("Contraseña", { exact: true }).fill(OWNER.password);
     await page.getByRole("button", { name: "Crear cuenta" }).click();
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByText(`Hola, ${OWNER.name}`)).toBeVisible();
+    await expect(page).toHaveURL(/\/elegir-sucursal$/);
+    await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+    await expect(page.getByText("Aún no hay negocios. Crea el primero para empezar a trabajar.")).toBeVisible();
   });
 
   await test.step("RF-3 con una cuenta, la pantalla de primer arranque ya no existe", async () => {
@@ -39,13 +40,14 @@ test("primer arranque, entrada y salida", async ({ page }) => {
 
   await test.step("RF-4 entrar con correo y contraseña correctos", async () => {
     await login(page, " DUENO@mando.test ", OWNER.password);
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByText(`Hola, ${OWNER.name}`)).toBeVisible();
+    await expect(page).toHaveURL(/\/elegir-sucursal$/);
+    await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
   });
 });
 
 test("contraseña temporal: solo se puede cambiarla", async ({ page }) => {
   await seedOwner();
+  await seedBusiness("Pastatti", ["Sendero"]);
   const temporary = await temporaryPasswordFor(OWNER.email);
 
   await test.step("RF-12 con contraseña temporal, entrar lleva a cambiarla y nada más se puede abrir", async () => {

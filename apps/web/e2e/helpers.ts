@@ -23,6 +23,12 @@ export async function login(page: Page, email: string, password: string) {
   await Promise.race([page.waitForURL((u) => !u.pathname.endsWith("/login")), alertBox(page).waitFor()]);
 }
 
+/** Cierra la sesión y espera a estar de vuelta en la pantalla de entrada. */
+export async function logout(page: Page) {
+  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await page.waitForURL(/\/login$/);
+}
+
 /** Sin desplazamiento lateral: la página cabe en el ancho de la ventana (móvil primero). */
 export async function expectNoHorizontalOverflow(page: Page) {
   const wide = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
@@ -49,4 +55,14 @@ export async function seedBusiness(name: string, branches: string[]) {
   const { business } = await call("/api/businesses", { name, firstBranchName: branches[0] });
   for (const branch of branches.slice(1)) await call(`/api/businesses/${business.id}/branches`, { name: branch });
   return business as { id: string; name: string; branches: { id: string; name: string }[] };
+}
+
+/** Da de alta a un administrador con sus sucursales y le deja una contraseña definitiva. */
+export async function seedAdmin(name: string, email: string, branchIds: string[], password: string) {
+  const call = await ownerApi();
+  const { temporaryPassword } = await call("/api/people", { name, email, role: "admin", branchIds });
+  const res = await fetch(`${BASE}/api/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password: temporaryPassword }) });
+  const cookie = res.headers.get("set-cookie")?.split(",").map((c) => c.split(";")[0].trim()).join("; ") ?? "";
+  await fetch(`${BASE}/api/auth/password`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ currentPassword: temporaryPassword, newPassword: password }) });
+  await fetch(`${BASE}/api/auth/logout`, { method: "POST", headers: { cookie } });
 }

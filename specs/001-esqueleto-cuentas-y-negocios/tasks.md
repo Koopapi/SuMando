@@ -161,23 +161,23 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 5 — Sucursal activa e inicio
 
-- [ ] **T26 — Resolución de la sucursal activa**
+- [x] **T26 — Resolución de la sucursal activa**
   - RF: RF-32, RF-33, RF-34, RF-36, RF-38
   - Depende de: T23
   - Hecho cuando: `domain/access/active-branch.ts` (`resolveActiveBranch` → `keep` / `remembered` / `only` /
     `choose` / `none`) con tests unitarios de cada rama, incluidas sucursal archivada y acceso perdido.
-- [ ] **T27 — Servicio de sucursal activa**
+- [x] **T27 — Servicio de sucursal activa**
   - RF: RF-32 a RF-38
   - Depende de: T26, T22
   - Hecho cuando: `services/active-branch` (`selectBranch` escribe en sesión y en `users.last_branch_id`,
     `requireBranch()` resuelve en cada petición); tests de integración: tras reasignar, la siguiente petición pide
     elegir; con una sola sucursal se activa sola; recordada entre entradas.
-- [ ] **T28 — Elegir sucursal**
+- [x] **T28 — Elegir sucursal**
   - RF: RF-32, RF-33, RF-36, RF-38
   - Depende de: T7, T27
   - Hecho cuando: `PUT /api/session/branch` y `/elegir-sucursal` agrupada por negocio; aviso «pide al dueño que te
     asigne una sucursal» cuando no hay ninguna; E2E con pasos «RF-32», «RF-33», «RF-36», «RF-38» en verde.
-- [ ] **T29 — Estructura de la aplicación y pantalla de inicio**
+- [x] **T29 — Estructura de la aplicación y pantalla de inicio**
   - RF: RF-35, RF-41
   - Depende de: T28
   - Hecho cuando: barra superior con negocio y sucursal activa y selector que cambia en dos toques desde
