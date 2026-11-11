@@ -1,0 +1,13 @@
+node_modules/
+.next*/
+.env
+.env.*
+!.env.example
+var/
+test-results/
+playwright-report/
+coverage/
+*.tsbuildinfo
+.DS_Store
+# Material del cliente con nombres de personas reales: se queda fuera del repo.
+Referencias/
