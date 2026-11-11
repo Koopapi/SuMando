@@ -5,47 +5,47 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 1 — Esqueleto técnico
 
-- [ ] **T1 — Monorepo y aplicación vacía**
+- [x] **T1 — Monorepo y aplicación vacía**
   - RF: NF (stack)
   - Depende de: —
   - Hecho cuando: `pnpm-workspace.yaml`, `apps/web` con Next 16, TypeScript estricto, Tailwind 4, `next.config.ts`
     (`distDir` por variable, `output: "standalone"`, cabeceras de seguridad), `.env.example`; `pnpm dev --port 3400`
     sirve una página con el texto «Mando», y `pnpm lint` y `pnpm typecheck` pasan.
-- [ ] **T2 — Esquema y migración inicial**
+- [x] **T2 — Esquema y migración inicial**
   - RF: modelo de datos (sección 2 del plan)
   - Depende de: T1
   - Hecho cuando: `src/db/schema.ts` con las seis tablas, `drizzle.config.ts`, `pnpm db:generate --name esqueleto`
     produce `drizzle/0000_esqueleto.sql` y `pnpm db:migrate` la aplica en `mando_dev` (las seis tablas existen en `psql`).
-- [ ] **T3 — Vitest: unidad e integración con BD recreada**
+- [x] **T3 — Vitest: unidad e integración con BD recreada**
   - RF: NF (tests)
   - Depende de: T2
   - Hecho cuando: `vitest.config.ts` con proyectos `unit` y `integration`; `tests/integration/global-setup.ts`
     recrea `mando_test` y migra; un test de integración comprueba que existen las seis tablas; `pnpm test` en verde.
-- [ ] **T4 — Playwright contra la versión compilada**
+- [x] **T4 — Playwright contra la versión compilada**
   - RF: NF (tests)
   - Depende de: T1, T2
   - Hecho cuando: `playwright.config.ts` (puerto 3500, `.next-e2e`, BD `mando_e2e`, proyectos `warmup`,
     `chromium-desktop`, `pixel-7`, `iphone-14`), `e2e/reset-db.mjs`, `e2e/fixtures.ts` (vacía las tablas antes de
     cada test), `e2e/warm.ts`; un E2E trivial abre `/` y `pnpm exec playwright test --project=chromium-desktop` pasa.
-- [ ] **T5 — Diccionario en español y errores de aplicación**
+- [x] **T5 — Diccionario en español y errores de aplicación**
   - RF: NF idioma
   - Depende de: T1
   - Hecho cuando: `src/i18n/es/*.ts` tipado con `t()`; `AppError(code, params)` en `src/server/errors.ts` con su
     traducción; `src/i18n/i18n.test.ts` falla si hay texto en español fuera del diccionario o un código sin
     mensaje; `pnpm test` en verde.
-- [ ] **T6 — Puertos y adaptadores: reloj, hasher, aleatorio y reloj de pruebas**
+- [x] **T6 — Puertos y adaptadores: reloj, hasher, aleatorio y reloj de pruebas**
   - RF: transversal (RF-6, RF-7, RF-11)
   - Depende de: T3
   - Hecho cuando: `server/ports/{clock,password-hasher,random}.ts`; adaptadores reales (`now()` con desfase,
     Argon2id, `node:crypto`) y falsos para tests; `POST/DELETE /api/dev/clock` solo con `DEV_ENDPOINTS=1`
     (404 si no); tests `test_s001_rf7_reloj_de_pruebas_adelanta_y_vuelve` y del 404 en verde.
-- [ ] **T7 — Componentes base y tokens**
+- [x] **T7 — Componentes base y tokens**
   - RF: NF móvil primero
   - Depende de: T1, T5
   - Hecho cuando: `src/ui/tokens.css` y componentes `Button`, `TextField`, `PasswordField`, `Alert`, `Card`,
     `PageShell`, `Dialog`, `EmptyState` con nombre accesible y estados (cargando, error); una página `/sistema`
     (solo con `DEV_ENDPOINTS=1`) los muestra; `pnpm typecheck` y `pnpm lint` pasan.
-- [ ] **T8 — Comandos anotados**
+- [x] **T8 — Comandos anotados**
   - RF: proceso
   - Depende de: T3, T4
   - Hecho cuando: `AGENTS.md` (sección Comandos) y `apps/web/README.md` describen los comandos reales, los puertos,

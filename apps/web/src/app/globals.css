@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "../ui/tokens.css";
+
+html {
+  color: var(--color-ink);
+  background: var(--color-surface);
+  -webkit-text-size-adjust: 100%;
+}

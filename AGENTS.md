@@ -17,12 +17,24 @@ el VPS propio.
 6. **Pull request** a `pruebas`; el dueño revisa, prueba y mergea.
 
 ## Comandos
-Se definen en la spec 001 (esqueleto) y se anotan aquí en la misma tarea. Previstos, desde `apps/web`:
-- `pnpm dev`, `pnpm typecheck`, `pnpm lint`
-- `pnpm test` (Vitest: `unit` en `src/**/*.test.ts` e `integration` en `tests/integration`, con BD propia que se recrea)
-- `pnpm e2e` (Playwright contra la versión compilada, con BD propia que se recrea)
-- `pnpm db:generate --name <nombre>` y `pnpm db:migrate`
-- `node ../../scripts/rf-coverage.mjs ../../specs/NNN-nombre`
+Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew: `pg_ctl -D /opt/homebrew/var/postgresql@16 start`):
+- `pnpm dev` (puerto 3400; `.env.local` se copia de `.env.example` y apunta a la BD `mando_dev`), `pnpm typecheck`, `pnpm lint`
+- `pnpm test` (Vitest: proyecto `unit` en `src/**/*.test.ts` y `integration` en `tests/integration`, que recrea la BD
+  `mando_test` y aplica las migraciones en cada ejecución)
+- `pnpm e2e` (compila en `.next-e2e` y corre Playwright contra `next start` en el puerto 3500 con la BD `mando_e2e`,
+  que se recrea; proyectos `chromium-desktop`, `pixel-7` e `iphone-14` tras un paso `warmup`). `pnpm e2e:desktop` solo
+  escritorio. Un proyecto suelto, con la compilación ya hecha: `pnpm exec playwright test --project=iphone-14`.
+  Cada test empieza con la BD vacía (`e2e/fixtures.ts`) y el reloj de pruebas en la hora real.
+- `pnpm db:generate --name <nombre>` y `pnpm db:migrate` (sobre `mando_dev`; `DATABASE_URL` para otra)
+- `node ../../scripts/rf-coverage.mjs ../../specs/NNN-nombre` (escribe `validation.md`)
+- Reloj de pruebas: `POST /api/dev/clock {"advanceHours": 2}` adelanta la hora del servidor y `DELETE` la devuelve;
+  solo con `DEV_ENDPOINTS=1` (desarrollo y E2E; nunca en producción). Usa `now()` de `src/server/clock.ts`, nunca
+  `new Date()`, en todo lo que dependa de la hora; los servicios reciben el reloj como puerto (`src/server/ports`).
+- `/sistema`: catálogo mínimo de componentes base (`src/ui`), solo con `DEV_ENDPOINTS=1`.
+- Textos de la interfaz: nunca literales en componentes; van en `src/i18n/es/<área>.ts`. Errores de negocio:
+  `new AppError("codigo", params)` (`src/server/errors.ts`) con su mensaje en `src/i18n/es/errors.ts`;
+  `src/i18n/i18n.test.ts` falla si hay texto suelto o un código sin mensaje.
+- Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones
 - TypeScript estricto. Server Components por defecto; `"use client"` solo donde hay interacción.

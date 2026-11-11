@@ -28,11 +28,26 @@ apps/web/src/
 `domain/` no importa nada del resto; `services/` importa `domain/` y `ports/`. Los tests unitarios inyectan un
 reloj falso, y en desarrollo un endpoint de pruebas permite adelantar la hora (periodos de nómina, vencimientos).
 
+Lo construido en la spec 001:
+
+- **Puertos** (`server/ports`): `Clock`, `PasswordHasher`, `RandomSource`, agrupados en `Ports`; los adaptadores
+  reales están en `server/adapters` (`ports`) y los falsos en `tests/fakes` (`fakePorts()`). Un servicio recibe
+  `Ports` como argumento; nunca llama a `new Date()` ni a `crypto` directamente.
+- **Hora**: `now()` de `server/clock.ts`. Con `DEV_ENDPOINTS=1`, `POST /api/dev/clock` suma un desfase y `DELETE`
+  lo quita; sin esa variable el desfase es 0 y las rutas `/api/dev/*` responden 404.
+- **Errores**: `AppError(code, params)` (`server/errors.ts`) con estado HTTP por código y mensaje del diccionario.
+  Los handlers se envuelven con `handler()` de `server/http.ts`, que responde `{ error: { code, message, params? } }`
+  y valida el cuerpo con `readJson(request, schema)` (zod, máximo 16 KB).
+- **Textos**: diccionario `src/i18n/es/*.ts`; `i18n.test.ts` falla ante texto suelto en `app/`, `features/` o `ui/`.
+- **Componentes base** (`src/ui`): botón, campo de texto y de contraseña, aviso, tarjeta, estructura de página,
+  diálogo y estado vacío, con `tokens.css` (Tailwind 4 `@theme`). La spec 002 los formaliza.
+
 ## Varios negocios
 
 - Cada tabla de negocio lleva `business_id`. Los repositorios reciben el negocio activo y filtran siempre por él;
   un test de integración por spec comprueba que un negocio no ve datos de otro.
-- Una persona tiene una membresía por negocio, con su rol. El permiso se comprueba en el servicio, no en la página.
+- Una persona tiene un rol global (dueño o administrador) y, si es administrador, una membresía por sucursal
+  (spec 001). El permiso se comprueba en el servicio, no en la página.
 - Lo que cruza negocios (traspasos, reportes consolidados) es un caso de uso explícito con su propio permiso.
 
 ## Auditoría
@@ -54,6 +69,9 @@ corrigen con otro movimiento. Cada cambio guarda autor, fecha, negocio y valores
   retiene memoria, recompila rutas en frío y remonta componentes, y eso produjo fallos intermitentes en la CI.
 - Un paso de calentamiento antes de los E2E; cada test empieza con la BD vacía y siembra sus datos con los mismos
   servicios de la app (endpoint de desarrollo), no recorriendo pantallas.
+- Tres bases de datos locales: `mando_dev` (desarrollo), `mando_test` (Vitest, recreada en cada ejecución) y
+  `mando_e2e` (Playwright, recreada antes de arrancar). Puertos 3400 (desarrollo) y 3500 (E2E), distintos de los
+  de Waifu Baker para poder tener los dos proyectos abiertos.
 - En la Mac la suite completa en todos los dispositivos la satura: en el día a día se corre escritorio y las E2E
   afectadas; la suite completa, al cerrar una spec o en la CI.
 - Validación RF por RF con `scripts/rf-coverage.mjs`: tests `test_sNNN_rfN_*` y pasos de E2E «RF-N».

@@ -1,0 +1,19 @@
+// Mensajes de los códigos de error de la aplicación (plan 001, sección 4). Cada código de `AppError` debe estar aquí.
+export const errors = {
+  validation: "Revisa los datos: hay un campo inválido.",
+  unauthorized: "Tu sesión no es válida. Entra de nuevo.",
+  forbidden: "No tienes permiso para esta acción.",
+  not_found: "No encontramos lo que buscas.",
+  dev_only: "Esta ruta no existe.",
+  setup_done: "La cuenta del dueño ya existe.",
+  invalid_credentials: "Correo o contraseña incorrectos.",
+  account_locked: (p: { minutes: number }) => `Demasiados intentos. Espera ${p.minutes} ${p.minutes === 1 ? "minuto" : "minutos"} para volver a intentar.`,
+  password_too_short: (p: { min: number }) => `La contraseña debe tener al menos ${p.min} caracteres.`,
+  password_mismatch: "La contraseña actual no coincide.",
+  password_change_required: "Tienes que cambiar tu contraseña temporal antes de continuar.",
+  name_invalid: (p: { max: number }) => `El nombre no puede estar vacío ni pasar de ${p.max} caracteres.`,
+  duplicate_name: "Ya existe uno con ese nombre.",
+  duplicate_email: "Ese correo ya está registrado.",
+  last_owner: "No se puede: el sistema se quedaría sin ningún dueño activo.",
+  no_branch: "No tienes ninguna sucursal asignada. Pide al dueño que te asigne una.",
+} as const;
