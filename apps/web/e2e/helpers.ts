@@ -19,6 +19,8 @@ export async function login(page: Page, email: string, password: string) {
   await page.getByLabel("Correo").fill(email);
   await page.getByLabel("Contraseña", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();
+  // Espera a que la entrada termine (bien o mal) antes de seguir: o cambia la URL o aparece el aviso.
+  await Promise.race([page.waitForURL((u) => !u.pathname.endsWith("/login")), alertBox(page).waitFor()]);
 }
 
 /** Sin desplazamiento lateral: la página cabe en el ancho de la ventana (móvil primero). */

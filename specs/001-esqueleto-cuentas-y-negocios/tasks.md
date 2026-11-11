@@ -98,29 +98,29 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 3 — Negocios y sucursales
 
-- [ ] **T16 — Registro de cambios**
+- [x] **T16 — Registro de cambios**
   - RF: RF-42
   - Depende de: T6
   - Hecho cuando: `services/audit` escribe `audit_log` dentro de la transacción del cambio (autor, fecha, antes y
     después sin hashes); test de integración: un cambio que falla no deja fila; un alta deja `before = null`.
-- [ ] **T17 — Servicio de negocios y sucursales: alta y renombrar**
+- [x] **T17 — Servicio de negocios y sucursales: alta y renombrar**
   - RF: RF-17, RF-18, RF-19, RF-20
   - Depende de: T9, T16
   - Hecho cuando: `services/businesses` (`createBusiness` con primera sucursal, `addBranch`, `renameBusiness`,
     `renameBranch`) con tests de integración: duplicados ignorando mayúsculas y espacios (negocio global, sucursal
     por negocio), «Centro» en dos negocios distintos permitido, nombre vacío o de 61 caracteres rechazado, auditoría.
-- [ ] **T18 — Archivar y reactivar**
+- [x] **T18 — Archivar y reactivar**
   - RF: RF-21, RF-22
   - Depende de: T17
   - Hecho cuando: `archiveBusiness` (archiva sus sucursales), `archiveBranch`, `reactivateBusiness`,
     `reactivateBranch`; nada se borra; tests de integración en verde.
-- [ ] **T19 — Handlers de negocios y sucursales con guardia de dueño**
+- [x] **T19 — Handlers de negocios y sucursales con guardia de dueño**
   - RF: RF-17 a RF-22, RF-31
   - Depende de: T14, T18
   - Hecho cuando: rutas `GET/POST /api/businesses`, `PATCH /api/businesses/[id]`, `archive`, `reactivate`,
     `POST /api/businesses/[id]/branches`, `PATCH /api/branches/[id]`, `archive`, `reactivate`; `requireOwner()` en
     cada una; test de integración: un administrador recibe `forbidden` en todas aunque llame directo.
-- [ ] **T20 — Pantalla de negocios**
+- [x] **T20 — Pantalla de negocios**
   - RF: RF-17, RF-18, RF-21, RF-22
   - Depende de: T7, T19
   - Hecho cuando: `/negocios` lista negocios con sus sucursales (archivados aparte), crea negocio con primera

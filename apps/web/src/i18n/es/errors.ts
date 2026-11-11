@@ -16,4 +16,5 @@ export const errors = {
   duplicate_email: "Ese correo ya está registrado.",
   last_owner: "No se puede: el sistema se quedaría sin ningún dueño activo.",
   no_branch: "No tienes ninguna sucursal asignada. Pide al dueño que te asigne una.",
+  business_archived: "El negocio está archivado. Reactívalo primero.",
 } as const;

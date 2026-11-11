@@ -1,8 +1,8 @@
 // Implementación con Drizzle de los repositorios (`server/ports/repos.ts`).
-import { and, count, desc, eq, isNull, ne, sql } from "drizzle-orm";
-import { auditLog, sessions, users } from "@/db/schema";
+import { and, count, desc, eq, isNotNull, isNull, ne, sql } from "drizzle-orm";
+import { auditLog, branches, businesses, sessions, users } from "@/db/schema";
 import type { Db, DbOrTx } from "@/db/client";
-import type { AuditRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
+import type { AuditRepo, BranchesRepo, BusinessesRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
 
 function usersRepo(db: DbOrTx): UsersRepo {
   return {
@@ -30,6 +30,29 @@ function sessionsRepo(db: DbOrTx): SessionsRepo {
   };
 }
 
+function businessesRepo(db: DbOrTx): BusinessesRepo {
+  return {
+    list: () => db.select().from(businesses).orderBy(businesses.name),
+    findById: async (id) => (await db.select().from(businesses).where(eq(businesses.id, id)).limit(1))[0] ?? null,
+    findByNameKey: async (nameKey) => (await db.select().from(businesses).where(eq(businesses.nameKey, nameKey)).limit(1))[0] ?? null,
+    insert: async (data) => (await db.insert(businesses).values({ ...data, updatedAt: data.createdAt }).returning())[0],
+    update: async (id, patch) => (await db.update(businesses).set(patch).where(eq(businesses.id, id)).returning())[0],
+  };
+}
+
+function branchesRepo(db: DbOrTx): BranchesRepo {
+  return {
+    listAll: () => db.select().from(branches).orderBy(branches.name),
+    listByBusiness: (businessId) => db.select().from(branches).where(eq(branches.businessId, businessId)).orderBy(branches.name),
+    findById: async (id) => (await db.select().from(branches).where(eq(branches.id, id)).limit(1))[0] ?? null,
+    findByNameKey: async (businessId, nameKey) => (await db.select().from(branches).where(and(eq(branches.businessId, businessId), eq(branches.nameKey, nameKey))).limit(1))[0] ?? null,
+    insert: async (data) => (await db.insert(branches).values({ ...data, updatedAt: data.createdAt }).returning())[0],
+    update: async (id, patch) => (await db.update(branches).set(patch).where(eq(branches.id, id)).returning())[0],
+    archiveByBusiness: (businessId, at) => db.update(branches).set({ archivedAt: at, updatedAt: at }).where(and(eq(branches.businessId, businessId), isNull(branches.archivedAt))).returning(),
+    reactivateByBusiness: (businessId, at) => db.update(branches).set({ archivedAt: null, updatedAt: at }).where(and(eq(branches.businessId, businessId), isNotNull(branches.archivedAt))).returning(),
+  };
+}
+
 function auditRepo(db: DbOrTx): AuditRepo {
   return {
     insert: async (entry) => {
@@ -39,7 +62,7 @@ function auditRepo(db: DbOrTx): AuditRepo {
 }
 
 export function makeRepos(db: DbOrTx): Repos {
-  return { users: usersRepo(db), sessions: sessionsRepo(db), audit: auditRepo(db) };
+  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), audit: auditRepo(db) };
 }
 
 export function drizzleStore(db: Db): Store {

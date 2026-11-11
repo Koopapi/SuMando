@@ -18,6 +18,7 @@ const STATUS: Record<ErrorCode, number> = {
   duplicate_email: 409,
   last_owner: 409,
   no_branch: 409,
+  business_archived: 409,
 };
 
 export class AppError extends Error {

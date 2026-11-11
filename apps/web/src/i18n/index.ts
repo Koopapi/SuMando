@@ -1,12 +1,13 @@
 // Textos de la interfaz, solo en español (constitución, principio 11). Ningún componente escribe texto suelto:
 // `src/i18n/i18n.test.ts` lo comprueba.
 import { auth } from "./es/auth";
+import { businesses } from "./es/businesses";
 import { common } from "./es/common";
 import { errors } from "./es/errors";
 import { home } from "./es/home";
 import { system } from "./es/system";
 
-export const es = { auth, common, errors, home, system } as const;
+export const es = { auth, businesses, common, errors, home, system } as const;
 export type Dictionary = typeof es;
 export type ErrorCode = keyof typeof errors;
 

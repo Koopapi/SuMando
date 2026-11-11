@@ -1,5 +1,5 @@
 // Repositorios como puertos: los servicios hablan con estas interfaces; `server/adapters/drizzle` las implementa.
-import type { Session, User, UserRole } from "@/db/schema";
+import type { Branch, Business, Session, User, UserRole } from "@/db/schema";
 
 export type NewUser = {
   name: string;
@@ -58,9 +58,38 @@ export interface AuditRepo {
   insert(entry: NewAudit): Promise<void>;
 }
 
+export type NewBusiness = { name: string; nameKey: string; createdBy: string | null; createdAt: Date };
+export type BusinessPatch = Partial<Pick<Business, "name" | "nameKey" | "archivedAt">> & { updatedAt: Date };
+
+export interface BusinessesRepo {
+  list(): Promise<Business[]>;
+  findById(id: string): Promise<Business | null>;
+  findByNameKey(nameKey: string): Promise<Business | null>;
+  insert(data: NewBusiness): Promise<Business>;
+  update(id: string, patch: BusinessPatch): Promise<Business>;
+}
+
+export type NewBranch = { businessId: string; name: string; nameKey: string; createdBy: string | null; createdAt: Date };
+export type BranchPatch = Partial<Pick<Branch, "name" | "nameKey" | "archivedAt">> & { updatedAt: Date };
+
+export interface BranchesRepo {
+  listAll(): Promise<Branch[]>;
+  listByBusiness(businessId: string): Promise<Branch[]>;
+  findById(id: string): Promise<Branch | null>;
+  findByNameKey(businessId: string, nameKey: string): Promise<Branch | null>;
+  insert(data: NewBranch): Promise<Branch>;
+  update(id: string, patch: BranchPatch): Promise<Branch>;
+  /** Archiva las sucursales activas del negocio; devuelve las afectadas. */
+  archiveByBusiness(businessId: string, at: Date): Promise<Branch[]>;
+  /** Reactiva las sucursales archivadas del negocio; devuelve las afectadas. */
+  reactivateByBusiness(businessId: string, at: Date): Promise<Branch[]>;
+}
+
 export interface Repos {
   users: UsersRepo;
   sessions: SessionsRepo;
+  businesses: BusinessesRepo;
+  branches: BranchesRepo;
   audit: AuditRepo;
 }
 
