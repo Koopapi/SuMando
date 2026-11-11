@@ -53,43 +53,43 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 2 — Primer arranque y sesión
 
-- [ ] **T9 — Reglas puras de texto y contraseñas**
+- [x] **T9 — Reglas puras de texto y contraseñas**
   - RF: RF-6, RF-7, RF-9, RF-10, RF-11, RF-19, RF-20
   - Depende de: T6
   - Hecho cuando: `domain/text` (normalizar correo y nombre, clave de unicidad, límites) y `domain/auth` (política
     de 8 caracteres, temporal de 10 sin ambiguos, bloqueo 5 → 15 min, caducidad 30 días) con tests unitarios
     `test_s001_rf6_*`, `rf7_*`, `rf9_*`, `rf10_*`, `rf11_*`, `rf19_*`, `rf20_*` en verde.
-- [ ] **T10 — Servicio de primer arranque**
+- [x] **T10 — Servicio de primer arranque**
   - RF: RF-1, RF-2, RF-3
   - Depende de: T9
   - Hecho cuando: `services/setup` (`isSetupNeeded`, `createFirstOwner`) con tests de integración: crea al dueño
     con hash y rol `owner`; con una cuenta existente responde `setup_done`; dos peticiones simultáneas solo crean una.
-- [ ] **T11 — Servicio de entrada y sesiones**
+- [x] **T11 — Servicio de entrada y sesiones**
   - RF: RF-4, RF-5, RF-6, RF-7, RF-8, RF-9
   - Depende de: T10
   - Hecho cuando: `services/auth` (`login`, `logout`, repositorio de sesiones con hash de token) con tests de
     integración: entra con correo en mayúsculas; mismo mensaje para correo inexistente, contraseña mala y cuenta
     inactiva; 5 fallos bloquean 15 min aunque la sexta sea correcta y el reloj falso desbloquea; sesión caduca a los
     30 días sin uso y se desliza con uso; `logout` solo revoca esa sesión.
-- [ ] **T12 — Sesión en cada petición y redirecciones**
+- [x] **T12 — Sesión en cada petición y redirecciones**
   - RF: RF-4, RF-7, RF-12
   - Depende de: T11
   - Hecho cuando: `requireSession()` (cookie → sesión válida → usuario activo, deslizamiento si pasó una hora) y
     `proxy.ts` (sin cuentas → `/setup`; sin sesión → `/login`; con temporal → `/cambiar-contrasena`); con
     `must_change_password` cualquier otra API responde `password_change_required`; tests de integración en verde.
-- [ ] **T13 — Cambio y restablecimiento de contraseña**
+- [x] **T13 — Cambio y restablecimiento de contraseña**
   - RF: RF-13, RF-14, RF-15, RF-16
   - Depende de: T11
   - Hecho cuando: `changePassword` (actual + nueva; `password_mismatch`; quita `must_change_password`) y
     `resetPassword` (temporal nueva, revoca todas las sesiones de la persona, exige cambio) con tests de integración
     `test_s001_rf13_*`, `rf14_*`, `rf15_*`, `rf16_*` en verde.
-- [ ] **T14 — Handlers de arranque, entrada, salida y contraseña**
+- [x] **T14 — Handlers de arranque, entrada, salida y contraseña**
   - RF: RF-1 a RF-8, RF-10, RF-12 a RF-16
   - Depende de: T12, T13
   - Hecho cuando: `GET/POST /api/setup`, `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/password`,
     `GET /api/me` con zod, cookie y códigos del contrato; tests de integración que llaman a los handlers con `Request`
     (incluido el `423` con minutos y el `422` de validación).
-- [ ] **T15 — Pantallas de arranque, entrada y cambio de contraseña**
+- [x] **T15 — Pantallas de arranque, entrada y cambio de contraseña**
   - RF: RF-1, RF-2, RF-4, RF-5, RF-8, RF-12, RF-13
   - Depende de: T7, T14
   - Hecho cuando: `/setup`, `/login`, `/cambiar-contrasena` con `features/auth`; E2E `e2e/acceso.spec.ts` con

@@ -1,0 +1,18 @@
+// RF-42: cada alta, cambio, archivo, reactivación, desactivación y restablecimiento deja quién, cuándo y el valor
+// anterior. Se escribe con los mismos repositorios de la transacción del cambio, así nunca queda a medias.
+import type { AuditRepo } from "../ports/repos";
+
+export interface AuditInput {
+  actorId: string | null;
+  action: string;
+  entityType: "user" | "business" | "branch" | "membership";
+  entityId: string;
+  businessId?: string | null;
+  branchId?: string | null;
+  before?: unknown;
+  after?: unknown;
+}
+
+export function recordAudit(audit: AuditRepo, now: Date, input: AuditInput) {
+  return audit.insert({ ...input, createdAt: now });
+}

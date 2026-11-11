@@ -26,10 +26,13 @@ function stripComments(src: string) {
 const SPANISH = /[áéíóúñÁÉÍÓÚÑ¿¡]/;
 const TEXT_ATTRS = /\b(placeholder|aria-label|title|alt|label|aria-description)="([^"]*[A-Za-zÁ-ú][^"]*)"/g;
 
-/** Texto visible escrito directamente en un .tsx: dos o más palabras entre etiquetas, o un atributo de texto. */
+/**
+ * Texto visible escrito directamente en un .tsx: dos o más palabras antes de una etiqueta de cierre, o un atributo
+ * de texto. El cierre `</` evita confundir genéricos (`useState<string | null>(null)`) y flechas (`=>`) con texto.
+ */
 function looseText(src: string): string[] {
   const out: string[] = [];
-  for (const m of stripComments(src).matchAll(/>([^<>{}]+)</g)) {
+  for (const m of stripComments(src).matchAll(/(?<!=)>([^<>{}]+)<\//g)) {
     const t = m[1].trim();
     if (t && (/\s/.test(t) || SPANISH.test(t))) out.push(t);
   }
