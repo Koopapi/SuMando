@@ -1,5 +1,5 @@
 // Repositorios como puertos: los servicios hablan con estas interfaces; `server/adapters/drizzle` las implementa.
-import type { Branch, Business, Session, User, UserRole } from "@/db/schema";
+import type { Branch, Business, Membership, Session, User, UserRole } from "@/db/schema";
 
 export type NewUser = {
   name: string;
@@ -85,11 +85,19 @@ export interface BranchesRepo {
   reactivateByBusiness(businessId: string, at: Date): Promise<Branch[]>;
 }
 
+export interface MembershipsRepo {
+  listAll(): Promise<Membership[]>;
+  listByUser(userId: string): Promise<Membership[]>;
+  /** Deja a la persona exactamente con esas sucursales; devuelve qué se añadió y qué se quitó. */
+  replaceForUser(userId: string, branchIds: string[], meta: { createdBy: string | null; createdAt: Date }): Promise<{ added: string[]; removed: string[] }>;
+}
+
 export interface Repos {
   users: UsersRepo;
   sessions: SessionsRepo;
   businesses: BusinessesRepo;
   branches: BranchesRepo;
+  memberships: MembershipsRepo;
   audit: AuditRepo;
 }
 

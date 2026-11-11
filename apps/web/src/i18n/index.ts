@@ -5,9 +5,10 @@ import { businesses } from "./es/businesses";
 import { common } from "./es/common";
 import { errors } from "./es/errors";
 import { home } from "./es/home";
+import { people } from "./es/people";
 import { system } from "./es/system";
 
-export const es = { auth, businesses, common, errors, home, system } as const;
+export const es = { auth, businesses, common, errors, home, people, system } as const;
 export type Dictionary = typeof es;
 export type ErrorCode = keyof typeof errors;
 

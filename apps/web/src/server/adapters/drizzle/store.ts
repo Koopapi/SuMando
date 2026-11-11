@@ -1,8 +1,8 @@
 // Implementación con Drizzle de los repositorios (`server/ports/repos.ts`).
-import { and, count, desc, eq, isNotNull, isNull, ne, sql } from "drizzle-orm";
-import { auditLog, branches, businesses, sessions, users } from "@/db/schema";
+import { and, count, desc, eq, inArray, isNotNull, isNull, ne, sql } from "drizzle-orm";
+import { auditLog, branches, businesses, memberships, sessions, users } from "@/db/schema";
 import type { Db, DbOrTx } from "@/db/client";
-import type { AuditRepo, BranchesRepo, BusinessesRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
+import type { AuditRepo, BranchesRepo, BusinessesRepo, MembershipsRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
 
 function usersRepo(db: DbOrTx): UsersRepo {
   return {
@@ -53,6 +53,22 @@ function branchesRepo(db: DbOrTx): BranchesRepo {
   };
 }
 
+function membershipsRepo(db: DbOrTx): MembershipsRepo {
+  return {
+    listAll: () => db.select().from(memberships),
+    listByUser: (userId) => db.select().from(memberships).where(eq(memberships.userId, userId)),
+    replaceForUser: async (userId, branchIds, meta) => {
+      const current = (await db.select().from(memberships).where(eq(memberships.userId, userId))).map((m) => m.branchId);
+      const wanted = [...new Set(branchIds)];
+      const removed = current.filter((id) => !wanted.includes(id));
+      const added = wanted.filter((id) => !current.includes(id));
+      if (removed.length) await db.delete(memberships).where(and(eq(memberships.userId, userId), inArray(memberships.branchId, removed)));
+      if (added.length) await db.insert(memberships).values(added.map((branchId) => ({ userId, branchId, role: "admin" as const, createdBy: meta.createdBy, createdAt: meta.createdAt })));
+      return { added, removed };
+    },
+  };
+}
+
 function auditRepo(db: DbOrTx): AuditRepo {
   return {
     insert: async (entry) => {
@@ -62,7 +78,7 @@ function auditRepo(db: DbOrTx): AuditRepo {
 }
 
 export function makeRepos(db: DbOrTx): Repos {
-  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), audit: auditRepo(db) };
+  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db) };
 }
 
 export function drizzleStore(db: Db): Store {

@@ -1,16 +1,12 @@
 import type { RandomSource } from "@/server/ports/random";
 
-/** Aleatorio predecible: devuelve bytes e índices en secuencia. */
+/** Aleatorio predecible: un contador que no se repite, así dos contraseñas temporales seguidas salen distintas. */
 export class FakeRandom implements RandomSource {
-  private i = 0;
-  constructor(private readonly seq: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {}
+  private n = 0;
   bytes(length: number) {
-    return Uint8Array.from({ length }, () => this.next() & 0xff);
+    return Uint8Array.from({ length }, () => this.n++ & 0xff);
   }
   int(maxExclusive: number) {
-    return this.next() % maxExclusive;
-  }
-  private next() {
-    return this.seq[this.i++ % this.seq.length];
+    return this.n++ % maxExclusive;
   }
 }

@@ -129,30 +129,30 @@ desde `pruebas`; al cerrar, pull request a `pruebas`.
 
 ## Entrega 4 — Personas y accesos
 
-- [ ] **T21 — Servicio de personas: alta, rol y sucursales**
+- [x] **T21 — Servicio de personas: alta, rol y sucursales**
   - RF: RF-11, RF-23, RF-24, RF-25, RF-26, RF-27
   - Depende de: T13, T16, T18
   - Hecho cuando: `services/people` (`createPerson` devuelve la temporal una sola vez, `updatePerson` cambia rol y
     sucursales) con tests de integración: correo duplicado (activo o inactivo) rechazado; la temporal no queda en
     claro en BD; un dueño accede a una sucursal creada después sin membresía.
-- [ ] **T22 — Desactivar, reactivar, restablecer y último dueño**
+- [x] **T22 — Desactivar, reactivar, restablecer y último dueño**
   - RF: RF-14, RF-28, RF-29, RF-30
   - Depende de: T21
   - Hecho cuando: `deactivatePerson` (revoca sesiones, rechaza entrada, conserva nombre), `reactivatePerson`
     (temporal nueva, conserva rol y sucursales), `resetPassword`; `last_owner` al desactivar o degradar al único
     dueño activo; tests de integración en verde.
-- [ ] **T23 — Reglas de acceso y test de aislamiento**
+- [x] **T23 — Reglas de acceso y test de aislamiento**
   - RF: RF-25, RF-26, RF-31, RF-37
   - Depende de: T21
   - Hecho cuando: `domain/access` (`canAccessBranch`, `isOwnerAction`, `lastOwnerGuard`) con tests unitarios;
     `requireBranchAccess()` responde `not_found` igual para sucursal ajena e inexistente; test de integración
     `test_s001_rf37_un_administrador_no_ve_sucursales_ajenas` en verde.
-- [ ] **T24 — Handlers de personas**
+- [x] **T24 — Handlers de personas**
   - RF: RF-23 a RF-31
   - Depende de: T19, T22, T23
   - Hecho cuando: `GET/POST /api/people`, `PATCH /api/people/[id]`, `deactivate`, `reactivate`, `reset-password`
     con `requireOwner()`; tests de integración con `Request` (incluidos `duplicate_email`, `last_owner`, `forbidden`).
-- [ ] **T25 — Pantalla de personas**
+- [x] **T25 — Pantalla de personas**
   - RF: RF-11, RF-23, RF-25, RF-27, RF-28, RF-29
   - Depende de: T7, T24
   - Hecho cuando: `/personas` lista personas con rol, estado y sucursales; alta con casillas de sucursales por

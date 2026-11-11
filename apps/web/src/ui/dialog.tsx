@@ -31,7 +31,7 @@ export function Dialog({ open, title, onClose, children }: { open: boolean; titl
             ×
           </button>
         </div>
-        {children}
+        {open ? children : null}
       </div>
     </dialog>
   );

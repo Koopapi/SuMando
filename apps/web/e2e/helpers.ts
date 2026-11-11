@@ -33,3 +33,20 @@ export async function expectNoHorizontalOverflow(page: Page) {
 export function alertBox(page: Page) {
   return page.getByRole("alert").filter({ hasText: /\S/ });
 }
+
+/** Peticiones a la API con la sesión del dueño (para sembrar datos sin recorrer pantallas). */
+export async function ownerApi() {
+  const res = await fetch(`${BASE}/api/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: OWNER.email, password: OWNER.password }) });
+  const cookie = res.headers.get("set-cookie")?.split(",").map((c) => c.split(";")[0].trim()).join("; ") ?? "";
+  return async (path: string, body?: unknown, method = body === undefined ? "GET" : "POST") => {
+    const r = await fetch(`${BASE}${path}`, { method, headers: { "content-type": "application/json", cookie }, body: body === undefined ? undefined : JSON.stringify(body) });
+    return r.status === 204 ? null : r.json();
+  };
+}
+
+export async function seedBusiness(name: string, branches: string[]) {
+  const call = await ownerApi();
+  const { business } = await call("/api/businesses", { name, firstBranchName: branches[0] });
+  for (const branch of branches.slice(1)) await call(`/api/businesses/${business.id}/branches`, { name: branch });
+  return business as { id: string; name: string; branches: { id: string; name: string }[] };
+}
