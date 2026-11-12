@@ -18,7 +18,7 @@ export function LogoMark({ size = 32, bare = false }: { size?: number; bare?: bo
 /** Nombre escrito: «Su» + «M» en ámbar + «ando». Se lee como un solo nombre para lectores de pantalla. */
 export function Wordmark({ size = "md", tone = "surface" }: { size?: "md" | "lg"; tone?: "surface" | "band" }) {
   return (
-    <span aria-label={NAME} className={`font-brand leading-none tracking-tight ${size === "lg" ? "text-4xl" : "text-lg"} ${tone === "band" ? "text-on-band" : ""}`}>
+    <span role="img" aria-label={NAME} className={`font-brand leading-none tracking-tight ${size === "lg" ? "text-4xl" : "text-lg"} ${tone === "band" ? "text-on-band" : ""}`}>
       <span aria-hidden className="font-medium">
         {NAME.slice(0, 2)}
       </span>

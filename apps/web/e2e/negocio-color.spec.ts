@@ -1,4 +1,4 @@
-// Spec 002: color de cada negocio y estructura de la app (banda en teléfono, menú lateral en escritorio), entrega 5.
+// Criterios de la spec 002: color de cada negocio y estructura de la app (banda en teléfono, menú lateral en escritorio), entrega 5.
 import { expect, test } from "./fixtures";
 import { OWNER, expectNoHorizontalOverflow, login, seedBusiness, seedOwner } from "./helpers";
 
@@ -62,7 +62,7 @@ test("color de negocio y estructura", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Abrir el menú" })).toBeHidden();
     const box = (await nav.boundingBox())!;
     expect(box.x).toBeLessThan(300);
-    await page.mouse.wheel(0, 600);
+    await page.evaluate(() => window.scrollBy(0, 600));
     expect((await nav.boundingBox())!.y).toBeCloseTo(box.y, 0);
   });
 

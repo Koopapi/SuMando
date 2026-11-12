@@ -1,6 +1,5 @@
 // RF-17 a RF-22: negocios y sucursales, solo para el dueño.
 import { BusinessesManager } from "@/features/businesses/businesses-manager";
-import { es } from "@/i18n";
 import { appCtx } from "@/server/app-context";
 import { requireOwnerPage } from "@/server/auth/page-guards";
 import { businessView, listBusinesses, suggestedColor } from "@/server/services/businesses";
@@ -13,7 +12,7 @@ export default async function BusinessesPage() {
   const ctx = appCtx();
   const [businesses, suggested] = await Promise.all([listBusinesses(ctx, session.user).then((l) => l.map(businessView)), suggestedColor(ctx, session.user)]);
   return (
-    <PageShell title={es.businesses.title}>
+    <PageShell>
       <BusinessesManager businesses={businesses} suggestedColor={suggested} />
     </PageShell>
   );

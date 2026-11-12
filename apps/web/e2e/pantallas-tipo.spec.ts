@@ -1,4 +1,4 @@
-// Spec 002: pantallas tipo del catálogo (tabla larga, captura por renglones y asistente por pasos), entrega 4.
+// Criterios de la spec 002: pantallas tipo del catálogo (tabla larga, captura por renglones y asistente por pasos), entrega 4.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { expectNoHorizontalOverflow } from "./helpers";

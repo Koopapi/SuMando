@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { es } from "@/i18n";
 import { Alert, Button, PasswordField, TextField } from "@/ui";
 import { api, formValues } from "../api";
 
 export function LoginForm() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   return (
@@ -23,8 +21,9 @@ export function LoginForm() {
           setBusy(false);
           return;
         }
-        router.push(result.data.next);
-        router.refresh();
+        // Carga completa a propósito: la sesión nueva cambia toda la aplicación (estructura, sucursal activa) y la
+        // caché del enrutador de cliente no debe reutilizar nada de antes de entrar.
+        window.location.assign(result.data.next);
       }}
     >
       {error ? <Alert tone="error">{error}</Alert> : null}

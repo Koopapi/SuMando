@@ -1,6 +1,8 @@
 // Barrido de calidad (no pertenece a un RF): cada página, con cada perfil y en escritorio, tableta y móvil, sin
 // errores de consola, sin respuestas fallidas, sin desbordamiento lateral, sin imágenes rotas y con nombre
-// accesible en botones y enlaces.
+// accesible en botones y enlaces. Spec 002: además en modo claro y oscuro, con axe (WCAG 2.1 A y AA, contraste
+// incluido).
+import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { OWNER, login, seedAdmin, seedBusiness, seedOwner } from "./helpers";
@@ -28,7 +30,7 @@ function watch(page: Page, problems: Problem[], ctx: { url: string; vp: string }
   });
 }
 
-async function audit(page: Page, url: string, vp: (typeof VIEWPORTS)[number], problems: Problem[]) {
+async function audit(page: Page, url: string, vp: { name: string; width: number; height: number }, problems: Problem[]) {
   await page.setViewportSize({ width: vp.width, height: vp.height });
   await page.goto(url);
   await page.waitForLoadState("networkidle");
@@ -54,11 +56,16 @@ async function audit(page: Page, url: string, vp: (typeof VIEWPORTS)[number], pr
     return out;
   });
   for (const issue of found) problems.push({ page: url, viewport: vp.name, issue });
+  const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+  for (const v of axe.violations) {
+    for (const node of v.nodes.slice(0, 3)) problems.push({ page: url, viewport: vp.name, issue: `axe ${v.id}: ${node.target.join(" ")} ${node.failureSummary?.split("\n")[1]?.trim() ?? ""}` });
+  }
 }
 
 async function sweep(browser: Browser, urls: string[], problems: Problem[], prepare?: (page: Page) => Promise<void>) {
-  for (const vp of VIEWPORTS) {
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+  for (const base of VIEWPORTS) for (const mode of ["light", "dark"] as const) {
+    const vp = { ...base, name: `${base.name} ${mode === "light" ? "claro" : "oscuro"}` };
+    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, colorScheme: mode });
     const page = await context.newPage();
     if (prepare) await prepare(page);
     for (const url of urls) {
@@ -74,14 +81,14 @@ async function sweep(browser: Browser, urls: string[], problems: Problem[], prep
 }
 
 test("barrido de todas las pantallas", async ({ browser }) => {
-  test.setTimeout(300_000);
+  test.setTimeout(900_000);
   const problems: Problem[] = [];
   await sweep(browser, ["/setup"], problems);
   await seedOwner();
   const pastatti = await seedBusiness("Pastatti", ["Sendero", "Centro"]);
   await seedBusiness("Pirrus", ["Centro"]);
   await seedAdmin("Ana", "ana@mando.test", [pastatti.branches[0].id], "ana-123456");
-  await sweep(browser, ["/login", "/offline", "/sistema", "/no-existe"], problems);
+  await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena"], problems, async (page) => {
     await login(page, OWNER.email, OWNER.password);
     await page.goto("/elegir-sucursal");

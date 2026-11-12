@@ -23,7 +23,7 @@ test("personas y accesos", async ({ page }) => {
     await expect(temporary).toHaveText(TEMP);
     await page.getByRole("button", { name: "Listo" }).click();
     await expect(temporary).toBeHidden();
-    await expect(page.getByRole("heading", { name: "Ana Admin" })).toBeVisible();
+    await expect(page.getByRole("rowheader", { name: "Ana Admin" })).toBeVisible();
     await expect(page.getByText("Pendiente de cambiar contraseña")).toBeVisible();
   });
 
@@ -46,7 +46,7 @@ test("personas y accesos", async ({ page }) => {
 
   await test.step("RF-28 desactivar la deja inactiva", async () => {
     await page.getByRole("button", { name: "Desactivar Ana Admin" }).click();
-    await expect(page.getByText("Inactiva")).toBeVisible();
+    await expect(page.getByText("Inactiva", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Editar Ana Admin" })).toBeHidden();
   });
 

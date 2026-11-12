@@ -1,6 +1,6 @@
 // Criterios de la spec 001: primer arranque, entrada, salida y contraseña temporal (entrega 2).
 import { expect, test } from "./fixtures";
-import { OWNER, alertBox, expectNoHorizontalOverflow, login, seedBusiness, seedOwner, temporaryPasswordFor } from "./helpers";
+import { OWNER, alertBox, expectCanLogout, expectNoHorizontalOverflow, login, logout, seedBusiness, seedOwner, temporaryPasswordFor } from "./helpers";
 
 test("primer arranque, entrada y salida", async ({ page }) => {
   await test.step("RF-1 sin cuentas, la dirección de inicio lleva a crear al dueño", async () => {
@@ -15,7 +15,7 @@ test("primer arranque, entrada y salida", async ({ page }) => {
     await page.getByLabel("Contraseña", { exact: true }).fill(OWNER.password);
     await page.getByRole("button", { name: "Crear cuenta" }).click();
     await expect(page).toHaveURL(/\/elegir-sucursal$/);
-    await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+    await expectCanLogout(page);
     await expect(page.getByText("Aún no hay negocios. Crea el primero para empezar a trabajar.")).toBeVisible();
   });
 
@@ -25,7 +25,7 @@ test("primer arranque, entrada y salida", async ({ page }) => {
   });
 
   await test.step("RF-8 cerrar sesión vuelve a la pantalla de entrada", async () => {
-    await page.getByRole("button", { name: "Cerrar sesión" }).click();
+    await logout(page);
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/");
     await expect(page).toHaveURL(/\/login$/);
@@ -41,7 +41,7 @@ test("primer arranque, entrada y salida", async ({ page }) => {
   await test.step("RF-4 entrar con correo y contraseña correctos", async () => {
     await login(page, " DUENO@mando.test ", OWNER.password);
     await expect(page).toHaveURL(/\/elegir-sucursal$/);
-    await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+    await expectCanLogout(page);
   });
 });
 

@@ -5,7 +5,7 @@ import { es } from "@/i18n";
 import { appCtx } from "@/server/app-context";
 import { currentSession } from "@/server/auth/session";
 import { isSetupNeeded } from "@/server/services/setup";
-import { Card, PageShell } from "@/ui";
+import { AuthShell } from "@/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +13,8 @@ export default async function LoginPage() {
   if (await isSetupNeeded(appCtx())) redirect("/setup");
   if (await currentSession()) redirect("/");
   return (
-    <PageShell title={es.auth.loginTitle} narrow brand>
-      <Card>
-        <p className="mb-4 text-ink-muted">{es.auth.loginIntro}</p>
-        <LoginForm />
-      </Card>
-    </PageShell>
+    <AuthShell title={es.auth.loginTitle} subtitle={es.auth.loginIntro}>
+      <LoginForm />
+    </AuthShell>
   );
 }

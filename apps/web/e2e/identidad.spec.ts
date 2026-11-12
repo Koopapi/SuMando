@@ -1,4 +1,4 @@
-// Spec 002: nombre SuMando, logo y modo claro y oscuro según el equipo (entrega 1).
+// Criterios de la spec 002: nombre SuMando, logo y modo claro y oscuro según el equipo (entrega 1).
 import { expect, test } from "./fixtures";
 import { OWNER, login, seedOwner } from "./helpers";
 
@@ -12,7 +12,7 @@ const bodyColors = (page: import("@playwright/test").Page) =>
     return { bg: s.backgroundColor, ink: s.color };
   });
 
-test("nombre, logo y modo", async ({ page }) => {
+test("nombre, logo y modo", async ({ page, browserName }) => {
   await seedOwner();
 
   await test.step("RF-1 la entrada, sin conexión y no encontrada muestran SuMando con su logo y en el título", async () => {
@@ -41,10 +41,15 @@ test("nombre, logo y modo", async ({ page }) => {
   });
 
   await test.step("RF-5 sin preferencia o en modo claro la app se ve clara", async () => {
-    await page.emulateMedia({ colorScheme: "no-preference" });
-    await page.goto("/login");
-    expect(await bodyColors(page)).toEqual({ bg: PAGE_BG.light, ink: INK.light });
+    // El WebKit de Playwright no emula «sin preferencia» (toma el modo del sistema); se comprueba en Chromium. El modo
+    // claro es el valor base de tokens.css, así que un navegador sin preferencia siempre lo muestra.
+    if (browserName === "chromium") {
+      await page.emulateMedia({ colorScheme: "no-preference" });
+      await page.goto("/login");
+      expect(await bodyColors(page)).toEqual({ bg: PAGE_BG.light, ink: INK.light });
+    }
     await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/login");
     expect(await bodyColors(page)).toEqual({ bg: PAGE_BG.light, ink: INK.light });
   });
 

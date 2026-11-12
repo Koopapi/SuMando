@@ -14,21 +14,18 @@ export default async function ChooseBranchPage() {
   const ctx = appCtx();
   const [state, choices] = await Promise.all([resolveBranchState(ctx, session), branchChoices(ctx, session.user)]);
   return (
-    <PageShell title={es.shell.chooseTitle} narrow>
+    <PageShell title={es.shell.chooseTitle} subtitle={choices.length > 0 ? es.shell.chooseIntro : undefined}>
       {choices.length === 0 && session.user.role === "owner" ? (
         <Alert tone="info">
           <p>{es.shell.noBusinessesOwner}</p>
-          <Link href="/negocios" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-medium text-on-primary">
+          <Link href="/negocios" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-brand font-bold text-on-primary">
             {es.shell.goBusinesses}
           </Link>
         </Alert>
       ) : choices.length === 0 ? (
         <Alert tone="warning">{es.errors.no_branch}</Alert>
       ) : (
-        <>
-          <p className="text-ink-muted">{es.shell.chooseIntro}</p>
-          <BranchChooser choices={choices} activeId={state.kind === "active" ? state.active.branch.id : null} />
-        </>
+        <BranchChooser choices={choices} activeId={state.kind === "active" ? state.active.branch.id : null} />
       )}
     </PageShell>
   );

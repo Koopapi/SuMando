@@ -32,8 +32,9 @@ test("sucursal activa e inicio", async ({ page }) => {
 
   await test.step("RF-35 RF-41 desde el inicio se cambia de sucursal en dos toques", async () => {
     await expect(page.getByText(`Hola, ${OWNER.name}`)).toBeVisible();
-    await expect(page.getByRole("link", { name: "Negocios" })).toHaveCount(2);
-    await expect(page.getByRole("link", { name: "Cambiar contraseña" })).toHaveCount(2);
+    // Spec 002: los accesos del inicio están en el contenido; el menú de la banda tiene los suyos (RF-16, RF-17).
+    await expect(page.getByRole("main").getByRole("link", { name: "Negocios" })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name: "Cambiar contraseña" })).toBeVisible();
     await page.getByRole("link", { name: "Cambiar de sucursal" }).first().click();
     await page.getByRole("button", { name: "Trabajar en Pastatti · Sendero" }).click();
     await expect(page).toHaveURL(/\/$/);

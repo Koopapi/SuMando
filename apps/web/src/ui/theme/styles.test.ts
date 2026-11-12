@@ -37,7 +37,7 @@ describe("spec 002 — sin estilos sueltos", () => {
     expect(looseStyles(`<p className="bg-primary text-on-primary rounded-md" />`)).toEqual([]);
   });
 
-  it("test_s002_nf_sin_estilos_sueltos_en_pantallas", () => {
+  it("test_s002_rf43_las_pantallas_usan_solo_componentes_y_valores_del_sistema", () => {
     const files = ["app", "features"].flatMap((d) => walk(path.join(SRC, d)));
     const found = files.flatMap((f) => looseStyles(readFileSync(f, "utf8")).map((r) => `${path.relative(SRC, f)}: ${r}`));
     expect(found).toEqual([]);

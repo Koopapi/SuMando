@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 11 de noviembre de 2026. Spec 001 vigente (42 RF con test en verde).
+Última actualización: 11 de noviembre de 2026. Specs 001 (42 RF) y 002 (44 RF) vigentes, con test en verde.
 
 ---
 
@@ -38,7 +38,7 @@ Origen: spec 001 (aprobada el 11 de noviembre de 2026; construida y validada el 
 
 ## 2 bis. Identidad, aspecto y color de cada negocio
 
-Origen: spec 002 (aprobada el 11 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 002 (aprobada el 11 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - La app se llama **SuMando**, siempre con la S y la M mayúsculas; nunca «Mando» ni «Sumando» en pantalla (RF-1 a RF-3).
 - Modo claro u oscuro según el ajuste del teléfono o la computadora, sin selector propio (RF-4 a RF-7).

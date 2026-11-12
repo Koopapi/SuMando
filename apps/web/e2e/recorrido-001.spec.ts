@@ -84,7 +84,7 @@ test("recorrido completo de la spec 001", async ({ browser }) => {
 
   await test.step("RF-28 el dueño lo desactiva y el administrador deja de poder entrar", async () => {
     await owner.getByRole("button", { name: `Desactivar ${ANA.name}` }).click();
-    await expect(owner.getByText("Inactiva")).toBeVisible();
+    await expect(owner.getByText("Inactiva", { exact: true })).toBeVisible();
     await admin.goto("/");
     await expect(admin).toHaveURL(/\/login$/);
     await login(admin, ANA.email, ANA.password);

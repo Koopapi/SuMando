@@ -158,3 +158,13 @@ escribe en `audit_log` la acción `business.color_changed` con el valor anterior
 - La entrega 1 se construyó con Inter como cuerpo; al elegir Tablero, el cuerpo pasa a IBM Plex Sans en la
   entrega 3 (cambio de una línea en `layout.tsx`). Los tokens suman `--band`, `--on-band`, `--band-muted`,
   `--band-pill`, `--band-line` y los tonos claros de los 8 colores para usarlos sobre la banda.
+- La estructura es un solo bloque azul (`<aside>`): banda en teléfono y menú lateral desde 1024 px, para que el
+  negocio activo aparezca una sola vez en la página. La navegación en teléfono vive en un panel (`Sheet`).
+- Personas usa `DataTable`; negocios y elegir sucursal son listas con franja de color (así están en las maquetas).
+  En personas, las acciones se ven siempre en la tarjeta del teléfono; el correo queda en «Ver más».
+- Entrar recarga la página completa (como cambiar de sucursal): en WebKit, la navegación de cliente tras entrar
+  competía con la siguiente y la caché no debe reutilizar nada de antes de entrar.
+- `/sistema/*` pasa el proxy sin sesión; cada página responde 404 fuera de `DEV_ENDPOINTS=1`.
+- axe (`@axe-core/playwright`) encontró nombres accesibles que no contenían el texto visible (WCAG 2.5.3); se
+  corrigieron. Ninguna falla de contraste en claro ni en oscuro.
+- El WebKit de Playwright no emula «sin preferencia» de color: esa comprobación de RF-5 corre en Chromium.

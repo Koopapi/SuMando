@@ -1,6 +1,8 @@
 export const shell = {
   change: "Cambiar",
   switchBranch: "Cambiar de sucursal",
+  switchBranchFrom: (current: string) => `${current}: cambiar de sucursal`,
+  chooseCurrent: (business: string, branch: string) => `Trabajar en ${business} · ${branch} actual`,
   noBranch: "Sin sucursal",
   activeBranch: (business: string, branch: string) => `${business} · ${branch}`,
   nav: "Navegación",

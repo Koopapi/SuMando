@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { BusinessColor } from "@/domain/business-color";
 import { es } from "@/i18n";
 import type { BranchView, BusinessView } from "@/server/services/businesses";
-import { Alert, Button, Card, ColorPicker, Dialog, EmptyState, TextField } from "@/ui";
+import { Alert, Button, ColorPicker, Dialog, EmptyState, Icon, PageHeader, SectionLabel, StatusBadge, TextField } from "@/ui";
 import { api, formValues } from "../api";
 
 type Mode =
@@ -60,76 +60,92 @@ export function BusinessesManager({ businesses, suggestedColor }: { businesses: 
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-ink-muted">{t.intro}</p>
-        <Button onClick={() => setMode({ kind: "create" })}>{t.create}</Button>
-      </div>
+    <>
+      <PageHeader title={t.title} subtitle={t.intro} figure={String(active.length)} figureLabel={t.figureLabel} action={<Button onClick={() => setMode({ kind: "create" })}>{t.create}</Button>} />
       {error && !mode ? <Alert tone="error">{error}</Alert> : null}
       {active.length === 0 ? <EmptyState title={t.emptyTitle} description={t.emptyDescription} /> : null}
-      {active.map((b) => (
-        <Card key={b.id}>
-          <h2 className={`biz-${b.color} mb-3 flex items-center gap-3 font-brand text-xl font-bold`} data-business-color={b.color}>
-            <span aria-hidden className="h-7 w-1 rounded-full bg-biz" />
-            {b.name}
-          </h2>
-          <div className="mb-3 flex flex-wrap gap-2">
-            <Button variant="secondary" aria-label={t.actionFor(t.addBranch, b.name)} onClick={() => setMode({ kind: "addBranch", business: b })}>
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
+        {active.map((b) => (
+          <section key={b.id} className={`biz-${b.color} flex flex-col gap-2`}>
+            <div className="flex items-center gap-3.5">
+              <span aria-hidden className="h-12 w-1 shrink-0 rounded-full bg-biz" />
+              <div className="flex min-w-0 flex-col">
+                <h2 className="truncate font-brand text-2xl font-bold tracking-tight" data-business-color={b.color}>
+                  {b.name}
+                </h2>
+                <p className="text-ink-muted">{t.branchCount(b.branches.filter((br) => !br.archived).length)}</p>
+              </div>
+            </div>
+            <div className="-ml-3 flex flex-wrap">
+              <Button variant="ghost" aria-label={t.actionFor(t.rename, b.name)} onClick={() => setMode({ kind: "renameBusiness", business: b })}>
+                {t.rename}
+              </Button>
+              <Button variant="ghost" aria-label={t.actionFor(t.changeColor, b.name)} onClick={() => setMode({ kind: "color", business: b })}>
+                {t.changeColor}
+              </Button>
+              <Button variant="ghost" aria-label={t.actionFor(t.archive, b.name)} loading={busy} onClick={() => run(`/api/businesses/${b.id}/archive`, { method: "POST" })}>
+                {t.archive}
+              </Button>
+            </div>
+            <SectionLabel as="h3" className="pt-2">
+              {t.branches}
+            </SectionLabel>
+            {b.branches.length === 0 ? <p className="text-sm text-ink-muted">{t.noBranches}</p> : null}
+            <ul className="flex flex-col">
+              {b.branches.map((br) => (
+                <li key={br.id} className="flex min-h-13 flex-wrap items-center gap-x-2 border-b border-line py-1">
+                  <span className="flex flex-1 items-center gap-2 font-semibold">
+                    {br.name}
+                    {br.archived ? <StatusBadge tone="warning">{t.archivedBadge}</StatusBadge> : null}
+                  </span>
+                  <span className="flex">
+                    {br.archived ? (
+                      <Button variant="ghost" aria-label={t.branchActionFor(t.reactivate, br.name, b.name)} loading={busy} onClick={() => run(`/api/branches/${br.id}/reactivate`, { method: "POST" })}>
+                        {t.reactivate}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button variant="ghost" aria-label={t.branchActionFor(t.rename, br.name, b.name)} onClick={() => setMode({ kind: "renameBranch", business: b, branch: br })}>
+                          {t.rename}
+                        </Button>
+                        <Button variant="ghost" aria-label={t.branchActionFor(t.archive, br.name, b.name)} loading={busy} onClick={() => run(`/api/branches/${br.id}/archive`, { method: "POST" })}>
+                          {t.archive}
+                        </Button>
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              aria-label={t.actionFor(t.addBranch, b.name)}
+              onClick={() => setMode({ kind: "addBranch", business: b })}
+              className="inline-flex min-h-12 items-center gap-2 self-start font-semibold text-primary"
+            >
+              <Icon name="plus" size={18} />
               {t.addBranch}
-            </Button>
-            <Button variant="secondary" aria-label={t.actionFor(t.rename, b.name)} onClick={() => setMode({ kind: "renameBusiness", business: b })}>
-              {t.rename}
-            </Button>
-            <Button variant="secondary" aria-label={t.actionFor(t.changeColor, b.name)} onClick={() => setMode({ kind: "color", business: b })}>
-              {t.changeColor}
-            </Button>
-            <Button variant="ghost" aria-label={t.actionFor(t.archive, b.name)} loading={busy} onClick={() => run(`/api/businesses/${b.id}/archive`, { method: "POST" })}>
-              {t.archive}
-            </Button>
-          </div>
-          <h3 className="mb-2 text-sm font-medium text-ink-muted">{t.branches}</h3>
-          {b.branches.length === 0 ? <p className="text-sm text-ink-muted">{t.noBranches}</p> : null}
-          <ul className="flex flex-col divide-y divide-line">
-            {b.branches.map((br) => (
-              <li key={br.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span className="flex items-center gap-2">
-                  <span>{br.name}</span>
-                  {br.archived ? <span className="rounded-md bg-warning-soft px-2 py-0.5 text-xs text-warning">{t.archivedBadge}</span> : null}
-                </span>
-                <span className="flex gap-1">
-                  {br.archived ? (
-                    <Button variant="ghost" aria-label={t.branchActionFor(t.reactivate, br.name, b.name)} loading={busy} onClick={() => run(`/api/branches/${br.id}/reactivate`, { method: "POST" })}>
-                      {t.reactivate}
-                    </Button>
-                  ) : (
-                    <>
-                      <Button variant="ghost" aria-label={t.branchActionFor(t.rename, br.name, b.name)} onClick={() => setMode({ kind: "renameBranch", business: b, branch: br })}>
-                        {t.rename}
-                      </Button>
-                      <Button variant="ghost" aria-label={t.branchActionFor(t.archive, br.name, b.name)} loading={busy} onClick={() => run(`/api/branches/${br.id}/archive`, { method: "POST" })}>
-                        {t.archive}
-                      </Button>
-                    </>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ))}
+            </button>
+          </section>
+        ))}
+      </div>
       {archived.length > 0 ? (
-        <Card title={t.archived}>
-          <ul className="flex flex-col divide-y divide-line">
+        <section aria-labelledby="archivados" className="flex flex-col gap-1">
+          <h2 id="archivados" className="text-xs font-semibold tracking-widest text-ink-muted uppercase">
+            {t.archived}
+          </h2>
+          <ul className="flex flex-col">
             {archived.map((b) => (
-              <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span>{b.name}</span>
+              <li key={b.id} className={`biz-${b.color} flex min-h-13 items-center gap-3 border-b border-line`}>
+                <span aria-hidden className="h-6 w-1 rounded-full bg-biz opacity-50" />
+                <span className="flex-1 font-semibold text-ink-muted">{b.name}</span>
                 <Button variant="ghost" aria-label={t.actionFor(t.reactivate, b.name)} loading={busy} onClick={() => run(`/api/businesses/${b.id}/reactivate`, { method: "POST" })}>
                   {t.reactivate}
                 </Button>
               </li>
             ))}
           </ul>
-        </Card>
+        </section>
       ) : null}
       <Dialog
         open={mode !== null}
@@ -185,6 +201,6 @@ export function BusinessesManager({ businesses, suggestedColor }: { businesses: 
           </form>
         ) : null}
       </Dialog>
-    </div>
+    </>
   );
 }

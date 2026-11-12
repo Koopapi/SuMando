@@ -20,6 +20,8 @@ export const businesses = {
   archived: "Archivados",
   archivedBadge: "Archivada",
   branches: "Sucursales",
+  figureLabel: "negocios",
+  branchCount: (n: number) => `${n} ${n === 1 ? "sucursal" : "sucursales"}`,
   emptyTitle: "Todavía no hay negocios",
   emptyDescription: "Crea el primero con su primera sucursal.",
   noBranches: "Sin sucursales.",

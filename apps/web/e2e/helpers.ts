@@ -23,8 +23,24 @@ export async function login(page: Page, email: string, password: string) {
   await Promise.race([page.waitForURL((u) => !u.pathname.endsWith("/login")), alertBox(page).waitFor()]);
 }
 
+/** En teléfono (bajo 1024 px) la navegación vive en el menú de la banda (spec 002, RF-16): lo abre si hace falta. */
+export async function openMenuIfNeeded(page: Page) {
+  const menu = page.getByRole("button", { name: "Abrir el menú" });
+  if (await menu.isVisible()) await menu.click();
+}
+
+/** Comprueba que se puede cerrar sesión (en teléfono, dentro del menú, que luego se vuelve a cerrar). */
+export async function expectCanLogout(page: Page) {
+  const menu = page.getByRole("button", { name: "Abrir el menú" });
+  const phone = await menu.isVisible();
+  if (phone) await menu.click();
+  await page.getByRole("button", { name: "Cerrar sesión" }).waitFor();
+  if (phone) await page.keyboard.press("Escape");
+}
+
 /** Cierra la sesión y espera a estar de vuelta en la pantalla de entrada. */
 export async function logout(page: Page) {
+  await openMenuIfNeeded(page);
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
   await page.waitForURL(/\/login$/);
 }

@@ -30,11 +30,16 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
 - Reloj de pruebas: `POST /api/dev/clock {"advanceHours": 2}` adelanta la hora del servidor y `DELETE` la devuelve;
   solo con `DEV_ENDPOINTS=1` (desarrollo y E2E; nunca en producción). Usa `now()` de `src/server/clock.ts`, nunca
   `new Date()`, en todo lo que dependa de la hora; los servicios reciben el reloj como puerto (`src/server/ports`).
-- `/sistema`: catálogo mínimo de componentes base (`src/ui`), solo con `DEV_ENDPOINTS=1`.
+- `/sistema`: catálogo del sistema de diseño (`src/ui`) y pantallas tipo en `/sistema/tabla`, `/sistema/captura` y
+  `/sistema/asistente`; solo con `DEV_ENDPOINTS=1` (en producción, 404). Diseño en Pencil: `recursos/sumando.pen`.
+- Diseño (spec 002, dirección «Tablero»): tokens en `src/ui/tokens.css` (claro en `:root`, oscuro por
+  `prefers-color-scheme`); las pantallas usan solo componentes de `src/ui` (lo vigila `src/ui/theme/styles.test.ts`).
+  Nombre visible «SuMando» desde `es.common.appName`. El barrido `e2e/qa-sweep.spec.ts` corre en claro y oscuro con axe.
 - Textos de la interfaz: nunca literales en componentes; van en `src/i18n/es/<área>.ts`. Errores de negocio:
   `new AppError("codigo", params)` (`src/server/errors.ts`) con su mensaje en `src/i18n/es/errors.ts`;
   `src/i18n/i18n.test.ts` falla si hay texto suelto o un código sin mensaje.
-- PWA: `src/app/manifest.ts`, iconos en `public/icons` (se regeneran con `node scripts/make-icons.mjs`) y `public/sw.js`
+- PWA: `src/app/manifest.ts`, iconos en `public/icons` y `src/app` (se regeneran desde la perilla de `src/ui/brand/logo-svg.ts` con
+  `node scripts/make-icons.mjs`) y `public/sw.js`
   (solo la página `/offline` y los estáticos ya vistos; nada de captura sin conexión).
 - Imagen de producción: `docker build -t mando .` desde la raíz; migra sola al arrancar (`MIGRATE_ON_START=1`, ver
   `src/instrumentation.ts`). Pasos de Coolify en `docs/despliegue.md`.

@@ -1,4 +1,4 @@
-// Spec 002: componentes del sistema de diseño en el catálogo (entrega 3).
+// Criterios de la spec 002: componentes del sistema de diseño en el catálogo (entrega 3).
 import { expect, test } from "./fixtures";
 
 test("catálogo de componentes", async ({ page }) => {

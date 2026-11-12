@@ -43,7 +43,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div aria-label={es.common.notifications} className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 lg:inset-x-auto lg:top-6 lg:right-6 lg:bottom-auto lg:w-96">
+      <section aria-label={es.common.notifications} className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 lg:inset-x-auto lg:top-6 lg:right-6 lg:bottom-auto lg:w-96">
         <div role="status" aria-live="polite" className="flex flex-col gap-2">
           {toasts
             .filter((t) => t.kind === "success")
@@ -67,7 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               </div>
             ))}
         </div>
-      </div>
+      </section>
     </ToastContext.Provider>
   );
 }

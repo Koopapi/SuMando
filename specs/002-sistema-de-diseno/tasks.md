@@ -177,31 +177,32 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 6 — Pantallas actuales, barrido y validación
 
-- [ ] **T30 — Reconstruir entrada, primer arranque y contraseña**
+- [x] **T30 — Reconstruir entrada, primer arranque y contraseña**
   - RF: 43, 44
   - Depende de: T14, T15
   - Hecho cuando: las tres pantallas usan solo componentes del catálogo, coinciden con sus maquetas y
     `acceso.spec.ts` sigue en verde.
-- [ ] **T31 — Reconstruir inicio, negocios, personas y elegir sucursal**
+- [x] **T31 — Reconstruir inicio, negocios, personas y elegir sucursal**
   - RF: 43, 44, 19, 20
   - Depende de: T20, T28, T29
   - Hecho cuando: personas y negocios usan `DataTable`; `negocios`, `personas` y `sucursal` de la 001 siguen en
     verde.
-- [ ] **T32 — Barrido en claro y oscuro con axe**
+- [x] **T32 — Barrido en claro y oscuro con axe**
   - RF: 18, RNF
   - Depende de: T30, T31
   - Hecho cuando: `qa-sweep.spec.ts` recorre cada pantalla y el catálogo en claro y oscuro, en escritorio, tableta
     y móvil, sin problemas ni fallas de contraste de axe.
-- [ ] **T33 — Recorrido de la 002**
+- [x] **T33 — Recorrido de la 002**
   - RF: 1, 4, 6, 8, 12, 16, 17, 19
   - Depende de: T32
   - Hecho cuando: `recorrido-002.spec.ts` hace el E2E principal de los criterios de finalización en verde.
-- [ ] **T34 — Validación, documentos y entrega**
+- [x] **T34 — Validación, documentos y entrega**
   - RF: todos
   - Depende de: T33
   - Hecho cuando: `validation.md` con 44 de 44 RF; `docs/DESIGN.md` completo (tokens, componentes, reglas);
     `docs/reglas-de-negocio.md` en «Vigente»; `AGENTS.md` al día; E2E de escritorio y las afectadas en Pixel 7 e
-    iPhone 14 en verde; el dueño instala la app y ve SuMando con el icono nuevo.
+    iPhone 14 en verde; el dueño instala la app y ve SuMando con el icono nuevo. **Hecho salvo la instalación en el
+    teléfono del dueño, que depende de publicar la versión de pruebas (T35 de la spec 001).**
 
 ## Cobertura
 

@@ -13,7 +13,7 @@ export const common = {
   copied: "Copiado",
   show: "Ver",
   hide: "Ocultar",
-  showPassword: "Mostrar la contraseña",
+  showPassword: "Ver la contraseña",
   hidePassword: "Ocultar la contraseña",
   empty: "Aún no hay nada aquí.",
   saved: "Guardado.",

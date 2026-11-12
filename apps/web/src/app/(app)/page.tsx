@@ -1,46 +1,64 @@
-// RF-41: pantalla de inicio con la persona, el negocio y la sucursal activa, y los accesos.
+// Spec 001 RF-41: inicio con la persona, el negocio y la sucursal activa, y los accesos. Spec 002: dirección Tablero.
 import Link from "next/link";
 import { es } from "@/i18n";
+import { appCtx } from "@/server/app-context";
 import { requirePageBranch } from "@/server/auth/page-guards";
-import { Card, PageShell } from "@/ui";
+import { listBusinesses } from "@/server/services/businesses";
+import { listPeople } from "@/server/services/people";
+import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel } from "@/ui";
 
 export const dynamic = "force-dynamic";
 
-const linkClass = "flex min-h-11 items-center rounded-md border border-line bg-surface px-4 font-medium hover:bg-primary-soft";
+function TextLink({ href, children }: { href: string; children: string }) {
+  return (
+    <Link href={href} className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary">
+      {children}
+      <Icon name="arrowRight" size={16} />
+    </Link>
+  );
+}
 
 export default async function HomePage() {
   const { user, active } = await requirePageBranch();
   const t = es.home;
+  const ctx = appCtx();
+  const owner = user.role === "owner";
+  const [businesses, people] = owner ? await Promise.all([listBusinesses(ctx, user), listPeople(ctx, user)]) : [[], []];
+  const activeBusinesses = businesses.filter((b) => !b.archivedAt);
+  const branchCount = activeBusinesses.reduce((n, b) => n + b.branches.filter((br) => !br.archivedAt).length, 0);
+  const activePeople = people.filter((p) => p.isActive);
   return (
-    <PageShell title={t.title}>
-      <p className="text-lg">{t.greeting(user.name)}</p>
-      <Card title={t.activeBranch}>
-        <p className="text-xl font-semibold" data-testid="home-branch">
-          {es.shell.activeBranch(active.business.name, active.branch.name)}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link href="/elegir-sucursal" className={linkClass}>
-            {t.switchBranch}
-          </Link>
-          <Link href="/cambiar-contrasena" className={linkClass}>
-            {t.password}
-          </Link>
-        </div>
-      </Card>
-      {user.role === "owner" ? (
-        <Card title={t.admin}>
-          <p className="mb-3 text-sm text-ink-muted">{t.adminIntro}</p>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/negocios" className={linkClass}>
-              {t.businesses}
-            </Link>
-            <Link href="/personas" className={linkClass}>
-              {t.people}
-            </Link>
+    <PageShell title={t.title} subtitle={t.greeting(user.name)}>
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <section aria-labelledby="sucursal-activa" className="flex min-w-0 flex-col gap-3">
+          <SectionLabel>{t.activeBranch}</SectionLabel>
+          <span id="sucursal-activa" className="sr-only" data-testid="home-branch">
+            {es.shell.activeBranch(active.business.name, active.branch.name)}
+          </span>
+          <BusinessBlock color={active.business.color} name={active.business.name} detail={t.branchLine(active.branch.name)} />
+          <div className="flex flex-col lg:flex-row lg:gap-6">
+            <TextLink href="/elegir-sucursal">{t.switchBranch}</TextLink>
+            <TextLink href="/cambiar-contrasena">{t.password}</TextLink>
           </div>
-        </Card>
-      ) : null}
-      <p className="text-sm text-ink-muted">{t.modulesSoon}</p>
+        </section>
+        {owner ? (
+          <section className="flex flex-col gap-1">
+            <SectionLabel>{t.adminLabel}</SectionLabel>
+            <ListRow href="/negocios" icon="store" title={t.businesses} detail={t.businessesDetail(activeBusinesses.length, branchCount)} />
+            <ListRow href="/personas" icon="users" title={t.people} detail={t.peopleDetail(activePeople.length, activePeople.filter((p) => p.mustChangePassword).length)} />
+          </section>
+        ) : null}
+      </div>
+      <section className="flex flex-col gap-3">
+        <SectionLabel>{t.soon}</SectionLabel>
+        <ul className="flex flex-wrap gap-2">
+          {t.modules.map((m) => (
+            <li key={m} className="rounded-md border border-line-strong px-2.5 py-1 text-sm text-ink-muted">
+              {m}
+            </li>
+          ))}
+        </ul>
+      </section>
     </PageShell>
   );
 }

@@ -62,7 +62,7 @@ export function AppShell({ user, active, children }: { user: PublicUser; active:
     <div className="lg:pl-64">
       <aside className="bg-band text-on-band lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto lg:px-3.5 lg:py-5">
         <div className="flex items-center gap-3 px-5 pt-3 lg:px-2 lg:pt-0 lg:pb-5">
-          <Link href="/" aria-label={t.home} className="flex min-h-11 items-center gap-2.5">
+          <Link href="/" className="flex min-h-11 items-center gap-2.5">
             <LogoMark size={30} bare />
             <Wordmark tone="band" />
           </Link>
@@ -75,7 +75,7 @@ export function AppShell({ user, active, children }: { user: PublicUser; active:
           <p aria-hidden className="hidden text-xs font-semibold tracking-widest text-band-muted uppercase lg:block">
             {t.workingIn}
           </p>
-          <Link href="/elegir-sucursal" aria-label={t.switchBranch} title={label} className="flex min-h-11 max-w-full min-w-0 items-center self-start">
+          <Link href="/elegir-sucursal" aria-label={t.switchBranchFrom(label)} title={label} className="flex min-h-11 max-w-full min-w-0 items-center self-start">
             {active ? (
               <BusinessBadge tone="band" color={active.color} testId="active-branch">
                 {label}
