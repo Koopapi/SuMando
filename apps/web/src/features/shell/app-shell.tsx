@@ -24,6 +24,9 @@ function NavItems({ user, onNavigate }: { user: PublicUser; onNavigate?: () => v
   const path = usePathname();
   const items: [string, string, IconName][] = [
     ["/", t.home, "home"],
+    ["/productos", t.products, "box"],
+    ["/proveedores", t.suppliers, "truck"],
+    ["/almacenes", t.places, "warehouse"],
     ...(user.role === "owner"
       ? ([
           ["/negocios", t.businesses, "store"],

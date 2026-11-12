@@ -38,6 +38,8 @@ export interface DataTableProps<T> {
   onRetry?: () => void;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Filtros encendidos al abrir (por ejemplo, solo los activos). */
+  initialFilters?: string[];
 }
 
 const PHONE_CELL = {
@@ -47,9 +49,9 @@ const PHONE_CELL = {
   detail: "order-6 basis-full",
 } as const;
 
-export function DataTable<T>({ caption, rows, columns, rowKey, rowName, searchFields, searchLabel, filters = [], state = "ready", onRetry, emptyTitle, emptyDescription }: DataTableProps<T>) {
+export function DataTable<T>({ caption, rows, columns, rowKey, rowName, searchFields, searchLabel, filters = [], state = "ready", onRetry, emptyTitle, emptyDescription, initialFilters = [] }: DataTableProps<T>) {
   const [query, setQuery] = useState("");
-  const [active, setActive] = useState<string[]>([]);
+  const [active, setActive] = useState<string[]>(initialFilters);
   const [open, setOpen] = useState<string[]>([]);
   const t = es.common;
 

@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner } from "./helpers";
 
 const VIEWPORTS = [
   { name: "escritorio", width: 1360, height: 950 },
@@ -88,14 +88,17 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   const pastatti = await seedBusiness("Pastatti", ["Sendero", "Centro"]);
   await seedBusiness("Pirrus", ["Centro"]);
   await seedAdmin("Ana", "ana@mando.test", [pastatti.branches[0].id], "ana-123456");
+  // Spec 003: catálogo con datos para que sus pantallas no salgan vacías.
+  const { productId } = await seedCatalog(pastatti.branches[0].id);
+  const catalog = ["/productos", `/productos/${productId}`, "/proveedores", "/almacenes"];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
-  await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena"], problems, async (page) => {
+  await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog], problems, async (page) => {
     await login(page, OWNER.email, OWNER.password);
     await page.goto("/elegir-sucursal");
     await page.getByRole("button", { name: "Trabajar en Pastatti · Sendero" }).click();
     await page.waitForURL(/\/$/);
   });
-  await sweep(browser, ["/", "/elegir-sucursal", "/cambiar-contrasena", "/negocios"], problems, async (page) => {
+  await sweep(browser, ["/", "/elegir-sucursal", "/cambiar-contrasena", "/negocios", ...catalog], problems, async (page) => {
     await login(page, "ana@mando.test", "ana-123456");
   });
   expect(problems.map((p) => `${p.viewport} ${p.page}: ${p.issue}`)).toEqual([]);

@@ -42,6 +42,12 @@ Lo construido en la spec 001:
 - **Componentes base** (`src/ui`): botón, campo de texto y de contraseña, aviso, tarjeta, estructura de página,
   diálogo y estado vacío, con `tokens.css` (Tailwind 4 `@theme`). La spec 002 los formaliza.
 
+Lo construido en la spec 003:
+
+- **Catálogo por negocio**: los servicios de `server/services/catalog` reciben un `CatalogScope` (persona + sucursal
+  activa, de `server/auth/catalog-scope.ts`) y nunca un `businessId` suelto; lo de otro negocio responde
+  `not_found`. Cantidades y equivalencias van como texto en la API y como enteros (`bigint`) en `domain/catalog/units`.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

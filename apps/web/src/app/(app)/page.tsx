@@ -4,6 +4,7 @@ import { es } from "@/i18n";
 import { appCtx } from "@/server/app-context";
 import { requirePageBranch } from "@/server/auth/page-guards";
 import { listBusinesses } from "@/server/services/businesses";
+import { catalogView } from "@/server/services/catalog/views";
 import { listPeople } from "@/server/services/people";
 import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel } from "@/ui";
 
@@ -27,6 +28,8 @@ export default async function HomePage() {
   const activeBusinesses = businesses.filter((b) => !b.archivedAt);
   const branchCount = activeBusinesses.reduce((n, b) => n + b.branches.filter((br) => !br.archivedAt).length, 0);
   const activePeople = people.filter((p) => p.isActive);
+  const catalog = await catalogView(ctx, { actor: user, active });
+  const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -49,6 +52,14 @@ export default async function HomePage() {
           </section>
         ) : null}
       </div>
+      <section className="flex flex-col gap-1">
+        <SectionLabel>{t.catalogLabel}</SectionLabel>
+        <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/productos" icon="box" title={es.shell.products} detail={t.productsDetail(activeCount(catalog.products))} />
+          <ListRow href="/proveedores" icon="truck" title={es.shell.suppliers} detail={t.suppliersDetail(activeCount(catalog.suppliers))} />
+          <ListRow href="/almacenes" icon="warehouse" title={es.shell.places} detail={t.placesDetail(activeCount(catalog.warehouses), activeCount(catalog.areas))} />
+        </div>
+      </section>
       <section className="flex flex-col gap-3">
         <SectionLabel>{t.soon}</SectionLabel>
         <ul className="flex flex-wrap gap-2">

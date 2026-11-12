@@ -69,7 +69,7 @@ Todas exigen sesión y sucursal activa (`no_branch` si no hay). Cantidades como 
 | `POST /api/catalog/[kind]/[id]/archive\|reactivate` | `kind` = `products`, `suppliers`, `warehouses`, `areas` | `{ item }` |
 
 Errores nuevos (mensaje en `i18n/es/errors.ts`): `catalog_name_invalid` (422, límite 80), `invalid_unit` (422),
-`invalid_quantity` (422), `max_below_min` (422), `base_unit_locked` (409), `supplier_archived` (409),
+`invalid_factor` (422, RF-13), `invalid_quantity` (422), `max_below_min` (422), `base_unit_locked` (409), `supplier_archived` (409),
 `invalid_responsible` (422). Se reutilizan `duplicate_name`, `forbidden`, `not_found`, `no_branch`, `validation`.
 
 ## 5. Decisiones técnicas
@@ -106,3 +106,12 @@ Ninguna nueva.
 2. **Servicios y API**: casos de uso con permisos, auditoría y tests de integración.
 3. **Pantallas**: productos, detalle, proveedores, almacenes y áreas, con navegación.
 4. **Cierre**: E2E, barrido, volumen, validación RF por RF y documentación.
+
+## Ajustes al construir
+
+- Se separó `invalid_factor` de `invalid_quantity` para que el mensaje de RF-13 diga el formato de la equivalencia.
+- Una presentación no puede llamarse como la unidad base («ml», «mililitro»…), para no repetir la implícita (RF-14).
+- Las pantallas de catálogo están en el menú para todos los perfiles y en el inicio, en la sección «Catálogo», que
+  sale de «Próximamente».
+- El alcance de los handlers sale de `server/auth/catalog-scope.ts` (persona + sucursal activa).
+- El E2E de volumen siembra 1,000 productos directo en la BD de E2E y mide la carga y la búsqueda en el navegador.

@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 11 de noviembre de 2026. Specs 001 (42 RF) y 002 (44 RF) vigentes, con test en verde.
+Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (44 RF) y 003 (41 RF) vigentes, con test en verde.
 
 ---
 
@@ -50,6 +50,34 @@ Origen: spec 002 (aprobada el 11 de noviembre de 2026; construida y validada el 
   hasta cerrarlo y no se pierde lo capturado (RF-23 a RF-28).
 
 ## 3. Catálogo
+
+Origen: spec 003 (aprobada el 12 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- **Cada negocio tiene su propio catálogo**: productos y proveedores no se comparten; el mismo producto en dos
+  negocios se da de alta dos veces (RF-1).
+- Con una sucursal activa solo se ve el catálogo de su negocio (RF-4). Lo de otro negocio no existe para quien
+  pregunta (RF-8).
+- **Áreas** por sucursal, con un responsable que es una persona con cuenta: el dueño o un administrador de esa
+  sucursal. Si pierde el acceso, el área lo conserva marcado «sin acceso» hasta que se cambie (RF-2, RF-19).
+- **Almacenes** de una sucursal o del negocio completo; cada sucursal ve los suyos y los del negocio (RF-3, RF-5).
+  Un almacén de sucursal no repite nombre con los de su sucursal ni con los del negocio; uno del negocio no repite
+  con ninguno del negocio (RF-20).
+- **Quién edita**: el dueño, todo; un administrador, el catálogo de los negocios donde tiene alguna sucursal, y los
+  almacenes y áreas solo de sus sucursales (RF-6, RF-7).
+- **Unidad base** de una lista cerrada (gramo, mililitro, pieza) y fija: para cambiarla se archiva el producto y se
+  da de alta otro (RF-10, RF-16).
+- **Presentaciones** libres por producto, cada una con su equivalencia en la unidad base (mayor que cero, hasta 3
+  decimales); la unidad base es siempre una presentación con equivalencia 1 (RF-11 a RF-14). Una se marca para
+  comprar y otra para contar; sin marca, ambas son la unidad base (RF-15).
+- **Mínimo y máximo** por producto en cada almacén, opcionales, no negativos y con máximo ≥ mínimo. Se capturan en
+  cualquier presentación, se guardan en unidad base y se muestran en la de conteo; cambiar una equivalencia no
+  cambia el mínimo real (RF-17, RF-22 a RF-26).
+- **Proveedor habitual**: uno o ninguno por producto, sin precio. Un proveedor archivado se conserva en sus
+  productos pero no se asigna de nuevo (RF-28, RF-35).
+- **Nombres** de hasta 80 caracteres, únicos en su ámbito sin distinguir mayúsculas, acentos ni espacios
+  exteriores (RF-30 a RF-32).
+- **Nada se borra**: todo se archiva y se reactiva si su nombre no choca con uno activo; cada cambio queda con
+  autor, fecha y valor anterior (RF-33 a RF-38).
 
 ## 4. Recetario e insumos
 

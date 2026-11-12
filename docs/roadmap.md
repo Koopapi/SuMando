@@ -17,7 +17,7 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 |---|---|---|
 | 001 | Esqueleto, cuentas y negocios | PWA instalable, inicio de sesión, alta de negocios, invitar personas, roles por negocio, cambio de negocio activo, CI, E2E y despliegue en pruebas. **Hecha** |
 | 002 | Sistema de diseño | La app pasa a llamarse SuMando con logo propio; modo claro y oscuro; color por negocio; teléfono para capturar y escritorio con menú lateral y tablas completas; componentes (acción, formulario, tablas, captura por renglones, asistente por pasos, avisos, modales, estructura), catálogo de componentes, maquetas en Pencil de las pantallas actuales y de tres pantallas tipo. **Hecha** |
-| 003 | Catálogo | Productos con presentación individual, unidad, factor de conversión y presentación final; áreas con responsable; almacenes por negocio; proveedores; mínimos |
+| 003 | Catálogo | Productos con presentación individual, unidad, factor de conversión y presentación final; áreas con responsable; almacenes por negocio; proveedores; mínimos. **Hecha** |
 | 004 | Recetario e insumos | Plantilla de receta por platillo (ingredientes del catálogo, cantidad bruta y unidad, medias porciones); el administrador captura las piezas de cada platillo y obtiene la lista de insumos a pedir sumada por ingrediente; cálculos guardados para repetirlos |
 | 005 | Inventarios | Entradas, salidas, ajustes con motivo, traspasos entre almacenes y entre negocios, conteo físico por área, existencias y mínimos |
 | 006 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario |
@@ -56,7 +56,7 @@ semana, tolerancia del corte, quién puede qué) van dentro de la spec que las u
 - **Nómina**: se parte del modelo semanal de Pirrus (pago por día, sin ISR, IMSS ni CFDI). Confirmar en la
   entrevista de la 008 si hace falta exportar algo al contador.
 - **Sin conexión**: ¿hay que capturar inventario o requisiciones sin internet (bodegas sin señal) y sincronizar después?
-- **Entre negocios**: ¿los negocios comparten productos y proveedores, o cada uno tiene su propio catálogo?
+- **Entre negocios**: resuelto en la spec 003: cada negocio tiene su propio catálogo de productos y proveedores.
 - **Recetario**: ¿Pastatti también tiene recetario, o por ahora solo Pirrus? ¿Las recetas llevan merma o solo
   cantidad bruta?
 - **Corte de caja**: ¿un corte por día o por turno? ¿Qué terminales bancarias tiene cada sucursal?

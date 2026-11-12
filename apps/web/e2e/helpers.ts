@@ -82,3 +82,25 @@ export async function seedAdmin(name: string, email: string, branchIds: string[]
   await fetch(`${BASE}/api/auth/password`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ currentPassword: temporaryPassword, newPassword: password }) });
   await fetch(`${BASE}/api/auth/logout`, { method: "POST", headers: { cookie } });
 }
+
+/** Peticiones a la API como el dueño trabajando en una sucursal (el catálogo pide sucursal activa, spec 003). */
+export async function ownerApiAt(branchId: string) {
+  const call = await ownerApi();
+  await call("/api/session/branch", { branchId }, "PUT");
+  return call;
+}
+
+/** Catálogo mínimo de Pastatti · Sendero para recorrer sus pantallas (spec 003). */
+export async function seedCatalog(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  const { supplier } = await call("/api/suppliers", { name: "Lácteos del Norte", phone: "555 010 2030" });
+  const { product } = await call("/api/products", { name: "Aceite de oliva", baseUnit: "ml", supplierId: supplier.id });
+  const { presentation } = await call(`/api/products/${product.id}/presentations`, { name: "Botella", factor: "1000" });
+  await call(`/api/products/${product.id}`, { countPresentationId: presentation.id }, "PATCH");
+  const { warehouse } = await call("/api/warehouses", { name: "Cámara fría", scope: "branch" });
+  await call("/api/warehouses", { name: "Bodega central", scope: "business" });
+  await call(`/api/products/${product.id}/levels`, { warehouseId: warehouse.id, min: "2", max: "6", presentationId: presentation.id }, "PUT");
+  const { candidates } = await call("/api/areas");
+  await call("/api/areas", { name: "Cocina", responsibleId: candidates[0].id });
+  return { productId: product.id as string };
+}

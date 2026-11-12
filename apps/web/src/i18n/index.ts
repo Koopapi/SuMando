@@ -2,6 +2,7 @@
 // `src/i18n/i18n.test.ts` lo comprueba.
 import { auth } from "./es/auth";
 import { businesses } from "./es/businesses";
+import { catalog } from "./es/catalog";
 import { common } from "./es/common";
 import { errors } from "./es/errors";
 import { home } from "./es/home";
@@ -10,7 +11,7 @@ import { people } from "./es/people";
 import { shell } from "./es/shell";
 import { system } from "./es/system";
 
-export const es = { auth, businesses, common, errors, home, offline, people, shell, system } as const;
+export const es = { auth, businesses, catalog, common, errors, home, offline, people, shell, system } as const;
 export type Dictionary = typeof es;
 export type ErrorCode = keyof typeof errors;
 
