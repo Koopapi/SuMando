@@ -4,15 +4,29 @@ import { parseCookies } from "@/server/auth/cookies";
 export class ApiClient {
   readonly cookies: Record<string, string> = {};
 
-  async call(fn: (req: Request) => Promise<Response>, path: string, init: { method?: string; body?: unknown } = {}) {
-    const cookie = Object.entries(this.cookies)
+  private cookieHeader() {
+    return Object.entries(this.cookies)
       .map(([k, v]) => `${k}=${v}`)
       .join("; ");
+  }
+
+  async call(fn: (req: Request) => Promise<Response>, path: string, init: { method?: string; body?: unknown } = {}) {
+    const cookie = this.cookieHeader();
     const req = new Request(`http://test${path}`, {
       method: init.method ?? (init.body === undefined ? "GET" : "POST"),
       headers: { "content-type": "application/json", "user-agent": "vitest", ...(cookie ? { cookie } : {}) },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
     });
+    return this.send(fn, req);
+  }
+
+  /** Envía un formulario (`multipart/form-data`), como la subida de un archivo. */
+  async form(fn: (req: Request) => Promise<Response>, path: string, form: FormData) {
+    const cookie = this.cookieHeader();
+    return this.send(fn, new Request(`http://test${path}`, { method: "POST", headers: { "user-agent": "vitest", ...(cookie ? { cookie } : {}) }, body: form }));
+  }
+
+  private async send(fn: (req: Request) => Promise<Response>, req: Request) {
     const res = await fn(req);
     for (const raw of res.headers.getSetCookie()) {
       const [pair, ...attrs] = raw.split(";");

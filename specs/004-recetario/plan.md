@@ -138,3 +138,17 @@ con avisos de seguridad).
    integración.
 3. **Pantallas**: recetas, editor, importación, cálculo con lista viva, historial y plantillas, con navegación.
 4. **Cierre**: E2E, barrido, volumen, validación RF por RF y documentación.
+
+## Ajustes al construir
+
+- El reemplazo de plantilla se confirma con `replace: true` en vez de `replaceId`: el servidor busca la plantilla
+  activa con ese nombre en la sucursal, así el cliente no necesita su id (RF-37).
+- La cantidad de un ingrediente tiene su propio error, `invalid_ingredient_quantity`, porque debe ser mayor que cero
+  y el `invalid_quantity` del catálogo admite cero (RF-10).
+- `invalid_file` lleva un solo mensaje («debe ser un Excel (.xlsx) válido, con hasta 200 hojas»); el exceso de
+  tamaño es `file_too_large` (RF-48).
+- Una receta que ya tenía un ingrediente archivado se puede guardar de nuevo con él; lo que no se puede es añadir
+  uno archivado (RF-8, RF-14).
+- El recetario real de Pirrus se leyó con el lector propio (21 hojas, unidades como «Gramos », «mililitros»). Su
+  hoja «TOSTI PIRRUS» tiene «TIO TORO» en la primera celda, así que al importarlo sale como duplicado de «TIO TORO»
+  hasta corregir esa celda (RF-46).
