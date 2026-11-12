@@ -24,6 +24,12 @@ const TEXT_PAIRS: [string, string][] = [
   ["--danger", "--surface"],
   ["--on-danger", "--danger"],
 ];
+// Banda azul (dirección Tablero): título, subtítulo y número en ámbar sobre la banda.
+const BAND_PAIRS: [string, string][] = [
+  ["--on-band", "--band"],
+  ["--band-muted", "--band"],
+  ["--band-accent", "--band"],
+];
 const UI_PAIRS: [string, string][] = [
   ["--line-strong", "--surface"],
   ["--focus", "--page"],
@@ -35,8 +41,13 @@ describe("spec 002 — contraste del sistema de diseño", () => {
   it("test_s002_nf_contraste_tokens_en_modo_claro_y_oscuro", () => {
     const fails: string[] = [];
     for (const [mode, b] of Object.entries(MODES)) {
-      const v = b[":root"] ?? {};
+      // En oscuro, lo que no se redefine se hereda del modo claro, igual que en el navegador.
+      const v = { ...light[":root"], ...b[":root"] };
       for (const [fg, bg] of TEXT_PAIRS) {
+        const r = contrast(v[fg], v[bg]);
+        if (r < 4.5) fails.push(`${mode}: ${fg} sobre ${bg} = ${r.toFixed(2)}`);
+      }
+      for (const [fg, bg] of BAND_PAIRS) {
         const r = contrast(v[fg], v[bg]);
         if (r < 4.5) fails.push(`${mode}: ${fg} sobre ${bg} = ${r.toFixed(2)}`);
       }
@@ -55,6 +66,8 @@ describe("spec 002 — contraste del sistema de diseño", () => {
       for (const key of BUSINESS_COLORS) {
         const v = b[`.biz-${key}`];
         expect(v, `falta .biz-${key} en modo ${mode}`).toBeDefined();
+        const band = light[`.biz-${key}`]["--biz-band"];
+        if (contrast(band, root["--band"]) < 3) fails.push(`${mode} ${key}: punto en la banda = ${contrast(band, root["--band"]).toFixed(2)}`);
         for (const [fg, bg] of [
           [v["--biz"], root["--surface"]],
           [v["--biz"], v["--biz-soft"]],

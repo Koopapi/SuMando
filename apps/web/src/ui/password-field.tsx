@@ -16,7 +16,7 @@ export function PasswordField(props: Omit<TextFieldProps, "type" | "trailing">) 
           aria-label={shown ? es.common.hidePassword : es.common.showPassword}
           aria-pressed={shown}
           onClick={() => setShown((s) => !s)}
-          className="min-h-9 rounded-md px-2 text-sm text-primary hover:bg-primary-soft"
+          className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-semibold text-primary hover:bg-primary-soft"
         >
           {shown ? es.common.hide : es.common.show}
         </button>

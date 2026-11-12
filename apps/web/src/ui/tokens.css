@@ -25,17 +25,24 @@
   --on-danger: #FFFFFF;
   --focus: #22306B;
   --scrim: #0E112066;
+  /* Banda azul de la dirección Tablero: cabecera en teléfono y menú lateral en escritorio. */
+  --band: #22306B;
+  --on-band: #FFFFFF;
+  --band-muted: #C7D0FF;
+  --band-pill: #FFFFFF1F;
+  --band-line: #FFFFFF66;
+  --band-accent: #FFC54D;
 }
 
 /* Colores de negocio (RF-8, RF-13): el negocio se pinta con la clase de su clave. */
-.biz-violeta { --biz: #6D28D9; --biz-soft: #F0EAFB; }
-.biz-rojo { --biz: #B91C1C; --biz-soft: #F8E8E8; }
-.biz-naranja { --biz: #B13A0A; --biz-soft: #F7EBE6; }
-.biz-ambar { --biz: #8C5A06; --biz-soft: #F4EEE6; }
-.biz-verde { --biz: #137036; --biz-soft: #E7F1EB; }
-.biz-turquesa { --biz: #0F766E; --biz-soft: #E7F1F0; }
-.biz-azul { --biz: #1D4ED8; --biz-soft: #E8EDFB; }
-.biz-rosa { --biz: #BE185D; --biz-soft: #F8E8EF; }
+.biz-violeta { --biz: #6D28D9; --biz-soft: #F0EAFB; --biz-band: #C4B5FD; }
+.biz-rojo { --biz: #B91C1C; --biz-soft: #F8E8E8; --biz-band: #FCA5A5; }
+.biz-naranja { --biz: #B13A0A; --biz-soft: #F7EBE6; --biz-band: #FDBA74; }
+.biz-ambar { --biz: #8C5A06; --biz-soft: #F4EEE6; --biz-band: #FCD34D; }
+.biz-verde { --biz: #137036; --biz-soft: #E7F1EB; --biz-band: #86EFAC; }
+.biz-turquesa { --biz: #0F766E; --biz-soft: #E7F1F0; --biz-band: #5EEAD4; }
+.biz-azul { --biz: #1D4ED8; --biz-soft: #E8EDFB; --biz-band: #93C5FD; }
+.biz-rosa { --biz: #BE185D; --biz-soft: #F8E8EF; --biz-band: #F9A8D4; }
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -60,6 +67,10 @@
     --on-danger: #2A0A0C;
     --focus: #9AABFF;
     --scrim: #000000A6;
+    --band: #161D45;
+    --band-muted: #B4BEF0;
+    --band-pill: #FFFFFF1A;
+    --band-line: #FFFFFF59;
   }
   .biz-violeta { --biz: #C4B5FD; --biz-soft: #343451; }
   .biz-rojo { --biz: #FCA5A5; --biz-soft: #3C3243; }
@@ -95,8 +106,16 @@
   --color-scrim: var(--scrim);
   --color-biz: var(--biz);
   --color-biz-soft: var(--biz-soft);
-  --radius-md: 0.625rem;
-  --radius-lg: 1rem;
+  --color-biz-band: var(--biz-band);
+  --color-band: var(--band);
+  --color-on-band: var(--on-band);
+  --color-band-muted: var(--band-muted);
+  --color-band-pill: var(--band-pill);
+  --color-band-line: var(--band-line);
+  --color-band-accent: var(--band-accent);
+  /* Tablero: 8 px en controles, 10 px en contenedores. */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
   --font-sans: var(--font-text-face), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-brand: var(--font-brand-face), ui-sans-serif, system-ui, sans-serif;
 }

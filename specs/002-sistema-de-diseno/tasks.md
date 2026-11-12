@@ -77,37 +77,37 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Componentes base y catálogo
 
-- [ ] **T12 — Formato de pesos y fechas**
+- [x] **T12 — Formato de pesos y fechas**
   - RF: 23, 24
   - Depende de: —
   - Hecho cuando: `test_s002_rf23_*` y `test_s002_rf24_*` dan «$1,234.50» y «11 nov 2026» (zona de la Ciudad de
     México, también cerca de medianoche UTC).
-- [ ] **T13 — Revisión automática de estilos sueltos**
+- [x] **T13 — Revisión automática de estilos sueltos**
   - RF: RNF sin estilos sueltos
   - Depende de: T3
   - Hecho cuando: `test_s002_nf_sin_estilos_sueltos` falla con `style=`, valores arbitrarios, hexadecimales o
     colores por defecto de Tailwind en `app/` y `features/`, y pasa con el código actual corregido.
-- [ ] **T14 — Botones, campos y errores**
+- [x] **T14 — Botones, campos y errores**
   - RF: 21, 22, 25, 26
   - Depende de: T11
   - Hecho cuando: `Button`, `IconButton`, `TextField`, `NumberField`, `MoneyField`, `SelectField`, `Checkbox` en
     `src/ui` y en `/sistema`; E2E mide ≥ 44 × 44 px, `inputmode` numérico, error debajo con `aria-describedby` y
     `aria-invalid`, y un solo envío con doble toque.
-- [ ] **T15 — Avisos**
+- [x] **T15 — Avisos**
   - RF: 27, 28
   - Depende de: T14
   - Hecho cuando: `ToastProvider` en el diseño raíz; E2E con el reloj de Playwright: el de guardado desaparece a
     los 4 s, el de error sigue hasta cerrarlo y el formulario conserva lo capturado.
-- [ ] **T16 — Diálogo, menú lateral móvil, foco y movimiento**
+- [x] **T16 — Diálogo, menú lateral móvil, foco y movimiento**
   - RF: 37, 38, 39
   - Depende de: T14
   - Hecho cuando: `Dialog` y `Sheet` con `<dialog>`; E2E: Tab no sale del diálogo, Escape lo cierra, el foco se
     ve (contorno no nulo) y con movimiento reducido la duración de transición es 0.
-- [ ] **T17 — Estados de lista**
+- [x] **T17 — Estados de lista**
   - RF: 29
   - Depende de: T14
   - Hecho cuando: `LoadingState`, `EmptyState`, `ErrorState` con texto; E2E los ve en el catálogo.
-- [ ] **T18 — Catálogo completo y cerrado en producción**
+- [x] **T18 — Catálogo completo y cerrado en producción**
   - RF: 40, 42
   - Depende de: T14–T17
   - Hecho cuando: `/sistema` muestra cada componente en sus estados; sin `DEV_ENDPOINTS=1` responde 404 (test de

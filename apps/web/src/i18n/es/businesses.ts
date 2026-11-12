@@ -20,5 +20,6 @@ export const businesses = {
   emptyDescription: "Crea el primero con su primera sucursal.",
   noBranches: "Sin sucursales.",
   actionFor: (action: string, name: string) => `${action} ${name}`,
+  colors: { violeta: "Violeta", rojo: "Rojo", naranja: "Naranja", ambar: "Ámbar", verde: "Verde", turquesa: "Turquesa", azul: "Azul", rosa: "Rosa" },
   branchActionFor: (action: string, branch: string, business: string) => `${action} ${branch} (${business})`,
 } as const;

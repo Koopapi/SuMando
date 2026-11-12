@@ -19,4 +19,8 @@ export const common = {
   saved: "Guardado.",
   unknownError: "Algo salió mal. Inténtalo de nuevo.",
   menu: "Menú",
+  notifications: "Avisos",
+  dismiss: "Cerrar aviso",
+  listErrorTitle: "No pudimos cargar la lista",
+  listErrorBody: "Revisa tu conexión e inténtalo de nuevo.",
 } as const;

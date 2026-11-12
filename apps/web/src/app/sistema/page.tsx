@@ -1,10 +1,13 @@
-// Catálogo mínimo de componentes (T7). Solo existe con DEV_ENDPOINTS=1; la spec 002 construye el catálogo real.
+// Catálogo del sistema de diseño (spec 002, RF-40 y RF-42). Solo existe con DEV_ENDPOINTS=1: en producción, 404.
 import { notFound } from "next/navigation";
+import { ActionsDemo, AlertsDemo, BadgesDemo, DialogDemo, FormsDemo } from "@/features/system/catalog-demos";
 import { es } from "@/i18n";
 import { devEndpointsEnabled } from "@/server/clock";
-import { Alert, Button, Card, EmptyState, PageShell, PasswordField, TextField } from "@/ui";
+import { Button, Dial, EmptyState, ErrorState, LoadingState, PageShell, formatDate, formatMoney } from "@/ui";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = { title: es.system.title };
 
 export default function SystemPage() {
   if (!devEndpointsEnabled()) notFound();
@@ -12,38 +15,43 @@ export default function SystemPage() {
   return (
     <PageShell title={t.title}>
       <p className="text-ink-muted">{t.intro}</p>
-      <Card title={t.buttons}>
-        <div className="flex flex-wrap gap-3">
-          <Button>{t.primary}</Button>
-          <Button variant="secondary">{t.secondary}</Button>
-          <Button variant="danger">{t.danger}</Button>
-          <Button variant="ghost">{t.ghost}</Button>
-          <Button loading>{t.loading}</Button>
+      <ActionsDemo />
+      <FormsDemo />
+      <AlertsDemo />
+      <DialogDemo />
+      <BadgesDemo />
+      <section aria-labelledby="perilla" className="flex flex-col gap-4 border-t border-line pt-6">
+        <h2 id="perilla" className="font-brand text-xl font-bold">
+          {t.dials}
+        </h2>
+        <div className="flex items-center gap-4">
+          {[1, 2, 3, 4].map((n) => (
+            <Dial key={n} value={n / 4} label={t.dialLabel(n, 4)} />
+          ))}
+          <Dial value={0.6} spinning />
         </div>
-      </Card>
-      <Card title={t.fields}>
-        <div className="flex flex-col gap-4">
-          <TextField label={t.fieldLabel} hint={t.fieldHint} />
-          <TextField label={t.fieldLabel} error={t.fieldError} defaultValue="" />
-          <PasswordField label={t.passwordLabel} autoComplete="new-password" />
+      </section>
+      <section aria-labelledby="estados" className="flex flex-col gap-4 border-t border-line pt-6">
+        <h2 id="estados" className="font-brand text-xl font-bold">
+          {t.states}
+        </h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <LoadingState />
+          <EmptyState title={t.emptyTitle} description={t.emptyBody} action={<Button variant="secondary">{t.clear}</Button>} />
+          <ErrorState action={<Button>{es.common.retry}</Button>} />
         </div>
-      </Card>
-      <Card title={t.alerts}>
-        <div className="flex flex-col gap-3">
-          <Alert tone="info">{t.alertInfo}</Alert>
-          <Alert tone="success">{t.alertSuccess}</Alert>
-          <Alert tone="warning">{t.alertWarning}</Alert>
-          <Alert tone="error" title={t.alertError}>
-            {es.common.unknownError}
-          </Alert>
-        </div>
-      </Card>
-      <Card title={t.empty}>
-        <EmptyState title={t.emptyTitle} description={t.emptyDescription} action={<Button variant="secondary">{t.emptyAction}</Button>} />
-      </Card>
-      <Card title={t.card}>
-        <p>{t.cardBody}</p>
-      </Card>
+      </section>
+      <section aria-labelledby="formatos" className="flex flex-col gap-2 border-t border-line pt-6">
+        <h2 id="formatos" className="font-brand text-xl font-bold">
+          {t.formats}
+        </h2>
+        <p>
+          {t.moneySample}: <span data-testid="money-sample">{formatMoney(1234.5)}</span>
+        </p>
+        <p>
+          {t.dateSample}: <span data-testid="date-sample">{formatDate(new Date("2026-11-11T18:00:00Z"))}</span>
+        </p>
+      </section>
     </PageShell>
   );
 }
