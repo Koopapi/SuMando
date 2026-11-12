@@ -22,7 +22,7 @@ export function TextField({ label, error, hint, trailing, className = "", ...res
           id={id}
           aria-invalid={error ? true : undefined}
           aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
-          className={`min-h-11 w-full rounded-md border bg-surface-raised px-3 text-base text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100 ${error ? "border-danger-600" : "border-line"} ${trailing ? "pr-12" : ""}`}
+          className={`min-h-11 w-full rounded-md border bg-surface px-3 text-base text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft ${error ? "border-danger" : "border-line-strong"} ${trailing ? "pr-12" : ""}`}
           {...rest}
         />
         {trailing ? <div className="absolute right-1">{trailing}</div> : null}
@@ -33,7 +33,7 @@ export function TextField({ label, error, hint, trailing, className = "", ...res
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-sm text-danger-700">
+        <p id={errorId} role="alert" className="text-sm text-danger">
           {error}
         </p>
       ) : null}

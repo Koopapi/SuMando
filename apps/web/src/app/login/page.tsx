@@ -13,7 +13,7 @@ export default async function LoginPage() {
   if (await isSetupNeeded(appCtx())) redirect("/setup");
   if (await currentSession()) redirect("/");
   return (
-    <PageShell title={es.auth.loginTitle} narrow>
+    <PageShell title={es.auth.loginTitle} narrow brand>
       <Card>
         <p className="mb-4 text-ink-muted">{es.auth.loginIntro}</p>
         <LoginForm />

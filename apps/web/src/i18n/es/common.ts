@@ -1,5 +1,6 @@
 export const common = {
-  appName: "Mando",
+  appName: "SuMando",
+  appDescription: "Control administrativo de tus negocios",
   loading: "Cargando…",
   save: "Guardar",
   cancel: "Cancelar",

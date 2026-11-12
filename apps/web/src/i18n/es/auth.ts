@@ -1,6 +1,6 @@
 export const auth = {
   setupTitle: "Crear la cuenta del dueño",
-  setupIntro: "Mando no tiene cuentas todavía. Crea la tuya para empezar a configurar los negocios.",
+  setupIntro: "SuMando no tiene cuentas todavía. Crea la tuya para empezar a configurar los negocios.",
   name: "Nombre",
   email: "Correo",
   password: "Contraseña",

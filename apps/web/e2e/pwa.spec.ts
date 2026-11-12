@@ -10,7 +10,7 @@ test("instalación y sin conexión", async ({ page, context, browserName }) => {
     const href = await page.locator('link[rel="manifest"]').getAttribute("href");
     expect(href).toContain("manifest");
     const manifest = await (await page.request.get(href!)).json();
-    expect(manifest).toMatchObject({ name: "Mando", short_name: "Mando", display: "standalone", start_url: "/", lang: "es" });
+    expect(manifest).toMatchObject({ name: "SuMando", short_name: "SuMando", display: "standalone", start_url: "/", lang: "es" });
     const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
     expect(sizes).toContain("192x192");
     expect(sizes).toContain("512x512");
@@ -19,7 +19,8 @@ test("instalación y sin conexión", async ({ page, context, browserName }) => {
       expect(res.status()).toBe(200);
       expect(res.headers()["content-type"]).toContain("image/png");
     }
-    expect(await page.locator('meta[name="theme-color"]').getAttribute("content")).toBe("#2d4f9a");
+    // Spec 002 RF-7: un color por modo (lo detalla e2e/identidad.spec.ts).
+    await expect(page.locator('meta[name="theme-color"]')).toHaveCount(2);
   });
 
   await test.step("RF-40 sin conexión, la aplicación muestra su propio aviso con opción de reintentar", async () => {

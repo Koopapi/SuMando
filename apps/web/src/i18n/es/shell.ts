@@ -1,5 +1,4 @@
 export const shell = {
-  brand: "Mando",
   change: "Cambiar",
   switchBranch: "Cambiar de sucursal",
   noBranch: "Sin sucursal",

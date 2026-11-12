@@ -4,10 +4,10 @@ import { es } from "@/i18n";
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 
 const VARIANT: Record<Variant, string> = {
-  primary: "bg-brand-700 text-white hover:bg-brand-800 focus-visible:outline-brand-700",
-  secondary: "bg-surface-raised text-ink border border-line hover:bg-brand-50 focus-visible:outline-brand-700",
-  danger: "bg-danger-600 text-white hover:bg-danger-700 focus-visible:outline-danger-600",
-  ghost: "bg-transparent text-brand-700 hover:bg-brand-50 focus-visible:outline-brand-700",
+  primary: "bg-primary text-on-primary hover:bg-primary-hover",
+  secondary: "bg-surface text-ink border border-line-strong hover:bg-primary-soft",
+  danger: "bg-danger text-on-danger hover:opacity-90",
+  ghost: "bg-transparent text-primary hover:bg-primary-soft",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

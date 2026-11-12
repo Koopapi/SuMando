@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function SetupPage() {
   if (!(await isSetupNeeded(appCtx()))) redirect("/login");
   return (
-    <PageShell title={es.auth.setupTitle} narrow>
+    <PageShell title={es.auth.setupTitle} narrow brand>
       <Card>
         <p className="mb-4 text-ink-muted">{es.auth.setupIntro}</p>
         <SetupForm />

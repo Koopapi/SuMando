@@ -1,6 +1,6 @@
 export const people = {
   title: "Personas",
-  intro: "Quién entra a Mando y a qué sucursales. Nadie se borra: se desactiva y se puede reactivar.",
+  intro: "Quién entra a SuMando y a qué sucursales. Nadie se borra: se desactiva y se puede reactivar.",
   create: "Dar de alta",
   createTitle: "Nueva persona",
   name: "Nombre",

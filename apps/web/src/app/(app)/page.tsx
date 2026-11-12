@@ -6,7 +6,7 @@ import { Card, PageShell } from "@/ui";
 
 export const dynamic = "force-dynamic";
 
-const linkClass = "flex min-h-11 items-center rounded-md border border-line bg-surface-raised px-4 font-medium hover:bg-brand-50";
+const linkClass = "flex min-h-11 items-center rounded-md border border-line bg-surface px-4 font-medium hover:bg-primary-soft";
 
 export default async function HomePage() {
   const { user, active } = await requirePageBranch();

@@ -83,7 +83,7 @@ export function BusinessesManager({ businesses }: { businesses: BusinessView[] }
               <li key={br.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span className="flex items-center gap-2">
                   <span>{br.name}</span>
-                  {br.archived ? <span className="rounded-md bg-warning-100 px-2 py-0.5 text-xs text-warning-700">{t.archivedBadge}</span> : null}
+                  {br.archived ? <span className="rounded-md bg-warning-soft px-2 py-0.5 text-xs text-warning">{t.archivedBadge}</span> : null}
                 </span>
                 <span className="flex gap-1">
                   {br.archived ? (

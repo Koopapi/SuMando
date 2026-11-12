@@ -18,7 +18,7 @@ export default async function ChooseBranchPage() {
       {choices.length === 0 && session.user.role === "owner" ? (
         <Alert tone="info">
           <p>{es.shell.noBusinessesOwner}</p>
-          <Link href="/negocios" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-brand-700 px-4 font-medium text-white">
+          <Link href="/negocios" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-medium text-on-primary">
             {es.shell.goBusinesses}
           </Link>
         </Alert>

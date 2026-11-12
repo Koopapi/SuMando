@@ -77,9 +77,9 @@ export function PeopleManager({ people, businesses, selfId }: { people: PersonVi
                   <h2 className="text-lg font-semibold">{p.name}</h2>
                   <p className="text-sm text-ink-muted">{p.email}</p>
                   <p className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-md bg-brand-50 px-2 py-0.5 text-brand-800">{p.role === "owner" ? t.roleOwner : t.roleAdmin}</span>
-                    <span className={`rounded-md px-2 py-0.5 ${p.isActive ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"}`}>{p.isActive ? t.active : t.inactive}</span>
-                    {p.mustChangePassword && p.isActive ? <span className="rounded-md bg-warning-100 px-2 py-0.5 text-warning-700">{t.pendingChange}</span> : null}
+                    <span className="rounded-md bg-primary-soft px-2 py-0.5 text-primary">{p.role === "owner" ? t.roleOwner : t.roleAdmin}</span>
+                    <span className={`rounded-md px-2 py-0.5 ${p.isActive ? "bg-success-soft text-success" : "bg-danger-soft text-danger"}`}>{p.isActive ? t.active : t.inactive}</span>
+                    {p.mustChangePassword && p.isActive ? <span className="rounded-md bg-warning-soft px-2 py-0.5 text-warning">{t.pendingChange}</span> : null}
                   </p>
                   <p className="text-sm">
                     {p.role === "owner" ? t.allBranches : p.branchIds.length === 0 ? t.noBranches : p.branchIds.map((id) => branchName.get(id) ?? id).join(", ")}
@@ -143,7 +143,7 @@ export function PeopleManager({ people, businesses, selfId }: { people: PersonVi
             {mode.kind === "create" ? <TextField label={t.email} name="email" type="email" inputMode="email" required /> : null}
             <label className="flex flex-col gap-1 text-sm font-medium">
               {t.role}
-              <select name="role" defaultValue={mode.kind === "edit" ? mode.person.role : "admin"} className="min-h-11 rounded-md border border-line bg-surface-raised px-3 text-base font-normal">
+              <select name="role" defaultValue={mode.kind === "edit" ? mode.person.role : "admin"} className="min-h-11 rounded-md border border-line bg-surface px-3 text-base font-normal">
                 <option value="admin">{t.roleAdmin}</option>
                 <option value="owner">{t.roleOwner}</option>
               </select>
@@ -176,7 +176,7 @@ export function PeopleManager({ people, businesses, selfId }: { people: PersonVi
         {temporary ? (
           <div className="flex flex-col gap-4">
             <p className="text-sm text-ink-muted">{t.temporaryIntro(temporary.name)}</p>
-            <p className="rounded-md bg-brand-50 px-4 py-3 text-center font-mono text-2xl tracking-widest" data-testid="temporary-password">
+            <p className="rounded-md bg-primary-soft px-4 py-3 text-center font-mono text-2xl tracking-widest" data-testid="temporary-password">
               {temporary.password}
             </p>
             <div className="flex justify-end gap-2">

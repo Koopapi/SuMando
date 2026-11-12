@@ -1,23 +1,120 @@
-/* Tokens del sistema de diseño (mínimo de la spec 001; la 002 lo formaliza). Tailwind v4 los expone como utilidades. */
-@theme {
-  --color-brand-50: oklch(0.97 0.02 250);
-  --color-brand-100: oklch(0.93 0.04 250);
-  --color-brand-600: oklch(0.5 0.17 250);
-  --color-brand-700: oklch(0.43 0.16 250);
-  --color-brand-800: oklch(0.36 0.14 250);
-  --color-ink: oklch(0.22 0.02 250);
-  --color-ink-muted: oklch(0.5 0.02 250);
-  --color-surface: oklch(0.995 0.005 250);
-  --color-surface-raised: oklch(1 0 0);
-  --color-line: oklch(0.88 0.01 250);
-  --color-success-100: oklch(0.95 0.05 150);
-  --color-success-700: oklch(0.45 0.14 150);
-  --color-warning-100: oklch(0.96 0.06 80);
-  --color-warning-700: oklch(0.5 0.14 70);
-  --color-danger-100: oklch(0.95 0.04 25);
-  --color-danger-600: oklch(0.55 0.2 25);
-  --color-danger-700: oklch(0.47 0.19 25);
+/* Tokens del sistema de diseño de SuMando (spec 002, plan sección «Identidad»). Fuente: recursos/sumando.pen.
+   Modo claro en :root, modo oscuro por la preferencia del equipo (RF-4 a RF-6). Valores en hexadecimal para que
+   src/ui/theme/tokens.test.ts mida el contraste sin convertir. Tailwind los expone con @theme inline. */
+
+:root {
+  color-scheme: light dark;
+  --page: #F5F6FA;
+  --surface: #FFFFFF;
+  --ink: #151A2E;
+  --ink-muted: #4D5470;
+  --line: #D9DCE8;
+  --line-strong: #7A809A;
+  --primary: #22306B;
+  --primary-hover: #1A2557;
+  --primary-soft: #E9ECF7;
+  --on-primary: #FFFFFF;
+  --accent: #E39B0B;
+  --accent-text: #B57900;
+  --success: #1E7A46;
+  --success-soft: #E5F4EC;
+  --warning: #8A5A00;
+  --warning-soft: #FDF3DC;
+  --danger: #B4232C;
+  --danger-soft: #FCE8E8;
+  --on-danger: #FFFFFF;
+  --focus: #22306B;
+  --scrim: #0E112066;
+}
+
+/* Colores de negocio (RF-8, RF-13): el negocio se pinta con la clase de su clave. */
+.biz-violeta { --biz: #6D28D9; --biz-soft: #F0EAFB; }
+.biz-rojo { --biz: #B91C1C; --biz-soft: #F8E8E8; }
+.biz-naranja { --biz: #B13A0A; --biz-soft: #F7EBE6; }
+.biz-ambar { --biz: #8C5A06; --biz-soft: #F4EEE6; }
+.biz-verde { --biz: #137036; --biz-soft: #E7F1EB; }
+.biz-turquesa { --biz: #0F766E; --biz-soft: #E7F1F0; }
+.biz-azul { --biz: #1D4ED8; --biz-soft: #E8EDFB; }
+.biz-rosa { --biz: #BE185D; --biz-soft: #F8E8EF; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0E1120;
+    --surface: #181C30;
+    --ink: #E7E9F4;
+    --ink-muted: #A9AECB;
+    --line: #2B3150;
+    --line-strong: #6B7294;
+    --primary: #9AABFF;
+    --primary-hover: #B3C0FF;
+    --primary-soft: #232A4A;
+    --on-primary: #0B1030;
+    --accent: #FFC54D;
+    --accent-text: #FFC54D;
+    --success: #5FD08E;
+    --success-soft: #12291D;
+    --warning: #FFC54D;
+    --warning-soft: #2E2410;
+    --danger: #FF8A8A;
+    --danger-soft: #351518;
+    --on-danger: #2A0A0C;
+    --focus: #9AABFF;
+    --scrim: #000000A6;
+  }
+  .biz-violeta { --biz: #C4B5FD; --biz-soft: #343451; }
+  .biz-rojo { --biz: #FCA5A5; --biz-soft: #3C3243; }
+  .biz-naranja { --biz: #FDBA74; --biz-soft: #3D353B; }
+  .biz-ambar { --biz: #FCD34D; --biz-soft: #3C3935; }
+  .biz-verde { --biz: #86EFAC; --biz-soft: #2A3E44; }
+  .biz-turquesa { --biz: #5EEAD4; --biz-soft: #233D4A; }
+  .biz-azul { --biz: #93C5FD; --biz-soft: #2C3751; }
+  .biz-rosa { --biz: #F9A8D4; --biz-soft: #3C324A; }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-on-danger: var(--on-danger);
+  --color-focus: var(--focus);
+  --color-scrim: var(--scrim);
+  --color-biz: var(--biz);
+  --color-biz-soft: var(--biz-soft);
   --radius-md: 0.625rem;
   --radius-lg: 1rem;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-text-face), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-brand: var(--font-brand-face), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Foco visible en todo control al navegar con teclado (RF-38). */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Movimiento reducido (RF-39): sin transiciones ni animaciones. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

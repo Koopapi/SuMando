@@ -20,29 +20,29 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
     éxito, advertencia, peligro y foco incluidos) y una lámina muestra los 8 colores de negocio en los dos modos;
     cada par texto/fondo anotado con su contraste ≥ 4.5:1 (controles ≥ 3:1). **Hecho: lámina «Tokens y colores de
     negocio»; naranja, ámbar y verde se oscurecieron en modo claro para llegar a 4.5:1.**
-- [ ] **T3 — Test de contraste y tokens en código**
+- [x] **T3 — Test de contraste y tokens en código**
   - RF: 4, 5, RNF contraste
   - Depende de: T2
   - Hecho cuando: `test_s002_nf_contraste_*` lee `tokens.css` y pasa en claro y oscuro para tokens y los 8 colores;
     `tokens.css` tiene `:root` claro, bloque oscuro por `prefers-color-scheme`, `color-scheme: light dark` y
     `@theme inline`; las pantallas de la 001 siguen en verde.
-- [ ] **T4 — Logo e iconos**
+- [x] **T4 — Logo e iconos**
   - RF: 2
   - Depende de: T3
   - Hecho cuando: `src/ui/brand` dibuja la perilla y «SuMando»; `node scripts/make-icons.mjs` regenera 192, 512,
     maskable con zona segura, 180 de Apple y 64 de pestaña; un test comprueba que el manifiesto apunta a archivos
     que existen con esos tamaños.
-- [ ] **T5 — Nombre SuMando en todas partes**
+- [x] **T5 — Nombre SuMando en todas partes**
   - RF: 1, 2, 3
   - Depende de: T4
   - Hecho cuando: `test_s002_rf3_*` barre diccionarios, manifiesto y metadatos sin «Mando», «Sumando» ni
     «SUMANDO» como nombre; título «%s · SuMando», `appleWebApp`, manifiesto, `/offline` y 404 dicen SuMando.
-- [ ] **T6 — Modo claro y oscuro de punta a punta**
+- [x] **T6 — Modo claro y oscuro de punta a punta**
   - RF: 4, 5, 6, 7
   - Depende de: T3
   - Hecho cuando: `e2e/identidad.spec.ts` cambia el esquema con `emulateMedia` y comprueba fondo y texto de cada
     modo, que un campo conserva lo escrito al cambiar y que hay dos `theme-color` con su `media`.
-- [ ] **T7 — Fuentes**
+- [x] **T7 — Fuentes**
   - RF: 1
   - Depende de: T3
   - Hecho cuando: Space Grotesk e Inter cargan con `next/font` desde la propia app; la compilación de E2E y la

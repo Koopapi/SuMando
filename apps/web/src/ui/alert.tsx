@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 type Tone = "info" | "success" | "warning" | "error";
 
 const TONE: Record<Tone, string> = {
-  info: "bg-brand-50 text-brand-800 border-brand-100",
-  success: "bg-success-100 text-success-700 border-success-100",
-  warning: "bg-warning-100 text-warning-700 border-warning-100",
-  error: "bg-danger-100 text-danger-700 border-danger-100",
+  info: "bg-primary-soft text-primary border-primary-soft",
+  success: "bg-success-soft text-success border-success-soft",
+  warning: "bg-warning-soft text-warning border-warning-soft",
+  error: "bg-danger-soft text-danger border-danger-soft",
 };
 
 /** Aviso en línea. Los errores se anuncian con `role="alert"`; el resto con `role="status"`. */

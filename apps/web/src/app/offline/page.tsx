@@ -6,9 +6,9 @@ import { PageShell } from "@/ui";
 export default function OfflinePage() {
   const t = es.offline;
   return (
-    <PageShell title={t.title} narrow>
+    <PageShell title={t.title} narrow brand>
       <p className="text-ink-muted">{t.body}</p>
-      <Link href="/" className="inline-flex min-h-11 items-center justify-center rounded-md bg-brand-700 px-4 font-medium text-white">
+      <Link href="/" className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-4 font-medium text-on-primary">
         {t.retry}
       </Link>
     </PageShell>

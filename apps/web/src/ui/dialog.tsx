@@ -20,14 +20,14 @@ export function Dialog({ open, title, onClose, children }: { open: boolean; titl
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="m-auto w-[min(100%-2rem,28rem)] rounded-lg border border-line bg-surface-raised p-0 text-ink shadow-xl backdrop:bg-black/40"
+      className="m-auto w-[min(100%-2rem,28rem)] rounded-lg border border-line bg-surface p-0 text-ink shadow-xl backdrop:bg-scrim"
     >
       <div className="flex flex-col gap-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <h2 id="dialog-title" className="text-lg font-semibold">
             {title}
           </h2>
-          <button type="button" aria-label={es.common.close} onClick={onClose} className="min-h-9 min-w-9 rounded-md text-ink-muted hover:bg-brand-50">
+          <button type="button" aria-label={es.common.close} onClick={onClose} className="min-h-9 min-w-9 rounded-md text-ink-muted hover:bg-primary-soft">
             ×
           </button>
         </div>
