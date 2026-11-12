@@ -83,6 +83,23 @@ Origen: spec 003 (aprobada el 12 de noviembre de 2026; construida y validada el 
 
 ## 4. Recetario e insumos
 
+Origen: spec 004 (aprobada el 12 de noviembre de 2026). Estado: **Aprobada**.
+
+- **Recetas del negocio**: cada platillo tiene una receta con ingredientes del catálogo de su negocio, cantidad
+  bruta (ya incluye la merma) y nota opcional; la editan el dueño y los administradores del negocio (RF-1, RF-4,
+  RF-7 a RF-15).
+- **Preparaciones de la casa** (como «salsa negra Especial») son productos del catálogo; no se desglosan.
+- **Media porción**: un porcentaje de la receta completa configurado en cada platillo, 50 % por omisión, entero de
+  1 a 100 (RF-16 a RF-19).
+- **Cálculo de insumos** por sucursal: piezas completas y medias por platillo; la lista suma cada ingrediente una
+  vez, con la cantidad exacta y, si se compra en otra presentación, cuántas hacen falta redondeando hacia arriba
+  (RF-20 a RF-28). Es solo cuánto pedir: no toca inventario ni crea requisiciones.
+- **Historial** de cada sucursal con fecha, autor, piezas y resultado; no se modifica y se puede usar como base de
+  un cálculo nuevo. Cualquier cálculo se guarda además como plantilla con nombre (RF-29 a RF-39).
+- **Importación** desde Excel con el formato del recetario de Pirrus: se revisa antes de guardar y solo entran los
+  platillos cuyos ingredientes existen en el catálogo con la misma unidad; no reemplaza recetas existentes
+  (RF-40 a RF-48).
+
 ## 5. Inventarios
 
 ## 6. Requisiciones

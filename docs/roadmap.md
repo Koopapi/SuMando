@@ -57,6 +57,6 @@ semana, tolerancia del corte, quién puede qué) van dentro de la spec que las u
   entrevista de la 008 si hace falta exportar algo al contador.
 - **Sin conexión**: ¿hay que capturar inventario o requisiciones sin internet (bodegas sin señal) y sincronizar después?
 - **Entre negocios**: resuelto en la spec 003: cada negocio tiene su propio catálogo de productos y proveedores.
-- **Recetario**: ¿Pastatti también tiene recetario, o por ahora solo Pirrus? ¿Las recetas llevan merma o solo
-  cantidad bruta?
+- **Recetario**: resuelto en la spec 004: recetas por negocio (cualquiera puede tener las suyas), cantidad bruta
+  sin merma aparte, media porción por platillo e importación desde Excel.
 - **Corte de caja**: ¿un corte por día o por turno? ¿Qué terminales bancarias tiene cada sucursal?

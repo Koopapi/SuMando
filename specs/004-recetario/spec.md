@@ -1,6 +1,6 @@
 # Spec 004 — Recetario e insumos
 
-**Borrador para aprobación del dueño (12 de noviembre de 2026).**
+**Aprobada por el dueño el 12 de noviembre de 2026.**
 
 ## Contexto y objetivo
 Pirrus tiene su recetario en una hoja de cálculo: una hoja por platillo con cada ingrediente, su cantidad bruta y
@@ -13,10 +13,9 @@ existen en hojas de cálculo se importan sin capturarlas otra vez. El resultado 
 inventario ni crea requisiciones.
 
 ## Usuarios / actores
-- **Dueño**: administra las recetas, la configuración y la importación de todos los negocios, y calcula en
-  cualquier sucursal.
-- **Administrador**: administra las recetas, la configuración y la importación de los negocios donde tiene al
-  menos una sucursal asignada, y calcula en sus sucursales.
+- **Dueño**: administra las recetas y la importación de todos los negocios, y calcula en cualquier sucursal.
+- **Administrador**: administra las recetas y la importación de los negocios donde tiene al menos una sucursal
+  asignada, y calcula en sus sucursales.
 
 ## Historias de usuario
 - H1: Como administrador quiero guardar la receta de cada platillo con sus ingredientes del catálogo para no
@@ -32,10 +31,10 @@ inventario ni crea requisiciones.
 ## Requisitos funcionales (criterios de aceptación en EARS)
 
 ### Pertenencia y permisos
-- RF-1: EL SISTEMA guardará cada receta y la configuración del recetario como parte de un solo negocio, y nunca las compartirá entre negocios.
+- RF-1: EL SISTEMA guardará cada receta como parte de un solo negocio, y nunca la compartirá entre negocios.
 - RF-2: EL SISTEMA guardará cada cálculo y cada plantilla como parte de una sola sucursal.
 - RF-3: MIENTRAS hay una sucursal activa, EL SISTEMA mostrará solo las recetas del negocio de esa sucursal, y solo los cálculos y plantillas de esa sucursal.
-- RF-4: EL SISTEMA permitirá al dueño y a los administradores con alguna sucursal asignada en un negocio dar de alta, modificar, archivar, reactivar e importar recetas, y cambiar la configuración del recetario de ese negocio.
+- RF-4: EL SISTEMA permitirá al dueño y a los administradores con alguna sucursal asignada en un negocio dar de alta, modificar, archivar, reactivar e importar las recetas de ese negocio.
 - RF-5: EL SISTEMA permitirá calcular insumos, consultar el historial y usar plantillas solo a quien tenga acceso a la sucursal activa.
 - RF-6: SI alguien pide o modifica una receta, un cálculo o una plantilla de un negocio o una sucursal a la que no tiene acceso, aunque sea por dirección directa, ENTONCES EL SISTEMA lo rechazará sin revelar si existe.
 
@@ -51,16 +50,16 @@ inventario ni crea requisiciones.
 - RF-15: EL SISTEMA mostrará la cantidad de cada ingrediente en su unidad base y en la presentación de conteo del producto.
 
 ### Media porción
-- RF-16: EL SISTEMA calculará cada media porción como un porcentaje de la cantidad de la receta completa, igual para todos los platillos del negocio.
-- RF-17: EL SISTEMA usará 50 % como porcentaje de la media porción mientras no se configure otro.
-- RF-18: EL SISTEMA ofrecerá en la configuración del recetario el porcentaje de la media porción, con valores enteros de 1 a 100.
-- RF-19: CUANDO se cambia el porcentaje de la media porción, EL SISTEMA lo aplicará solo a los cálculos siguientes y conservará sin cambios los ya guardados.
+- RF-16: EL SISTEMA calculará cada media porción como un porcentaje de la cantidad de la receta completa, configurado en cada receta.
+- RF-17: CUANDO se da de alta o se importa una receta, EL SISTEMA le pondrá 50 % como porcentaje de media porción.
+- RF-18: SI el porcentaje de media porción de una receta no es un entero de 1 a 100, ENTONCES EL SISTEMA lo rechazará e indicará el rango válido.
+- RF-19: CUANDO se cambia el porcentaje de media porción de una receta, EL SISTEMA lo aplicará solo a los cálculos siguientes y conservará sin cambios los ya guardados.
 
 ### Cálculo de insumos
 - RF-20: CUANDO se inicia un cálculo, EL SISTEMA mostrará todas las recetas activas del negocio con dos cantidades por platillo, piezas completas y medias porciones, ambas en cero.
 - RF-21: SI una cantidad de piezas o de medias porciones no es un entero de 0 a 9,999, ENTONCES EL SISTEMA la rechazará e indicará el formato válido.
 - RF-22: MIENTRAS se capturan piezas, EL SISTEMA mostrará la lista de insumos actualizada sin necesidad de guardar.
-- RF-23: EL SISTEMA calculará cada ingrediente como la suma, en todos los platillos, de la cantidad de la receta por las piezas completas más la cantidad de la receta por el porcentaje de media porción por las medias porciones.
+- RF-23: EL SISTEMA calculará cada ingrediente como la suma, en todos los platillos, de la cantidad de la receta por las piezas completas más la cantidad de la receta por el porcentaje de media porción de esa receta por las medias porciones.
 - RF-24: EL SISTEMA mostrará en la lista cada ingrediente una sola vez, con su cantidad exacta en la unidad base.
 - RF-25: DONDE la presentación de compra del producto no sea su unidad base, EL SISTEMA mostrará junto a la cantidad exacta cuántas presentaciones de compra hacen falta, redondeando hacia arriba al entero (por ejemplo, «7,350 g → 4 bolsas de 2 kg»).
 - RF-26: EL SISTEMA mostrará los ingredientes de la lista en orden alfabético.
@@ -68,11 +67,11 @@ inventario ni crea requisiciones.
 - RF-28: SI se intenta guardar un cálculo con todas las cantidades en cero, ENTONCES EL SISTEMA no lo guardará e indicará que capture al menos un platillo.
 
 ### Historial
-- RF-29: CUANDO se guarda un cálculo, EL SISTEMA lo añadirá al historial de la sucursal con su fecha y hora, quién lo hizo, las piezas capturadas, el porcentaje de media porción usado y la lista de insumos resultante.
+- RF-29: CUANDO se guarda un cálculo, EL SISTEMA lo añadirá al historial de la sucursal con su fecha y hora, quién lo hizo, las piezas capturadas, el porcentaje de media porción usado en cada platillo y la lista de insumos resultante.
 - RF-30: EL SISTEMA mostrará el historial de la sucursal del más reciente al más antiguo.
 - RF-31: EL SISTEMA no permitirá modificar ni borrar un cálculo guardado.
-- RF-32: CUANDO se abre un cálculo del historial, EL SISTEMA mostrará las piezas y la lista de insumos tal como se guardaron, aunque después hayan cambiado las recetas, el catálogo o la configuración.
-- RF-33: CUANDO se elige «Usar como base» en un cálculo del historial, EL SISTEMA iniciará un cálculo nuevo con esas piezas y lo calculará con las recetas y la configuración vigentes.
+- RF-32: CUANDO se abre un cálculo del historial, EL SISTEMA mostrará las piezas y la lista de insumos tal como se guardaron, aunque después hayan cambiado las recetas, sus porcentajes de media porción o el catálogo.
+- RF-33: CUANDO se elige «Usar como base» en un cálculo del historial, EL SISTEMA iniciará un cálculo nuevo con esas piezas y lo calculará con las recetas vigentes.
 - RF-34: SI un cálculo que se usa como base tiene platillos cuya receta hoy está archivada, ENTONCES EL SISTEMA los dejará fuera del cálculo nuevo y avisará cuáles quedaron fuera.
 
 ### Plantillas
@@ -98,7 +97,7 @@ inventario ni crea requisiciones.
 - RF-50: SI un nombre de receta o de plantilla está vacío o pasa de 80 caracteres, ENTONCES EL SISTEMA lo rechazará e indicará el límite.
 - RF-51: CUANDO se archiva una receta, EL SISTEMA dejará de ofrecerla en los cálculos nuevos y conservará los cálculos guardados que la usan.
 - RF-52: SI se intenta reactivar una receta o una plantilla cuyo nombre ya usa otra activa, ENTONCES EL SISTEMA lo rechazará e indicará el conflicto.
-- RF-53: EL SISTEMA guardará en el registro de cambios quién y cuándo crea, modifica, archiva, reactiva o importa una receta, cambia la configuración del recetario o crea, modifica, archiva o reactiva una plantilla, con el valor anterior cuando lo hay.
+- RF-53: EL SISTEMA guardará en el registro de cambios quién y cuándo crea, modifica, archiva, reactiva o importa una receta (incluido su porcentaje de media porción) o crea, modifica, archiva o reactiva una plantilla, con el valor anterior cuando lo hay.
 
 ### Consulta
 - RF-54: EL SISTEMA mostrará las recetas del negocio en una tabla con búsqueda por nombre que no distingue mayúsculas ni acentos, y con filtro de activas y archivadas.
@@ -124,7 +123,9 @@ inventario ni crea requisiciones.
 - Una preparación de la casa, como «salsa negra Especial»: es un producto del catálogo y se pide tal cual; no se
   desglosa en sus ingredientes.
 - Porcentaje de media porción en 100 %: una media cuenta como una pieza completa; válido.
-- Siete medias con el 50 %: equivalen a 3.5 platillos completos, sin redondear.
+- Un platillo con media al 60 % y otro al 50 % en el mismo cálculo: cada uno usa el suyo.
+- Recetas importadas: entran con 50 % y se ajustan después en cada receta (RF-17).
+- Siete medias de un platillo al 50 %: equivalen a 3.5 platillos completos, sin redondear.
 - Un producto cuya presentación de compra es la unidad base: la lista muestra solo la cantidad exacta (RF-25).
 - Una cantidad exacta que coincide con presentaciones completas, como 4,000 g con bolsa de 2 kg: 2 bolsas, sin
   sumar una de más.
@@ -138,7 +139,7 @@ inventario ni crea requisiciones.
 ## Fuera de alcance
 - Desglosar preparaciones de la casa en sus ingredientes (sub-recetas).
 - Merma aparte: la cantidad de la receta es bruta y ya la incluye.
-- Media porción con cantidades propias por platillo o porcentaje distinto por platillo.
+- Media porción con cantidades propias por ingrediente (el porcentaje es uno por platillo).
 - Importar ventas del punto de venta o sugerir piezas a partir de ventas pasadas.
 - Comparar la lista con las existencias o descontar inventario: spec 005.
 - Crear una requisición desde un cálculo: spec 006.
@@ -158,5 +159,5 @@ inventario ni crea requisiciones.
 - `docs/reglas-de-negocio.md` actualizado.
 
 ## Dudas abiertas
-- [NECESITA ACLARACIÓN: ¿el porcentaje de media porción es uno solo para todo el negocio (como está escrito en
-  RF-16 a RF-18), o lo quieres configurar por platillo?]
+Ninguna. Resuelta en la aprobación (12 de noviembre de 2026): el porcentaje de media porción se configura en cada
+platillo, con 50 % al darlo de alta o importarlo.
