@@ -18,7 +18,7 @@ const BASE = "base";
 
 type Mode = { kind: "data" } | { kind: "addPresentation" } | { kind: "editPresentation"; presentation: PresentationView } | { kind: "level"; warehouse: WarehouseView } | null;
 
-export function ProductDetail({ product, suppliers, warehouses }: { product: ProductView; suppliers: SupplierView[]; warehouses: WarehouseView[] }) {
+export function ProductDetail({ product, suppliers, warehouses, recipes = [] }: { product: ProductView; suppliers: SupplierView[]; warehouses: WarehouseView[]; recipes?: { id: string; name: string }[] }) {
   const { run, error, setError, busy } = useAction();
   const [mode, setMode] = useState<Mode>(null);
   const unit = unitShort(product.baseUnit);
@@ -179,6 +179,23 @@ export function ProductDetail({ product, suppliers, warehouses }: { product: Pro
                 </li>
               );
             })}
+          </ul>
+        )}
+      </section>
+
+      <section aria-label={es.recipes.usedIn} className="flex flex-col gap-2">
+        <SectionLabel as="h2">{es.recipes.usedIn}</SectionLabel>
+        {recipes.length === 0 ? (
+          <p className="text-sm text-ink-muted">{es.recipes.usedInNone}</p>
+        ) : (
+          <ul className="flex flex-col lg:max-w-3xl" data-testid="used-in">
+            {recipes.map((r) => (
+              <li key={r.id} className="flex min-h-12 items-center border-b border-line">
+                <Link href={`/recetas/${r.id}`} className="inline-flex min-h-11 items-center font-semibold text-primary hover:underline">
+                  {r.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </section>

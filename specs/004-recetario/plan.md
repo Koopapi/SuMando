@@ -96,7 +96,7 @@ RF-11), `invalid_half_percent` (422, RF-18), `invalid_pieces` (422, RF-21), `cal
 - **La receta se guarda completa** (`PUT` con todos sus ingredientes) en vez de una ruta por ingrediente: RF-13 se
   valida de una vez, el registro de cambios guarda la receta anterior entera y el editor usa `RowEntry`.
   Descartado: rutas por ingrediente, que dejarían recetas a medias entre llamadas.
-- **La vista previa se calcula en el servidor** (`/calculations/preview`, con espera de 250 ms tras teclear) para
+- **La vista previa se calcula en el servidor** (`/calculations/preview`, con espera de 150 ms tras teclear) para
   cumplir el principio 3 y la regla de que `features/` no calcula. Descartado: calcular en el cliente con la misma
   función de dominio, que duplicaría la fuente de verdad.
 - **El cálculo guarda copias** (nombres, porcentajes, factores y totales) en sus propias tablas en vez de
@@ -152,3 +152,12 @@ con avisos de seguridad).
 - El recetario real de Pirrus se leyó con el lector propio (21 hojas, unidades como «Gramos », «mililitros»). Su
   hoja «TOSTI PIRRUS» tiene «TIO TORO» en la primera celda, así que al importarlo sale como duplicado de «TIO TORO»
   hasta corregir esa celda (RF-46).
+- El editor de recetas no usa `RowEntry` (pensado para subir y bajar cantidades): cada ingrediente es un grupo con
+  producto, cantidad, presentación y nota. Se sumaron a `src/ui` `TextArea`, `FileField`, `LinkButton`,
+  `formatQuantity` y `formatDateTime`, e iconos de receta, calculadora, historial, subir y quitar.
+- La vista previa espera 150 ms tras teclear (no 250) para cumplir los 300 ms del requisito de volumen; con 100
+  recetas de 15 ingredientes la lista se actualiza por debajo de ese tiempo en escritorio.
+- Recetas e Insumos están en «Más» del teléfono y en el menú lateral, para todos los perfiles; el E2E de la barra
+  inferior (spec 002, RF-46) ahora espera esos dos destinos antes de Negocios y Personas.
+- El inicio tiene la sección «Recetario» (recetas activas y fecha del último cálculo) y «Recetario» sale de
+  «Próximamente».

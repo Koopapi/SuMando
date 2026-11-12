@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF) y 003 (41 RF) vigentes, con test en verde.
+Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF) y 004 (55 RF) vigentes, con test en verde.
 
 ---
 
@@ -83,7 +83,7 @@ Origen: spec 003 (aprobada el 12 de noviembre de 2026; construida y validada el 
 
 ## 4. Recetario e insumos
 
-Origen: spec 004 (aprobada el 12 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 004 (aprobada el 12 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - **Recetas del negocio**: cada platillo tiene una receta con ingredientes del catálogo de su negocio, cantidad
   bruta (ya incluye la merma) y nota opcional; la editan el dueño y los administradores del negocio (RF-1, RF-4,

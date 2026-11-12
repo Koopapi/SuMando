@@ -2,7 +2,7 @@
 // negocio de la sucursal activa, con el permiso del catálogo y cada cambio en el registro.
 import type { Product, ProductPresentation, Recipe, RecipeIngredient } from "@/db/schema";
 import { CATALOG_NAME_MAX } from "@/domain/catalog/names";
-import { dbToMilli, microToDb, parseMilli, toBaseMicro } from "@/domain/catalog/units";
+import { dbToMilli, formatMilli, microToDb, parseMilli, toBaseMicro } from "@/domain/catalog/units";
 import { DEFAULT_HALF_PERCENT } from "@/domain/recipes/portions";
 import { recipeProblem, NOTE_MAX, PREPARATION_MAX, type RecipeDraft } from "@/domain/recipes/recipe";
 import { AppError } from "../../errors";
@@ -152,4 +152,25 @@ export async function recipesUsingProduct(ctx: Ctx, scope: CatalogScope, product
   const [recipes, ingredients] = await Promise.all([ctx.store.recipes.recipes.listByBusiness(access.businessId), ctx.store.recipes.ingredients.listByBusiness(access.businessId)]);
   const using = new Set(ingredients.filter((i) => i.productId === productId).map((i) => i.recipeId));
   return recipes.filter((r) => !r.archivedAt && using.has(r.id)).map((r) => ({ id: r.id, name: r.name }));
+}
+
+export interface EditorProduct {
+  id: string;
+  name: string;
+  baseUnit: Product["baseUnit"];
+  presentations: { id: string; name: string; factor: string }[];
+}
+
+/** Productos activos del negocio con sus presentaciones, para elegir ingredientes (RF-8, RF-9). */
+export async function recipeEditorProducts(ctx: Ctx, scope: CatalogScope): Promise<EditorProduct[]> {
+  const access = await catalogAccess(ctx.store, scope);
+  const { products, presentations } = await businessProducts(ctx.store, access.businessId);
+  return [...products.values()]
+    .filter((p) => !p.archivedAt)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      baseUnit: p.baseUnit,
+      presentations: presentations.filter((x) => x.productId === p.id).map((x) => ({ id: x.id, name: x.name, factor: formatMilli(dbToMilli(x.factor)) })),
+    }));
 }

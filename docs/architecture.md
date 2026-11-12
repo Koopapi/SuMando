@@ -48,6 +48,16 @@ Lo construido en la spec 003:
   activa, de `server/auth/catalog-scope.ts`) y nunca un `businessId` suelto; lo de otro negocio responde
   `not_found`. Cantidades y equivalencias van como texto en la API y como enteros (`bigint`) en `domain/catalog/units`.
 
+Lo construido en la spec 004:
+
+- **Recetario**: `server/services/recipes` usa el mismo `CatalogScope`. Las recetas son del negocio; los cálculos y
+  las plantillas, de la sucursal activa (lo de otra sucursal responde `not_found`). La suma de insumos es pura
+  (`domain/recipes/supplies.ts`, enteros en centésimas de millonésima) y la calcula siempre el servidor, también la
+  vista previa. Un cálculo guardado lleva copias de nombres, porcentajes y factores, y no tiene rutas de cambio.
+- **Excel sin dependencias**: `server/adapters/xlsx.ts` lee .xlsx con `zlib` de Node (zip por su directorio central y
+  XML de celdas), con límites de tamaño, hojas, filas y bytes descomprimidos. `tests/support/xlsx.ts` arma archivos
+  para las pruebas.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

@@ -13,3 +13,17 @@ export function formatDate(date: Date): string {
   const parts = Object.fromEntries(dateParts.formatToParts(date).map((p) => [p.type, p.value]));
   return `${parts.day} ${String(parts.month).replace(".", "")} ${parts.year}`;
 }
+
+/** Cantidad exacta que llega como texto («8295.5»): con separador de miles y sin tocar los decimales («8,295.5»). */
+export function formatQuantity(text: string): string {
+  const [int, frac] = text.split(".");
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return frac ? `${grouped}.${frac}` : grouped;
+}
+
+const time = new Intl.DateTimeFormat("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Mexico_City" });
+
+/** «13 nov 2026, 18:05»: fecha y hora de la Ciudad de México (spec 004, historial). */
+export function formatDateTime(date: Date): string {
+  return `${formatDate(date)}, ${time.format(date)}`;
+}

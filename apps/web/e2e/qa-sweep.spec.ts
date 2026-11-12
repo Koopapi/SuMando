@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner } from "./helpers";
+import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedRecipes } from "./helpers";
 
 const VIEWPORTS = [
   { name: "escritorio", width: 1360, height: 950 },
@@ -90,7 +90,22 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   await seedAdmin("Ana", "ana@mando.test", [pastatti.branches[0].id], "ana-123456");
   // Spec 003: catálogo con datos para que sus pantallas no salgan vacías.
   const { productId } = await seedCatalog(pastatti.branches[0].id);
-  const catalog = ["/productos", `/productos/${productId}`, "/proveedores", "/almacenes"];
+  // Spec 004: recetario con una receta, un cálculo guardado y una plantilla.
+  const { recipeId, calculationId } = await seedRecipes(pastatti.branches[0].id, productId);
+  const catalog = [
+    "/productos",
+    `/productos/${productId}`,
+    "/proveedores",
+    "/almacenes",
+    "/recetas",
+    `/recetas/${recipeId}`,
+    "/recetas/nueva",
+    "/recetas/importar",
+    "/insumos",
+    "/insumos/historial",
+    `/insumos/historial/${calculationId}`,
+    "/insumos/plantillas",
+  ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog], problems, async (page) => {
     await login(page, OWNER.email, OWNER.password);

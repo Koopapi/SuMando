@@ -6,7 +6,9 @@ import { requirePageBranch } from "@/server/auth/page-guards";
 import { listBusinesses } from "@/server/services/businesses";
 import { catalogView } from "@/server/services/catalog/views";
 import { listPeople } from "@/server/services/people";
-import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel } from "@/ui";
+import { listCalculations } from "@/server/services/recipes/calculations";
+import { listRecipes } from "@/server/services/recipes/recipes";
+import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel, formatDateTime } from "@/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +30,8 @@ export default async function HomePage() {
   const activeBusinesses = businesses.filter((b) => !b.archivedAt);
   const branchCount = activeBusinesses.reduce((n, b) => n + b.branches.filter((br) => !br.archivedAt).length, 0);
   const activePeople = people.filter((p) => p.isActive);
-  const catalog = await catalogView(ctx, { actor: user, active });
+  const scope = { actor: user, active };
+  const [catalog, recipes, calculations] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope)]);
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -58,6 +61,13 @@ export default async function HomePage() {
           <ListRow href="/productos" icon="box" title={es.shell.products} detail={t.productsDetail(activeCount(catalog.products))} />
           <ListRow href="/proveedores" icon="truck" title={es.shell.suppliers} detail={t.suppliersDetail(activeCount(catalog.suppliers))} />
           <ListRow href="/almacenes" icon="warehouse" title={es.shell.places} detail={t.placesDetail(activeCount(catalog.warehouses), activeCount(catalog.areas))} />
+        </div>
+      </section>
+      <section className="flex flex-col gap-1">
+        <SectionLabel>{t.recipesLabel}</SectionLabel>
+        <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/recetas" icon="recipe" title={es.shell.recipes} detail={t.recipesDetail(activeCount(recipes))} />
+          <ListRow href="/insumos" icon="calculator" title={es.shell.supplies} detail={calculations[0] ? t.lastCalculation(formatDateTime(new Date(calculations[0].createdAt))) : t.noCalculations} />
         </div>
       </section>
       <section className="flex flex-col gap-3">

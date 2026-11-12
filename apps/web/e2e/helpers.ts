@@ -107,3 +107,12 @@ export async function seedCatalog(branchId: string) {
   await call("/api/areas", { name: "Cocina", responsibleId: candidates[0].id });
   return { productId: product.id as string };
 }
+
+/** Recetario mínimo sobre `seedCatalog` (spec 004): una receta, un cálculo guardado y una plantilla. */
+export async function seedRecipes(branchId: string, productId: string) {
+  const call = await ownerApiAt(branchId);
+  const { recipe } = await call("/api/recipes", { name: "Ensalada de la casa", preparation: "1.- Mezclar todo", ingredients: [{ productId, quantity: "30", note: "Un chorrito" }] });
+  const { calculation } = await call("/api/calculations", { items: [{ recipeId: recipe.id, full: 12, half: 4 }] });
+  await call("/api/recipe-templates", { name: "Fin de semana", items: [{ recipeId: recipe.id, full: 40, half: 0 }] });
+  return { recipeId: recipe.id as string, calculationId: calculation.id as string };
+}

@@ -24,6 +24,11 @@ const PATHS = {
   warehouse: "M3 21V9l9-5 9 5v12M7 21v-8h10v8M7 17h10",
   arrowLeft: "M19 12H5M11 6l-6 6 6 6",
   more: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
+  recipe: "M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4",
+  calculator: "M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01",
+  history: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2",
+  upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
+  trash: "M5 7h14M10 11v6M14 11v6M7 7l1 13h8l1-13M9 7V4h6v3",
   searchX: "M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM20 20l-4-4M9 9l4 4M13 9l-4 4",
 } as const;
 

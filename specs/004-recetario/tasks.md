@@ -59,20 +59,20 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Pantallas
 
-- [ ] **T11 — Recetas: tabla y editor**
+- [x] **T11 — Recetas: tabla y editor**
   - RF: RF-7, RF-8, RF-9, RF-12, RF-14, RF-15, RF-18, RF-54
   - Depende de: T10
   - Hecho cuando: `/recetas` lista con búsqueda y filtros, `/recetas/nueva` y `/recetas/[id]` editan con `RowEntry`
     y porcentaje de media, a 360 px y en escritorio.
-- [ ] **T12 — Importar**
+- [x] **T12 — Importar**
   - RF: RF-42, RF-47, RF-48
   - Depende de: T11
   - Hecho cuando: `/recetas/importar` sube el archivo, muestra la revisión por platillo y confirma.
-- [ ] **T13 — Cálculo con lista viva**
+- [x] **T13 — Cálculo con lista viva**
   - RF: RF-20, RF-21, RF-22, RF-24, RF-25, RF-27, RF-28
   - Depende de: T10
   - Hecho cuando: `/insumos` captura completas y medias con teclado numérico, la lista se actualiza sola y se guarda.
-- [ ] **T14 — Historial, plantillas y navegación**
+- [x] **T14 — Historial, plantillas y navegación**
   - RF: RF-30, RF-32, RF-33, RF-34, RF-35, RF-36, RF-37, RF-38, RF-39, RF-55
   - Depende de: T13
   - Hecho cuando: historial y su detalle, usar como base con aviso, plantillas con confirmación de reemplazo,
@@ -80,12 +80,12 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 4 — Cierre
 
-- [ ] **T15 — E2E, volumen y barrido**
+- [x] **T15 — E2E, volumen y barrido**
   - RF: RF-7, RF-8, RF-15, RF-20, RF-22, RF-24, RF-25, RF-29, RF-30, RF-33, RF-35, RF-36, RF-37, RF-42, RF-47, RF-54
   - Depende de: T11, T12, T13, T14
   - Hecho cuando: `e2e/recetario.spec.ts` en verde con el volumen de 100 recetas, y las páginas nuevas en el barrido
     con axe en claro y oscuro, en escritorio.
-- [ ] **T16 — Validación y documentos**
+- [x] **T16 — Validación y documentos**
   - RF: todos
   - Depende de: T15
   - Hecho cuando: `validation.md` con 55 de 55 RF; `docs/reglas-de-negocio.md` en «Vigente»; roadmap y

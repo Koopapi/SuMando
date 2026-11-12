@@ -24,7 +24,8 @@ completa y los 8 colores de negocio en `specs/002-sistema-de-diseno/plan.md`. To
 3:1 en los dos modos (`src/ui/theme/tokens.test.ts`). Esquinas de 8 px en controles y 10 px en contenedores.
 
 ## Componentes (`src/ui`)
-Botón (con estado ocupado), botón de icono, campo de texto, número, dinero, selector, casilla, selector de color,
+Botón (con estado ocupado), enlace con aspecto de botón (`LinkButton`), botón de icono, campo de texto, texto largo
+(`TextArea`), archivo (`FileField`), número, dinero, selector, casilla, selector de color,
 avisos en línea y flotantes (4 s el de guardado; el de error hasta cerrarlo), diálogo y panel lateral con foco
 atrapado, estados de cargando, vacío y error, insignias de estado y de negocio, rótulo, perilla, cabecera de página,
 fila de lista, bloque de negocio, barra inferior del teléfono (`BottomNav`, reserva `--nav-space`), tabla de datos (tarjetas bajo 1024 px), captura por renglones y asistente por pasos.
@@ -34,6 +35,7 @@ fila de lista, bloque de negocio, barra inferior del teléfono (`BottomNav`, res
 - Móvil primero: todo funciona desde 360 px sin desplazamiento lateral; desde 1024 px, menú lateral y tablas completas.
 - Bajo 1024 px nada fijo abajo se pega a `bottom: 0`: usa `var(--nav-space)` para quedar sobre la barra inferior.
 - Todo lo que se toca mide al menos 44 × 44 px; campos con texto de 16 px; cantidades y dinero con teclado numérico.
-- Pesos como «$1,234.50» y fechas como «11 nov 2026» (`src/ui/format.ts`).
+- Pesos como «$1,234.50», fechas como «11 nov 2026», fecha con hora como «13 nov 2026, 18:05» y cantidades exactas
+  con separador de miles («8,295.5») (`src/ui/format.ts`).
 - Estados siempre visibles: cargando, vacío, error y guardado. Foco visible y sin animaciones con movimiento reducido.
 - Las maquetas se aprueban en Pencil antes de construir; cada módulo maqueta sus pantallas con estos componentes.
