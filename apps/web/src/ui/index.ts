@@ -21,3 +21,4 @@ export { PageHeader } from "./page-header";
 export { RowEntry, quantityError, type EntryRow } from "./row-entry";
 export { Wizard, type WizardStep } from "./wizard";
 export { ColorPicker } from "./color-picker";
+export { BottomNav, type BottomNavItem } from "./bottom-nav";

@@ -60,7 +60,7 @@ export function CapturePattern() {
         <div className="flex-1">
           <RowEntry rows={SAMPLE_DISHES.map(([id, label]) => ({ id, label, unit: t.unit }))} values={values} onChange={(id, v) => setValues((s) => ({ ...s, [id]: v }))} headers={t.headers} />
         </div>
-        <aside className="sticky bottom-0 -mx-4 flex flex-col gap-3 border-t border-line-strong bg-surface px-4 py-4 lg:static lg:mx-0 lg:w-80 lg:rounded-lg lg:border lg:border-line lg:p-5">
+        <aside className="sticky bottom-(--nav-space) -mx-4 flex flex-col gap-3 border-t border-line-strong bg-surface px-4 py-4 lg:static lg:mx-0 lg:w-80 lg:rounded-lg lg:border lg:border-line lg:p-5">
           <div className="flex items-center gap-3">
             <Dial value={done / SAMPLE_DISHES.length} label={t.progress(done, SAMPLE_DISHES.length)} />
             <div className="flex flex-col">

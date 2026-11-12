@@ -66,12 +66,14 @@ test("color de negocio y estructura", async ({ page }) => {
     expect((await nav.boundingBox())!.y).toBeCloseTo(box.y, 0);
   });
 
-  await test.step("RF-16 bajo 1024 px el menú se abre con un toque desde la barra", async () => {
+  await test.step("RF-16 bajo 1024 px la navegación es la barra inferior", async () => {
     await page.setViewportSize({ width: 1023, height: 800 });
     await page.goto("/");
-    await expect(page.getByRole("navigation", { name: "Navegación" })).toBeHidden();
-    await page.getByRole("button", { name: "Abrir el menú" }).click();
-    const sheet = page.getByRole("dialog", { name: "Navegación" });
+    const nav = page.getByRole("navigation", { name: "Navegación" });
+    await expect(nav.getByRole("link", { name: "Inicio" })).toHaveAttribute("aria-current", "page");
+    expect((await nav.boundingBox())!.y).toBeGreaterThan(700);
+    await nav.getByRole("button", { name: "Más" }).click();
+    const sheet = page.getByRole("dialog", { name: "Más" });
     await expect(sheet).toBeVisible();
     await sheet.getByRole("link", { name: "Personas" }).click();
     await expect(page).toHaveURL(/\/personas$/);

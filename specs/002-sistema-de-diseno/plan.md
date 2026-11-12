@@ -168,3 +168,23 @@ escribe en `audit_log` la acción `business.color_changed` con el valor anterior
 - axe (`@axe-core/playwright`) encontró nombres accesibles que no contenían el texto visible (WCAG 2.5.3); se
   corrigieron. Ninguna falla de contraste en claro ni en oscuro.
 - El WebKit de Playwright no emula «sin preferencia» de color: esa comprobación de RF-5 corre en Chromium.
+
+### Ajuste: barra inferior en teléfono (12 de noviembre de 2026)
+
+Cambia RF-16 y entran RF-45 a RF-48, aprobados por el dueño. Rama `arreglo/barra-inferior`.
+
+- Componente nuevo `src/ui/bottom-nav.tsx` (`BottomNav`): `<nav>` fijo abajo, visible bajo 1024 px, con botones de
+  icono y nombre, `aria-current="page"` en el actual y un botón final que abre un panel. No sabe de roles: la
+  estructura (`features/shell/app-shell.tsx`) le pasa los destinos ya filtrados.
+- La banda superior pierde el botón «Abrir el menú»; conserva el logo y el negocio activo (cambiar de sucursal
+  sigue a un toque). El panel `Sheet` existente pasa a ser «Más»: Negocios y Personas (dueño), Cambiar contraseña
+  y Cerrar sesión.
+- Espacio de la barra (RF-48): la estructura define `--nav-space` = alto de la barra + `env(safe-area-inset-bottom)`
+  bajo 1024 px y `0` desde 1024 px; el contenido deja ese relleno abajo y `scroll-padding-bottom` evita que el campo
+  enfocado quede detrás. El viewport añade `viewportFit: "cover"` para que la zona segura del iPhone se informe.
+  Las barras de acción fijas (`Wizard` y la pantalla tipo de captura) y los avisos se pegan por encima de la barra
+  (`bottom: var(--nav-space, 0)`).
+- Sin dependencias nuevas ni cambios de base de datos. Maqueta del inicio en teléfono actualizada en
+  `recursos/sumando.pen`.
+- Tests: E2E de la 002 (`recorrido-002`, `negocio-color`) con pasos RF-16 y RF-45 a RF-48 a 360 px en Chromium de
+  escritorio; los ayudantes de E2E navegan por la barra o por «Más»; el barrido axe cubre la barra en claro y oscuro.

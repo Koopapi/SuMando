@@ -23,6 +23,7 @@ const PATHS = {
   truck: "M3 6h11v10H3zM14 9h4l3 3v4h-7M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM17.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
   warehouse: "M3 21V9l9-5 9 5v12M7 21v-8h10v8M7 17h10",
   arrowLeft: "M19 12H5M11 6l-6 6 6 6",
+  more: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
   searchX: "M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM20 20l-4-4M9 9l4 4M13 9l-4 4",
 } as const;
 

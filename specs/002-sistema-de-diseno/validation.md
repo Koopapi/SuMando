@@ -1,8 +1,8 @@
 # Validación — Spec 002
 
-Generado por `scripts/rf-coverage.mjs` el 2026-11-12. Vitest: 119 de 119 tests en verde. E2E: `pnpm e2e`.
+Generado por `scripts/rf-coverage.mjs` el 2026-11-12. Vitest: 163 de 163 tests en verde. E2E: `pnpm e2e`.
 
-**Veredicto: spec cumplida** (44 de 44 RF con al menos un test en verde).
+**Veredicto: spec cumplida** (48 de 48 RF con al menos un test en verde).
 
 | RF | Requisito | Tests unitarios / integración | Pasos E2E | Estado |
 |---|---|---|---|---|
@@ -21,8 +21,12 @@ Generado por `scripts/rf-coverage.mjs` el 2026-11-12. Vitest: 119 de 119 tests e
 | RF-13 | EL SISTEMA mostrará el color de cada negocio en la lista de negocios y en la pantalla para elegir sucursal. | — | RF-13 elegir sucursal muestra el color junto al nombre del negocio | Cumplido |
 | RF-14 | EL SISTEMA identificará siempre al negocio por su nombre además de su color, nunca solo por el color. | — | RF-12 y RF-14 la barra muestra negocio, sucursal y su color, con el nombre siempre escrito | Cumplido |
 | RF-15 | CUANDO el dueño cambia el color de un negocio, EL SISTEMA guardará en el registro de cambios quién lo cambió, cuándo y el color anterior. | ✓ rf15_cambiar_el_color_queda_en_el_registro_con_el_anterior | — | Cumplido |
-| RF-16 | MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA ofrecerá la navegación principal con un botón visible en la barra superior, a un toque de cualquier pantalla. | — | RF-16 bajo 1024 px el menú se abre con un toque desde la barra<br>RF-16 el menú se abre con un toque | Cumplido |
-| RF-17 | MIENTRAS la pantalla mida 1024 px de ancho o más, EL SISTEMA mostrará la navegación principal como un menú lateral fijo. | — | RF-17 desde 1024 px el menú es lateral y fijo<br>RF-17 y RF-19 en escritorio, menú lateral y tabla de personas con todas sus columnas | Cumplido |
+| RF-16 | MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA mostrará la navegación principal en una barra fija en la parte inferior de cada pantalla. *(Ajuste del 12 de noviembre de 2026: antes era un botón de menú en la barra superior.)* | — | RF-16 bajo 1024 px la navegación es una barra fija abajo, sin botón de menú arriba<br>RF-16 bajo 1024 px la navegación es la barra inferior<br>RF-16 la navegación está en la barra de abajo, a un toque | Cumplido |
+| RF-45 | MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA mostrará en la barra inferior cinco botones, cada uno con icono y nombre: Inicio, Productos, Almacenes, Proveedores y «Más». | — | RF-45 la barra tiene Inicio, Productos, Almacenes, Proveedores y «Más», con icono y nombre | Cumplido |
+| RF-46 | CUANDO alguien toca «Más», EL SISTEMA abrirá una hoja con el resto de la navegación a la que tiene acceso (Negocios y Personas solo para el dueño, Cambiar contraseña) y Cerrar sesión. | — | RF-46 «Más» abre Negocios, Personas, Cambiar contraseña y Cerrar sesión para el dueño<br>RF-46 un administrador ve en «Más» solo lo que tiene permitido | Cumplido |
+| RF-47 | EL SISTEMA marcará en la barra inferior el botón de la pantalla actual, y «Más» cuando la pantalla actual sea una de las que están dentro de él. | — | RF-47 la barra marca la pantalla actual<br>RF-47 en una pantalla de «Más», la barra marca «Más» | Cumplido |
+| RF-48 | MIENTRAS la barra inferior está visible, EL SISTEMA dejará al final de cada pantalla el espacio de la barra y de la zona segura del teléfono, para que la barra no tape ningún contenido ni botón. | — | RF-48 la barra no tapa el final de la pantalla | Cumplido |
+| RF-17 | MIENTRAS la pantalla mida 1024 px de ancho o más, EL SISTEMA mostrará la navegación principal como un menú lateral fijo. | — | RF-17 desde 1024 px no hay barra inferior, solo el menú lateral<br>RF-17 desde 1024 px el menú es lateral y fijo<br>RF-17 y RF-19 en escritorio, menú lateral y tabla de personas con todas sus columnas | Cumplido |
 | RF-18 | EL SISTEMA mostrará cada pantalla sin desplazamiento horizontal desde 360 px de ancho. | — | RF-18 y caso límite: nombres de 60 caracteres caben en 360 px sin desbordar | Cumplido |
 | RF-19 | MIENTRAS la pantalla mida 1024 px de ancho o más, EL SISTEMA mostrará las tablas con todas sus columnas. | — | RF-19 desde 1024 px la tabla muestra todas sus columnas<br>RF-17 y RF-19 en escritorio, menú lateral y tabla de personas con todas sus columnas | Cumplido |
 | RF-20 | MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA mostrará cada renglón de una tabla como una tarjeta con sus datos principales y el resto al abrirla. | — | RF-20 en teléfono cada renglón es tarjeta y el resto se ve al abrirla | Cumplido |

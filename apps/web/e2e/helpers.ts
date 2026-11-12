@@ -23,17 +23,20 @@ export async function login(page: Page, email: string, password: string) {
   await Promise.race([page.waitForURL((u) => !u.pathname.endsWith("/login")), alertBox(page).waitFor()]);
 }
 
-/** En teléfono (bajo 1024 px) la navegación vive en el menú de la banda (spec 002, RF-16): lo abre si hace falta. */
+/** Botón «Más» de la barra inferior del teléfono (spec 002, RF-16 y RF-46). */
+const moreButton = (page: Page) => page.getByRole("navigation", { name: "Navegación" }).getByRole("button", { name: "Más" });
+
+/** En teléfono (bajo 1024 px) lo que no está en la barra inferior vive en «Más»: lo abre si hace falta. */
 export async function openMenuIfNeeded(page: Page) {
-  const menu = page.getByRole("button", { name: "Abrir el menú" });
-  if (await menu.isVisible()) await menu.click();
+  const more = moreButton(page);
+  if (await more.isVisible()) await more.click();
 }
 
-/** Comprueba que se puede cerrar sesión (en teléfono, dentro del menú, que luego se vuelve a cerrar). */
+/** Comprueba que se puede cerrar sesión (en teléfono, dentro de «Más», que luego se vuelve a cerrar). */
 export async function expectCanLogout(page: Page) {
-  const menu = page.getByRole("button", { name: "Abrir el menú" });
-  const phone = await menu.isVisible();
-  if (phone) await menu.click();
+  const more = moreButton(page);
+  const phone = await more.isVisible();
+  if (phone) await more.click();
   await page.getByRole("button", { name: "Cerrar sesión" }).waitFor();
   if (phone) await page.keyboard.press("Escape");
 }

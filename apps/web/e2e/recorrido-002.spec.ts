@@ -44,9 +44,9 @@ test("recorrido completo de la spec 002", async ({ page }) => {
     await expect(page.getByTestId("active-branch")).toHaveText("Pirrus · Centro");
   });
 
-  await test.step("RF-16 el menú se abre con un toque", async () => {
-    await page.getByRole("button", { name: "Abrir el menú" }).click();
-    const sheet = page.getByRole("dialog", { name: "Navegación" });
+  await test.step("RF-16 la navegación está en la barra de abajo, a un toque", async () => {
+    await page.getByRole("navigation", { name: "Navegación" }).getByRole("button", { name: "Más" }).click();
+    const sheet = page.getByRole("dialog", { name: "Más" });
     await expect(sheet.getByRole("link", { name: "Personas" })).toBeVisible();
     await sheet.getByRole("link", { name: "Personas" }).click();
     await expect(page).toHaveURL(/\/personas$/);

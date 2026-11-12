@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (44 RF) y 003 (41 RF) vigentes, con test en verde.
+Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF) y 003 (41 RF) vigentes, con test en verde.
 
 ---
 
@@ -45,7 +45,9 @@ Origen: spec 002 (aprobada el 11 de noviembre de 2026; construida y validada el 
 - Cada negocio tiene un color de una paleta cerrada de 8; solo el dueño lo elige o cambia, y el cambio queda
   registrado. El negocio se identifica siempre por nombre y color, nunca solo por color (RF-8 a RF-15).
 - Teléfono para capturar y escritorio para revisar: desde 1024 px de ancho, menú lateral y tablas con todas sus
-  columnas; por debajo, menú con un botón y renglones como tarjetas (RF-16 a RF-20).
+  columnas; por debajo, barra de navegación abajo (Inicio, Productos, Almacenes, Proveedores y «Más», donde están
+  Negocios y Personas para el dueño, Cambiar contraseña y Cerrar sesión) y renglones como tarjetas (RF-16 a RF-20 y
+  RF-45 a RF-48; la barra inferior es un ajuste aprobado el 12 de noviembre de 2026).
 - Pesos con formato de México y fechas como «11 nov 2026»; aviso de guardado de 4 segundos; un error se queda
   hasta cerrarlo y no se pierde lo capturado (RF-23 a RF-28).
 

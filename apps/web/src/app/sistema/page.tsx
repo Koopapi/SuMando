@@ -1,7 +1,7 @@
 // Catálogo del sistema de diseño (spec 002, RF-40 y RF-42). Solo existe con DEV_ENDPOINTS=1: en producción, 404.
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ActionsDemo, AlertsDemo, BadgesDemo, DialogDemo, FormsDemo } from "@/features/system/catalog-demos";
+import { ActionsDemo, AlertsDemo, BadgesDemo, BottomNavDemo, DialogDemo, FormsDemo } from "@/features/system/catalog-demos";
 import { es } from "@/i18n";
 import { devEndpointsEnabled } from "@/server/clock";
 import { Button, Dial, EmptyState, ErrorState, LoadingState, PageShell, formatDate, formatMoney } from "@/ui";
@@ -31,6 +31,7 @@ export default function SystemPage() {
       <AlertsDemo />
       <DialogDemo />
       <BadgesDemo />
+      <BottomNavDemo />
       <section aria-labelledby="perilla" className="flex flex-col gap-4 border-t border-line pt-6">
         <h2 id="perilla" className="font-brand text-xl font-bold">
           {t.dials}

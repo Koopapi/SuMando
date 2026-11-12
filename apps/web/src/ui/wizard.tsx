@@ -62,7 +62,7 @@ export function Wizard({ steps, dirty, onExit, onFinish }: { steps: WizardStep[]
         </button>
       </div>
       <div>{step.content}</div>
-      <div className="sticky bottom-0 -mx-4 flex gap-3 border-t border-line-strong bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
+      <div className="sticky bottom-(--nav-space) -mx-4 flex gap-3 border-t border-line-strong bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
         <Button variant="secondary" full disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
           {t.previous}
         </Button>

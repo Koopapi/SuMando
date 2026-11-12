@@ -120,6 +120,16 @@
   --font-brand: var(--font-brand-face), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Barra inferior del teléfono (spec 002, RF-48): mientras existe, el contenido, las barras de acción fijas y los
+   avisos dejan su alto más la zona segura, y el campo enfocado no queda detrás al desplazarse. */
+:root { --nav-space: 0px; }
+@media (width < 64rem) {
+  html:has([data-bottom-nav]) {
+    --nav-space: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: var(--nav-space);
+  }
+}
+
 /* Foco visible en todo control al navegar con teclado (RF-38). */
 :focus-visible {
   outline: 2px solid var(--focus);

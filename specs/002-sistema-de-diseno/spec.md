@@ -51,7 +51,11 @@ equivocado.
 - RF-15: CUANDO el dueño cambia el color de un negocio, EL SISTEMA guardará en el registro de cambios quién lo cambió, cuándo y el color anterior.
 
 ### Teléfono y escritorio
-- RF-16: MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA ofrecerá la navegación principal con un botón visible en la barra superior, a un toque de cualquier pantalla.
+- RF-16: MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA mostrará la navegación principal en una barra fija en la parte inferior de cada pantalla. *(Ajuste del 12 de noviembre de 2026: antes era un botón de menú en la barra superior.)*
+- RF-45: MIENTRAS la pantalla mida menos de 1024 px de ancho, EL SISTEMA mostrará en la barra inferior cinco botones, cada uno con icono y nombre: Inicio, Productos, Almacenes, Proveedores y «Más».
+- RF-46: CUANDO alguien toca «Más», EL SISTEMA abrirá una hoja con el resto de la navegación a la que tiene acceso (Negocios y Personas solo para el dueño, Cambiar contraseña) y Cerrar sesión.
+- RF-47: EL SISTEMA marcará en la barra inferior el botón de la pantalla actual, y «Más» cuando la pantalla actual sea una de las que están dentro de él.
+- RF-48: MIENTRAS la barra inferior está visible, EL SISTEMA dejará al final de cada pantalla el espacio de la barra y de la zona segura del teléfono, para que la barra no tape ningún contenido ni botón.
 - RF-17: MIENTRAS la pantalla mida 1024 px de ancho o más, EL SISTEMA mostrará la navegación principal como un menú lateral fijo.
 - RF-18: EL SISTEMA mostrará cada pantalla sin desplazamiento horizontal desde 360 px de ancho.
 - RF-19: MIENTRAS la pantalla mida 1024 px de ancho o más, EL SISTEMA mostrará las tablas con todas sus columnas.
@@ -101,6 +105,8 @@ equivocado.
   tocarlos.
 
 ## Casos límite
+- Barra inferior con el teclado del teléfono abierto: la barra no tapa el campo que se está escribiendo.
+- iPhone con barra de gestos: los botones de la barra inferior quedan por encima de la zona segura (RF-48).
 - Negocios creados en la spec 001 sin color: reciben uno automáticamente (RF-10) y el dueño puede cambiarlo.
 - Dos negocios con el mismo color: se permite, porque el nombre siempre se muestra junto al color (RF-14).
 - Más de 8 negocios: los colores se repiten (RF-10).

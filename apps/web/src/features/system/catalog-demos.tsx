@@ -4,7 +4,7 @@
 import { useState, type FormEvent } from "react";
 import { BUSINESS_COLORS } from "@/domain/business-color";
 import { es } from "@/i18n";
-import { Alert, BusinessBadge, Button, Checkbox, Dialog, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextField, useToast } from "@/ui";
+import { Alert, BottomNav, BusinessBadge, Button, Checkbox, Dialog, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextField, useToast } from "@/ui";
 
 const t = es.system;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -154,5 +154,25 @@ export function BadgesDemo() {
         ))}
       </div>
     </Section>
+  );
+}
+
+/** Barra inferior (spec 002, RF-45 a RF-47): fija abajo en teléfono, como en la app. */
+export function BottomNavDemo() {
+  const toast = useToast();
+  const hrefs = ["/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente"];
+  const icons = ["home", "box", "warehouse", "truck"] as const;
+  return (
+    <section aria-labelledby="barra-inferior" className="flex flex-col gap-2 border-t border-line pt-6">
+      <h2 id="barra-inferior" className="font-brand text-xl font-bold">
+        {t.bottomNav}
+      </h2>
+      <p className="text-ink-muted">{t.bottomNavIntro}</p>
+      <BottomNav
+        label={t.bottomNavLabel}
+        items={hrefs.map((href, i) => ({ href, label: t.bottomNavItems[i], icon: icons[i], current: i === 0 }))}
+        more={{ label: t.bottomNavMore, current: false, expanded: false, onOpen: () => toast.success(t.bottomNavMoreMessage) }}
+      />
+    </section>
   );
 }

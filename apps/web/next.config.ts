@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   // Imagen de Docker pequeña (`NEXT_OUTPUT=standalone` al construirla); `next start` no admite standalone.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   poweredByHeader: false,
+  // Solo en `pnpm dev`: equipos de la red local (p. ej. el teléfono) que pueden cargar los recursos de desarrollo.
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS ?? "").split(",").map((h) => h.trim()).filter(Boolean),
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

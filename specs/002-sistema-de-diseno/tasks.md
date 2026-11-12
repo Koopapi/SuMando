@@ -204,6 +204,24 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
     iPhone 14 en verde; el dueño instala la app y ve SuMando con el icono nuevo. **Hecho salvo la instalación en el
     teléfono del dueño, que depende de publicar la versión de pruebas (T35 de la spec 001).**
 
+## Entrega 7 — Ajuste: barra inferior en teléfono (12 de noviembre de 2026)
+
+- [x] **T35 — Tests de la barra inferior**
+  - RF: 16, 45, 46, 47, 48
+  - Depende de: T33
+  - Hecho cuando: los pasos RF-16 y RF-45 a RF-48 de `recorrido-002` y `negocio-color` fallan contra el menú de
+    hamburguesa y los ayudantes de E2E navegan por la barra o por «Más».
+- [x] **T36 — Componente `BottomNav` y estructura**
+  - RF: 16, 45, 46, 47
+  - Depende de: T35
+  - Hecho cuando: bajo 1024 px se ve la barra con Inicio, Productos, Almacenes, Proveedores y «Más», marca la
+    pantalla actual, «Más» abre el panel según el rol y la banda ya no tiene botón de menú; aparece en `/sistema`.
+- [x] **T37 — Espacio de la barra y zona segura**
+  - RF: 48
+  - Depende de: T36
+  - Hecho cuando: el último botón de cada pantalla, las barras de acción del asistente y los avisos quedan por
+    encima de la barra a 360 px; E2E de escritorio, barrido axe y Vitest en verde; maqueta y validación al día.
+
 ## Cobertura
 
 | RF | Tareas |
@@ -223,7 +241,7 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 | RF-13 | T2, T29 |
 | RF-14 | T2, T29 |
 | RF-15 | T27 |
-| RF-16 | T28, T33 |
+| RF-16 | T28, T33, T35, T36 |
 | RF-17 | T28, T33 |
 | RF-18 | T28, T32 |
 | RF-19 | T20, T31, T33 |
@@ -252,4 +270,8 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 | RF-42 | T18 |
 | RF-43 | T30, T31 |
 | RF-44 | T30, T31 |
+| RF-45 | T35, T36 |
+| RF-46 | T35, T36 |
+| RF-47 | T35, T36 |
+| RF-48 | T35, T37 |
 | RNF | T3, T13, T32 |

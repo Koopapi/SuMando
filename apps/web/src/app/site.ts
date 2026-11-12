@@ -21,4 +21,6 @@ export const siteViewport: Viewport = {
   colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
+  // La zona segura del iPhone (barra de gestos) se informa a `env(safe-area-inset-bottom)` para la barra inferior.
+  viewportFit: "cover",
 };
