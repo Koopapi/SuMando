@@ -8,7 +8,7 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
   - RF: criterios de finalización (entregable de diseño 1)
   - Depende de: —
   - Hecho cuando: el dueño elige una. **Hecho el 11 de noviembre de 2026: dirección B, «Al mando».**
-- [ ] **T1 — Mover el archivo de diseño a `recursos/sumando.pen`**
+- [x] **T1 — Mover el archivo de diseño a `recursos/sumando.pen`**
   - RF: criterios de finalización
   - Depende de: T0
   - Hecho cuando: el dueño guardó el tablero en Pencil, el archivo está en `recursos/sumando.pen` (con `git mv`),
