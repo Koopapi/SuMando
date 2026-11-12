@@ -1,6 +1,6 @@
 # Despliegue — Mando
 
-Dos apps en Coolify sobre el VPS propio: **pruebas** (rama `pruebas`) y, más adelante (spec 010), **producción**
+Dos apps en Coolify sobre el VPS propio: **pruebas** (rama `pruebas`) y, más adelante (spec 012), **producción**
 (rama `main`). Las dos se construyen con el `Dockerfile` del repo y migran la base de datos al arrancar.
 
 ## Qué hace la imagen
@@ -24,12 +24,20 @@ Dos apps en Coolify sobre el VPS propio: **pruebas** (rama `pruebas`) y, más ad
    - `DATABASE_URL`: la URL interna de la base de datos del paso 1.
    - `COOKIE_SECURE=1` (hay HTTPS). `MIGRATE_ON_START=1` ya viene en la imagen.
    - **Nunca** `DEV_ENDPOINTS=1` fuera de desarrollo y E2E.
-4. **Dominio**: mientras no haya dominio, usar el provisional que genera Coolify (`*.sslip.io`) con HTTPS automático
-   (Let's Encrypt). Cuando exista el dominio, cambiarlo en *Domains* y Coolify renueva el certificado; la app no
-   cambia.
+4. **Dominio**: `sumando.com.mx` (registrado en HostGator el 11 de noviembre de 2026). La app de pruebas vive en
+   `pruebas.sumando.com.mx`; la raíz `sumando.com.mx` (y `www`) se reserva para producción (spec 012).
+   - En el panel de HostGator donde se administra el DNS del dominio (Zone Editor o administrador de DNS), crear un
+     registro **A** con nombre `pruebas` apuntando a la IPv4 pública del VPS, con TTL corto (300). Sin proxy ni
+     redirección de HostGator sobre ese subdominio: Let's Encrypt necesita llegar directo al VPS.
+   - Esperar la propagación antes de seguir: `dig +short A pruebas.sumando.com.mx` debe devolver la IP del VPS. Un
+     dominio recién registrado puede tardar unas horas en aparecer en los DNS de `.mx`.
+   - En Coolify, *Domains* de la app: `https://pruebas.sumando.com.mx`. Coolify (Traefik) pide y renueva el
+     certificado de Let's Encrypt solo. Si se desplegó antes de que el DNS apuntara al VPS, reiniciar el proxy o
+     volver a desplegar para que lo intente de nuevo. Mientras tanto sirve la dirección provisional `*.sslip.io`.
+   - Para producción, repetir con un registro A para `sumando.com.mx` (y `www`) y ese dominio en la app de `main`.
 5. **Despliegue automático**: activar *Auto Deploy* (webhook o la app de GitHub de Coolify) para que cada push a
    `pruebas` publique.
-6. **Primer arranque**: abrir la dirección → aparece «Crear la cuenta del dueño» (solo mientras no haya cuentas).
+6. **Primer arranque**: abrir `https://pruebas.sumando.com.mx` → aparece «Crear la cuenta del dueño» (solo mientras no haya cuentas).
    Después, instalar Mando en el teléfono desde el menú del navegador («Añadir a pantalla de inicio»).
 
 ## Comprobación tras cada despliegue
