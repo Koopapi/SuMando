@@ -71,6 +71,9 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
   - Depende de: T9, T10
   - Hecho cuando: el dueño aprueba las maquetas o los ajustes quedan hechos y aprobados.
   - Nota: además de las siete pantallas, se maquetó la hoja «Nuevo negocio» con los 8 colores (RF-8).
+  - **11 de noviembre de 2026**: el dueño pidió algo menos genérico; se compararon las direcciones «Tablero» y
+    «Libreta» y eligió Tablero. T8, T9 y T10 se rehicieron en esa dirección (tableros «Componentes · Tablero» y
+    «Pantallas · Tablero»); la primera versión queda en el archivo, atenuada, como descartada. Pendiente: T11.
 
 ## Entrega 3 — Componentes base y catálogo
 

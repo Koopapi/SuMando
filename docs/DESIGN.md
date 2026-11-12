@@ -6,6 +6,10 @@ Se completa en la spec 002 (sistema de diseño). Hasta entonces, estas reglas:
   **SuMando**; el icono es una perilla casi al tope en azul marino `#22306B` con ámbar `#E39B0B`; el nombre va en
   Space Grotesk con la M en ámbar (`#B57900` sobre fondo claro para cumplir contraste). Paleta completa en
   `specs/002-sistema-de-diseno/plan.md`.
+- **Dirección visual «Tablero»** (elegida por el dueño el 11 de noviembre de 2026): la banda azul marino es la
+  cabecera en teléfono y el menú lateral en escritorio, con el título y el número importante en ámbar; listas con
+  líneas finas en vez de tarjetas; rótulos en versalitas; la perilla como marca, progreso y carga; cuerpo en IBM
+  Plex Sans. Detalle en el plan de la spec 002.
 
 - Toda la interfaz se construye con componentes reutilizables del sistema de diseño; nada de estilos sueltos por
   pantalla.

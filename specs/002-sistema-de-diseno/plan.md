@@ -3,7 +3,24 @@
 Plan técnico de `spec.md`. Respeta `docs/constitution.md` y `docs/architecture.md`.
 
 **Identidad elegida por el dueño (11 de noviembre de 2026): dirección B, «Al mando».** Icono de perilla casi al
-tope en azul marino y ámbar; nombre «SuMando» en Space Grotesk con la M en ámbar. Paleta:
+tope en azul marino y ámbar; nombre «SuMando» en Space Grotesk con la M en ámbar.
+
+**Dirección visual elegida por el dueño (11 de noviembre de 2026): «Tablero».** Se descartó la primera versión de
+maquetas por genérica (tarjetas sobre gris, todo redondeado) y se compararon dos direcciones; el dueño eligió
+Tablero. Sus reglas, que el plan y las tareas siguen:
+
+- **La banda azul manda**: en teléfono, la cabecera de cada pantalla es una banda azul marino (`--band`) con el logo
+  (perilla sin cuadro), el negocio activo, el título y, cuando lo hay, el número importante en ámbar. En escritorio
+  esa banda es el menú lateral y la página lleva una cabecera con el mismo título y número.
+- **Listas en vez de cajas**: renglones separados por líneas finas; tarjetas solo para unidades reales (resumen al
+  pie, panel del asistente, hoja de alta). Esquinas de 8 px en controles y 10 px en contenedores.
+- **Rótulos de instrumento**: etiquetas de sección en versalitas pequeñas y espaciadas; números grandes en Space
+  Grotesk.
+- **La perilla como motivo**: marca en la banda, indicador de progreso (captura, asistente) y estado de carga.
+- **Color del negocio** como franja a la izquierda del nombre y como punto en la banda (tono claro sobre azul).
+- **Cuerpo en IBM Plex Sans** (no Inter); marca, títulos, botones y números en Space Grotesk.
+
+Paleta:
 
 | Token | Claro | Oscuro | Uso |
 |---|---|---|---|
@@ -45,7 +62,7 @@ violeta `#6D28D9`/`#F0EAFB` · `#C4B5FD`/`#343451`; rojo `#B91C1C`/`#F8E8E8` · 
 | `src/ui/data-table.tsx` | Una sola tabla semántica: columnas completas desde 1024 px; por debajo, cada renglón es tarjeta con columnas principales y botón para abrir el resto; búsqueda, filtros y estados | 19, 20, 29–31 |
 | `src/ui/row-entry.tsx` | Captura por renglones con menos y más, teclado numérico y error por renglón | 22, 32, 33 |
 | `src/ui/wizard.tsx` | Asistente: «Paso n de m», anterior sin perder datos, confirmar al salir (botón cerrar, enlaces de la app y recarga del navegador) | 34–36 |
-| `src/ui/app-shell.tsx` | Menú lateral fijo desde 1024 px; por debajo, barra con botón de menú que abre `Sheet`; insignia del negocio activo | 12, 16, 17, 18 |
+| `src/ui/app-shell.tsx` + `band.tsx` | Banda azul en teléfono (logo, negocio activo, título, número) con botón que abre `Sheet`; desde 1024 px, menú lateral azul fijo y `PageHeader` con título y número; `SectionLabel` (rótulo), `ListRow` (fila de lista), `Dial` (perilla de progreso y carga) | 12, 16, 17, 18, 34 |
 | `src/server/services/businesses.ts` | `createBusiness` exige color; `updateBusiness` (nombre o color, solo dueño, auditado); listados con color y color sugerido | 8–11, 15 |
 | `src/app/api/businesses/…` | `POST` con `color`; `PATCH /api/businesses/[id]` acepta `name` y/o `color` | 8, 9, 11 |
 | `src/features/*` | Pantallas de la 001 reconstruidas con los componentes; elegir color al crear y editar negocio | 13, 43, 44 |
@@ -93,7 +110,7 @@ escribe en `audit_log` la acción `business.color_changed` con el valor anterior
 | Modo oscuro solo con `prefers-color-scheme` en CSS | Clase `dark` en `<html>` con JavaScript | RF-6 pide cambiar al instante sin recargar; el navegador ya lo hace sin parpadeo y sin código. No hay selector propio (fuera de alcance) |
 | Tokens en hexadecimal | `oklch` como en la 001 | El test de contraste los lee directo de `tokens.css` sin convertir espacios de color |
 | `themeColor` como arreglo con `media` por modo | Un solo color | RF-7: la barra del navegador y la del teléfono siguen el modo |
-| Fuentes con `next/font/google` (Space Grotesk para marca, títulos y botones; Inter para texto) | Fuentes del sistema; `@fontsource` | Viene con Next, se sirven desde la propia app sin pedir nada a Google en tiempo de uso, y no agrega dependencia. La compilación necesita red (CI y Coolify la tienen) |
+| Fuentes con `next/font/google` (Space Grotesk para marca, títulos, botones y números; IBM Plex Sans para texto, decisión Tablero) | Fuentes del sistema; `@fontsource` | Viene con Next, se sirven desde la propia app sin pedir nada a Google en tiempo de uso, y no agrega dependencia. La compilación necesita red (CI y Coolify la tienen) |
 | Tabla única que se vuelve tarjetas con CSS bajo 1024 px | Dos marcados (tabla y tarjetas) ocultando uno | Un solo árbol: los lectores de pantalla y las E2E ven cada dato una vez |
 | Corte teléfono/escritorio en `lg` de Tailwind (1024 px) | Punto propio | Coincide con RF-16 a RF-20 sin configurar nada |
 | `<dialog>` nativo con `showModal()` | Trampa de foco propia | El navegador vuelve inerte el resto de la página y cierra con Escape (RF-37) |
@@ -135,3 +152,9 @@ escribe en `audit_log` la acción `business.color_changed` con el valor anterior
 4. **Tabla, captura por renglones y asistente** con sus pantallas tipo (RF-19, RF-20, RF-30 a RF-36).
 5. **Color de negocio y estructura** (RF-8 a RF-18).
 6. **Pantallas actuales reconstruidas, barrido, recorrido y validación** (RF-43, RF-44, RNF).
+
+### Ajustes al construir (11 de noviembre de 2026)
+
+- La entrega 1 se construyó con Inter como cuerpo; al elegir Tablero, el cuerpo pasa a IBM Plex Sans en la
+  entrega 3 (cambio de una línea en `layout.tsx`). Los tokens suman `--band`, `--on-band`, `--band-muted`,
+  `--band-pill`, `--band-line` y los tonos claros de los 8 colores para usarlos sobre la banda.
