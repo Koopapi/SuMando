@@ -13,12 +13,13 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
   - Depende de: T0
   - Hecho cuando: el dueño guardó el tablero en Pencil, el archivo está en `recursos/sumando.pen` (con `git mv`),
     `Diseño/` ya no existe y `docs/DESIGN.md` apunta a la nueva ruta.
-- [ ] **T2 — Tokens y 8 colores de negocio en Pencil, con contraste medido**
+- [x] **T2 — Tokens y 8 colores de negocio en Pencil, con contraste medido**
   - RF: 8, 13, 14, RNF contraste
   - Depende de: T1
   - Hecho cuando: las variables de Pencil tienen los tokens en tema claro y oscuro (texto secundario, líneas,
     éxito, advertencia, peligro y foco incluidos) y una lámina muestra los 8 colores de negocio en los dos modos;
-    cada par texto/fondo anotado con su contraste ≥ 4.5:1 (controles ≥ 3:1).
+    cada par texto/fondo anotado con su contraste ≥ 4.5:1 (controles ≥ 3:1). **Hecho: lámina «Tokens y colores de
+    negocio»; naranja, ámbar y verde se oscurecieron en modo claro para llegar a 4.5:1.**
 - [ ] **T3 — Test de contraste y tokens en código**
   - RF: 4, 5, RNF contraste
   - Depende de: T2

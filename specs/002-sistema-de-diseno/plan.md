@@ -15,8 +15,19 @@ tope en azul marino y ámbar; nombre «SuMando» en Space Grotesk con la M en á
 | Fondo | `#F5F6FA` | `#0E1120` | fondo de página |
 | Superficie | `#FFFFFF` | `#181C30` | tarjetas, barras, diálogos |
 
-Los tokens que faltan (texto secundario, líneas, éxito, advertencia, peligro, foco) y los 8 colores de negocio se
-fijan en la tarea T2 en Pencil y se comprueban con el test de contraste antes de pasar a código.
+| Texto secundario | `#4D5470` | `#A9AECB` | ayudas, metadatos |
+| Línea | `#D9DCE8` | `#2B3150` | separadores |
+| Borde de control | `#7A809A` | `#6B7294` | bordes de campos y botones secundarios |
+| Éxito / fondo | `#1E7A46` / `#E5F4EC` | `#5FD08E` / `#12291D` | avisos de guardado |
+| Advertencia / fondo | `#8A5A00` / `#FDF3DC` | `#FFC54D` / `#2E2410` | avisos de atención |
+| Peligro / fondo | `#B4232C` / `#FCE8E8` | `#FF8A8A` / `#351518` | errores |
+| Foco | `#22306B` | `#9AABFF` | contorno de foco |
+
+Colores de negocio (clave · color claro / fondo claro · color oscuro / fondo oscuro), medidos en la tarea T2:
+violeta `#6D28D9`/`#F0EAFB` · `#C4B5FD`/`#343451`; rojo `#B91C1C`/`#F8E8E8` · `#FCA5A5`/`#3C3243`; naranja
+`#B13A0A`/`#F7EBE6` · `#FDBA74`/`#3D353B`; ambar `#8C5A06`/`#F4EEE6` · `#FCD34D`/`#3C3935`; verde
+`#137036`/`#E7F1EB` · `#86EFAC`/`#2A3E44`; turquesa `#0F766E`/`#E7F1F0` · `#5EEAD4`/`#233D4A`; azul
+`#1D4ED8`/`#E8EDFB` · `#93C5FD`/`#2C3751`; rosa `#BE185D`/`#F8E8EF` · `#F9A8D4`/`#3C324A`.
 
 ## 1. Módulos
 
