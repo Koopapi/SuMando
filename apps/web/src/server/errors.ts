@@ -29,6 +29,16 @@ const STATUS: Record<ErrorCode, number> = {
   base_unit_locked: 409,
   supplier_archived: 409,
   invalid_responsible: 422,
+  recipe_empty: 422,
+  duplicate_ingredient: 422,
+  invalid_ingredient_quantity: 422,
+  invalid_half_percent: 422,
+  invalid_pieces: 422,
+  calculation_empty: 422,
+  template_exists: 409,
+  invalid_file: 422,
+  file_too_large: 413,
+  product_archived: 409,
 };
 
 export class AppError extends Error {

@@ -4,26 +4,26 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y esquema
 
-- [ ] **T1 — Porciones y suma de insumos**
+- [x] **T1 — Porciones y suma de insumos**
   - RF: RF-16, RF-17, RF-18, RF-21, RF-23, RF-24, RF-25, RF-26
   - Depende de: —
   - Hecho cuando: `portions.test.ts` y `supplies.test.ts` en verde (medias con porcentajes distintos, 0.1 g × 9,999
     exacto, redondeo hacia arriba y múltiplos exactos, compra en unidad base, orden alfabético).
-- [ ] **T2 — Validación de recetas**
+- [x] **T2 — Validación de recetas**
   - RF: RF-7, RF-8, RF-10, RF-11, RF-13, RF-49, RF-50
   - Depende de: —
   - Hecho cuando: `recipe.test.ts` en verde (sin ingredientes, repetidos, cantidades, nombres).
-- [ ] **T3 — Lector .xlsx**
+- [x] **T3 — Lector .xlsx**
   - RF: RF-40, RF-48
   - Depende de: —
   - Hecho cuando: `xlsx.test.ts` en verde con un .xlsx armado en el test, uno corrupto, uno de más de 2 MB, uno con
     más de 200 hojas y números como 0.40000000000000002.
-- [ ] **T4 — Análisis de hojas para importar**
+- [x] **T4 — Análisis de hojas para importar**
   - RF: RF-40, RF-41, RF-43, RF-44, RF-45, RF-46
   - Depende de: T2
   - Hecho cuando: `import.test.ts` en verde con el formato del recetario de Pirrus (unidades con acentos y espacios,
     ingrediente que falta, unidad distinta, platillo existente, hoja duplicada, pasos de preparación).
-- [ ] **T5 — Migración y repositorios**
+- [x] **T5 — Migración y repositorios**
   - RF: RF-1, RF-2, RF-31
   - Depende de: —
   - Hecho cuando: `0003_recetario` aplica sobre `mando_test` y el test de esquema comprueba tablas, índices parciales

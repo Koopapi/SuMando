@@ -1,6 +1,7 @@
 // Repositorios como puertos: los servicios hablan con estas interfaces; `server/adapters/drizzle` las implementa.
 import type { Branch, Business, Membership, Session, User, UserRole } from "@/db/schema";
 import type { CatalogRepo } from "./catalog";
+import type { RecipesRepo } from "./recipes";
 
 export type NewUser = {
   name: string;
@@ -101,6 +102,7 @@ export interface Repos {
   memberships: MembershipsRepo;
   audit: AuditRepo;
   catalog: CatalogRepo;
+  recipes: RecipesRepo;
 }
 
 export interface Store extends Repos {

@@ -22,6 +22,13 @@
       "when": 1794496169774,
       "tag": "0002_catalogo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794517382034,
+      "tag": "0003_recetario",
+      "breakpoints": true
     }
   ]
 }

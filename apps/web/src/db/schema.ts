@@ -10,6 +10,7 @@ import {
   jsonb,
   numeric,
   pgTable,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -279,6 +280,153 @@ export const stockLevels = pgTable(
   ],
 );
 
+// --- Spec 004: recetario e insumos (plan, sección 2) ---
+
+export const recipes = pgTable(
+  "recipes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    preparation: varchar("preparation", { length: 4000 }),
+    // Media porción por platillo (RF-16 a RF-18).
+    halfPercent: smallint("half_percent").notNull().default(50),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("recipes_active_name_unique").on(t.businessId, t.nameKey).where(activeOnly),
+    index("recipes_business_idx").on(t.businessId),
+    check("recipes_half_percent_range", sql`${t.halfPercent} between 1 and 100`),
+  ],
+);
+
+export const recipeIngredients = pgTable(
+  "recipe_ingredients",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    recipeId: uuid("recipe_id")
+      .notNull()
+      .references(() => recipes.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    // Cantidad bruta en unidad base (RF-9).
+    quantityBase: numeric("quantity_base", { precision: 20, scale: 6 }).notNull(),
+    note: varchar("note", { length: 120 }),
+    position: integer("position").notNull(),
+  },
+  (t) => [
+    uniqueIndex("recipe_ingredients_recipe_product_unique").on(t.recipeId, t.productId),
+    index("recipe_ingredients_product_idx").on(t.productId),
+    check("recipe_ingredients_quantity_positive", sql`${t.quantityBase} > 0`),
+  ],
+);
+
+// Cálculos guardados (RF-29 a RF-32): no se modifican; guardan copias de lo que se usó.
+export const supplyCalculations = pgTable(
+  "supply_calculations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [index("supply_calculations_branch_idx").on(t.branchId, t.createdAt)],
+);
+
+export const supplyCalculationItems = pgTable(
+  "supply_calculation_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    calculationId: uuid("calculation_id")
+      .notNull()
+      .references(() => supplyCalculations.id),
+    recipeId: uuid("recipe_id")
+      .notNull()
+      .references(() => recipes.id),
+    recipeName: varchar("recipe_name", { length: 80 }).notNull(),
+    fullCount: integer("full_count").notNull(),
+    halfCount: integer("half_count").notNull(),
+    halfPercent: smallint("half_percent").notNull(),
+  },
+  (t) => [
+    index("supply_calculation_items_calc_idx").on(t.calculationId),
+    check("supply_calculation_items_counts", sql`${t.fullCount} between 0 and 9999 and ${t.halfCount} between 0 and 9999`),
+  ],
+);
+
+export const supplyCalculationLines = pgTable(
+  "supply_calculation_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    calculationId: uuid("calculation_id")
+      .notNull()
+      .references(() => supplyCalculations.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    productName: varchar("product_name", { length: 80 }).notNull(),
+    baseUnit: varchar("base_unit", { length: 4 }).$type<(typeof BASE_UNIT_KEYS)[number]>().notNull(),
+    totalBase: numeric("total_base", { precision: 26, scale: 8 }).notNull(),
+    purchaseName: varchar("purchase_name", { length: 40 }),
+    purchaseFactor: numeric("purchase_factor", { precision: 14, scale: 3 }),
+    purchaseCount: integer("purchase_count"),
+    productArchived: boolean("product_archived").notNull().default(false),
+    position: integer("position").notNull(),
+  },
+  (t) => [index("supply_calculation_lines_calc_idx").on(t.calculationId)],
+);
+
+export const recipeTemplates = pgTable(
+  "recipe_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("recipe_templates_active_name_unique").on(t.branchId, t.nameKey).where(activeOnly), index("recipe_templates_branch_idx").on(t.branchId)],
+);
+
+export const recipeTemplateItems = pgTable(
+  "recipe_template_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => recipeTemplates.id),
+    recipeId: uuid("recipe_id")
+      .notNull()
+      .references(() => recipes.id),
+    fullCount: integer("full_count").notNull(),
+    halfCount: integer("half_count").notNull(),
+  },
+  (t) => [
+    uniqueIndex("recipe_template_items_template_recipe_unique").on(t.templateId, t.recipeId),
+    check("recipe_template_items_counts", sql`${t.fullCount} between 0 and 9999 and ${t.halfCount} between 0 and 9999`),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -291,3 +439,10 @@ export type ProductPresentation = typeof productPresentations.$inferSelect;
 export type Warehouse = typeof warehouses.$inferSelect;
 export type Area = typeof areas.$inferSelect;
 export type StockLevel = typeof stockLevels.$inferSelect;
+export type Recipe = typeof recipes.$inferSelect;
+export type RecipeIngredient = typeof recipeIngredients.$inferSelect;
+export type SupplyCalculation = typeof supplyCalculations.$inferSelect;
+export type SupplyCalculationItem = typeof supplyCalculationItems.$inferSelect;
+export type SupplyCalculationLine = typeof supplyCalculationLines.$inferSelect;
+export type RecipeTemplate = typeof recipeTemplates.$inferSelect;
+export type RecipeTemplateItem = typeof recipeTemplateItems.$inferSelect;

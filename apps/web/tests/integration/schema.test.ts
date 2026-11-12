@@ -19,3 +19,31 @@ describe("spec 001 — esquema", () => {
     expect(names).toContain("sessions_token_hash_unique");
   });
 });
+
+describe("spec 004 — esquema", () => {
+  it("test_s004_rf1_las_tablas_del_recetario_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(
+      expect.arrayContaining(["recipes", "recipe_ingredients", "supply_calculations", "supply_calculation_items", "supply_calculation_lines", "recipe_templates", "recipe_template_items"]),
+    );
+  });
+
+  it("test_s004_rf2_calculos_y_plantillas_llevan_sucursal_obligatoria", async () => {
+    const cols = await sql<{ table_name: string; is_nullable: string }[]>`
+      select table_name, is_nullable from information_schema.columns
+      where column_name = 'branch_id' and table_name in ('supply_calculations', 'recipe_templates')`;
+    expect(cols).toHaveLength(2);
+    expect(cols.every((c) => c.is_nullable === "NO")).toBe(true);
+  });
+
+  it("test_s004_rf49_nombres_unicos_solo_entre_los_activos", async () => {
+    const idx = await sql<{ indexname: string; indexdef: string }[]>`select indexname, indexdef from pg_indexes where indexname in ('recipes_active_name_unique', 'recipe_templates_active_name_unique', 'recipe_ingredients_recipe_product_unique')`;
+    expect(idx).toHaveLength(3);
+    expect(idx.filter((i) => i.indexname.includes("active")).every((i) => /archived_at IS NULL/i.test(i.indexdef))).toBe(true);
+  });
+
+  it("test_s004_rf18_la_base_rechaza_porcentajes_fuera_de_rango", async () => {
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('recipes_half_percent_range', 'recipe_ingredients_quantity_positive', 'supply_calculation_items_counts')`;
+    expect(checks).toHaveLength(3);
+  });
+});
