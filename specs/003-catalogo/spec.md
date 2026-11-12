@@ -1,6 +1,6 @@
 # Spec 003 — Catálogo
 
-**Estado: borrador para aprobación del dueño (12 de noviembre de 2026).**
+**Aprobada por el dueño el 12 de noviembre de 2026.**
 
 ## Contexto y objetivo
 El recetario, los inventarios y las requisiciones (specs 004 a 006) necesitan saber qué se compra, cómo se mide,
@@ -51,7 +51,7 @@ los módulos siguientes.
 
 ### Almacenes y áreas
 - RF-18: EL SISTEMA permitirá dar de alta un almacén con nombre y pertenencia (sucursal o negocio completo).
-- RF-19: EL SISTEMA permitirá dar de alta un área con nombre y responsable.
+- RF-19: EL SISTEMA permitirá dar de alta un área con nombre y un responsable, que será una persona activa con cuenta (el dueño o un administrador de esa sucursal).
 - RF-20: SI un almacén de una sucursal tiene el mismo nombre que otro de esa sucursal o del negocio completo, o un almacén del negocio completo coincide con cualquier almacén del negocio, ENTONCES EL SISTEMA no creará el duplicado e informará del conflicto.
 - RF-21: SI el nombre de un área ya existe en la misma sucursal, ENTONCES EL SISTEMA no creará el duplicado e informará del conflicto.
 
@@ -106,6 +106,10 @@ los módulos siguientes.
 - Se archiva una sucursal (spec 001): sus almacenes y áreas dejan de ofrecerse con ella; los del negocio completo
   siguen.
 - Nombres «Azúcar» y «azucar »: son el mismo nombre y se rechaza el duplicado (RF-31).
+- El responsable de un área se desactiva o pierde la sucursal: el área lo conserva, lo marca «sin acceso» y se
+  puede cambiar.
+- Un producto archivado y otro activo con el mismo nombre: permitido; reactivar el archivado se rechaza mientras
+  el activo exista (RF-34).
 
 ## Fuera de alcance
 - Existencias, entradas, salidas, traspasos y conteos: spec 005.
@@ -128,6 +132,6 @@ los módulos siguientes.
 - `docs/reglas-de-negocio.md` actualizado.
 
 ## Dudas abiertas
-- [NECESITA ACLARACIÓN: ¿quién es el responsable de un área? Propuesta: una persona con cuenta en SuMando (dueño o
-  administrador). La otra opción es escribir un nombre libre, porque los empleados de piso no tienen cuenta y el
-  expediente de personal llega hasta la spec 007.]
+Ninguna. Resueltas en la aprobación (12 de noviembre de 2026):
+- El responsable de un área es una persona con cuenta en SuMando: un dueño o un administrador asignado a esa
+  sucursal. Si después pierde el acceso, el área lo conserva y lo señala para que se cambie.
