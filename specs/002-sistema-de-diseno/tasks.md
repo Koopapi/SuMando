@@ -50,18 +50,18 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 2 — Maquetas aprobadas (puerta antes de construir)
 
-- [ ] **T8 — Componentes en Pencil**
+- [x] **T8 — Componentes en Pencil**
   - RF: 21–39 (diseño)
   - Depende de: T2
   - Hecho cuando: componentes reutilizables en claro y oscuro: botones (variantes, ocupado, deshabilitado),
     campos (texto, número con menos y más, dinero, selector, casilla, búsqueda, error), avisos, diálogo, menú en
     teléfono, menú lateral, insignia de negocio, estados de cargando, vacío y error, tarjeta de renglón.
-- [ ] **T9 — Pantallas actuales en Pencil**
+- [x] **T9 — Pantallas actuales en Pencil**
   - RF: 43 (diseño)
   - Depende de: T8
   - Hecho cuando: entrada, primer arranque, cambio de contraseña, inicio, negocios, personas y elegir sucursal en
     teléfono 360 px y escritorio 1280 px en claro, y en teléfono en oscuro.
-- [ ] **T10 — Pantallas tipo en Pencil**
+- [x] **T10 — Pantallas tipo en Pencil**
   - RF: 41 (diseño)
   - Depende de: T8
   - Hecho cuando: tabla larga con búsqueda y filtros, captura por renglones y asistente por pasos, en los mismos
@@ -70,6 +70,7 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
   - RF: criterios de finalización (entregables 2 y 3)
   - Depende de: T9, T10
   - Hecho cuando: el dueño aprueba las maquetas o los ajustes quedan hechos y aprobados.
+  - Nota: además de las siete pantallas, se maquetó la hoja «Nuevo negocio» con los 8 colores (RF-8).
 
 ## Entrega 3 — Componentes base y catálogo
 
