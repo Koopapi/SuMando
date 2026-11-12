@@ -115,30 +115,30 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 4 — Tabla, captura por renglones y asistente
 
-- [ ] **T19 — Búsqueda sin acentos**
+- [x] **T19 — Búsqueda sin acentos**
   - RF: 30
   - Depende de: —
   - Hecho cuando: `test_s002_rf30_*` encuentra «Jamón» con «jamon» y «JAMÓN».
-- [ ] **T20 — Tabla de datos**
+- [x] **T20 — Tabla de datos**
   - RF: 19, 20, 29, 30, 31
   - Depende de: T17, T19
   - Hecho cuando: `DataTable` en `/sistema/tabla` con 60 renglones de ejemplo; E2E en 1280 px ve todas las
     columnas, en 360 px tarjetas que se abren, búsqueda y filtros que filtran y vacío con «Limpiar».
-- [ ] **T21 — Cantidad capturada**
+- [x] **T21 — Cantidad capturada**
   - RF: 33
   - Depende de: —
   - Hecho cuando: `test_s002_rf33_*` acepta «3», «2.5», «2,5» y rechaza «-1», «abc», «1.2345» y vacío.
-- [ ] **T22 — Captura por renglones**
+- [x] **T22 — Captura por renglones**
   - RF: 22, 32, 33
   - Depende de: T14, T21
   - Hecho cuando: `RowEntry` en `/sistema/captura`; E2E sube y baja con menos y más, no baja de 0, marca el
     renglón con error y una cantidad de 9 dígitos cabe en 360 px.
-- [ ] **T23 — Asistente por pasos**
+- [x] **T23 — Asistente por pasos**
   - RF: 34, 35, 36
   - Depende de: T16
   - Hecho cuando: `Wizard` en `/sistema/asistente` (corte de ejemplo de 4 pasos); E2E ve «Paso 2 de 4», vuelve
     atrás con todo capturado y al salir con datos pide confirmar (botón cerrar, enlace de la app y recarga).
-- [ ] **T24 — Pantallas tipo terminadas**
+- [x] **T24 — Pantallas tipo terminadas**
   - RF: 41
   - Depende de: T20, T22, T23
   - Hecho cuando: las tres pantallas tipo coinciden con sus maquetas aprobadas y no guardan nada (sin peticiones

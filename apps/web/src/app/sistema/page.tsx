@@ -1,4 +1,5 @@
 // Catálogo del sistema de diseño (spec 002, RF-40 y RF-42). Solo existe con DEV_ENDPOINTS=1: en producción, 404.
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionsDemo, AlertsDemo, BadgesDemo, DialogDemo, FormsDemo } from "@/features/system/catalog-demos";
 import { es } from "@/i18n";
@@ -15,6 +16,16 @@ export default function SystemPage() {
   return (
     <PageShell title={t.title}>
       <p className="text-ink-muted">{t.intro}</p>
+      <nav aria-labelledby="pantallas-tipo" className="flex flex-col gap-2">
+        <h2 id="pantallas-tipo" className="font-brand text-xl font-bold">
+          {t.patterns}
+        </h2>
+        {(Object.keys(t.patternLinks) as (keyof typeof t.patternLinks)[]).map((k) => (
+          <Link key={k} href={`/sistema/${k}`} className="flex min-h-11 items-center gap-2 border-b border-line font-semibold text-primary">
+            {t.patternLinks[k]}
+          </Link>
+        ))}
+      </nav>
       <ActionsDemo />
       <FormsDemo />
       <AlertsDemo />

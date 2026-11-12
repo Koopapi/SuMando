@@ -29,4 +29,10 @@ describe("spec 001 — proxy", () => {
     expect(proxy(req("/setup", "mando_session=tok")).status).toBe(200);
     expect(proxy(req("/negocios", "mando_session=tok")).status).toBe(200);
   });
+
+  it("test_s002_rf41_las_pantallas_tipo_del_catalogo_no_piden_sesion", () => {
+    // Fuera de DEV_ENDPOINTS=1 la propia página responde 404 (RF-42); el proxy no decide eso.
+    for (const path of ["/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente"]) expect(proxy(req(path)).status).toBe(200);
+    expect(location(proxy(req("/sistemas")))).toBe("/login");
+  });
 });
