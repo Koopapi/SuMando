@@ -19,3 +19,4 @@ export { DataTable, type Column, type Filter } from "./data-table";
 export { PageHeader } from "./page-header";
 export { RowEntry, quantityError, type EntryRow } from "./row-entry";
 export { Wizard, type WizardStep } from "./wizard";
+export { ColorPicker } from "./color-picker";

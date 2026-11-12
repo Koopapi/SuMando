@@ -56,11 +56,16 @@ export const businesses = pgTable(
     name: varchar("name", { length: 60 }).notNull(),
     // Nombre normalizado para la unicidad ignorando mayúsculas y espacios (RF-19).
     nameKey: varchar("name_key", { length: 60 }).notNull(),
+    // Clave de la paleta cerrada de 8 colores (spec 002, RF-8 y RF-10); los tonos viven en src/ui/tokens.css.
+    color: varchar("color", { length: 16 }).notNull(),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: uuid("created_by").references(() => users.id),
     ...timestamps,
   },
-  (t) => [uniqueIndex("businesses_name_key_unique").on(t.nameKey)],
+  (t) => [
+    uniqueIndex("businesses_name_key_unique").on(t.nameKey),
+    check("businesses_color_check", sql`${t.color} in ('violeta', 'rojo', 'naranja', 'ambar', 'verde', 'turquesa', 'azul', 'rosa')`),
+  ],
 );
 
 export const branches = pgTable(

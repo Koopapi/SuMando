@@ -17,7 +17,7 @@ const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
 async function ownerWithBranch() {
   const client = new ApiClient();
   expect((await client.call(setupPost, "/api/setup", { body: OWNER })).status).toBe(201);
-  const { business } = await json(await client.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero" } }));
+  const { business } = await json(await client.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" } }));
   return { client, branchId: business.branches[0].id as string };
 }
 

@@ -55,7 +55,7 @@ test("nombre, logo y modo", async ({ page }) => {
       expect(await bodyColors(page)).toEqual({ bg: PAGE_BG.dark, ink: INK.dark });
     }
     await login(page, OWNER.email, OWNER.password);
-    await expect(page.locator("header").getByLabel("SuMando")).toBeVisible();
+    await expect(page.locator("aside").getByLabel("SuMando")).toBeVisible();
     expect(await bodyColors(page)).toEqual({ bg: PAGE_BG.dark, ink: INK.dark });
   });
 

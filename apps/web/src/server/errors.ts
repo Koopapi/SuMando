@@ -19,6 +19,8 @@ const STATUS: Record<ErrorCode, number> = {
   last_owner: 409,
   no_branch: 409,
   business_archived: 409,
+  invalid_color: 422,
+  nothing_to_update: 422,
 };
 
 export class AppError extends Error {

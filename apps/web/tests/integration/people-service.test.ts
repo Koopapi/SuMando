@@ -12,8 +12,8 @@ import { makeCtx, OWNER } from "./helpers";
 async function world() {
   const ctx = makeCtx();
   const owner = (await createFirstOwner(ctx, OWNER)).user;
-  const pastatti = await createBusiness(ctx, owner, { name: "Pastatti", firstBranchName: "Sendero" });
-  const pirrus = await createBusiness(ctx, owner, { name: "Pirrus", firstBranchName: "Centro" });
+  const pastatti = await createBusiness(ctx, owner, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
+  const pirrus = await createBusiness(ctx, owner, { name: "Pirrus", firstBranchName: "Centro", color: "violeta" });
   return { ctx, owner, sendero: pastatti.branch, centro: pirrus.branch, pastatti: pastatti.business };
 }
 
@@ -60,7 +60,7 @@ describe("spec 001 — personas y accesos", () => {
     expect((await assertBranchAccess(ctx, adminUser, sendero.id)).id).toBe(sendero.id);
     await expect(assertBranchAccess(ctx, adminUser, centro.id)).rejects.toMatchObject({ code: "not_found", status: 404 });
     await expect(assertBranchAccess(ctx, adminUser, "00000000-0000-4000-8000-000000000000")).rejects.toMatchObject({ code: "not_found", status: 404 });
-    const later = await createBusiness(ctx, owner, { name: "Nuevo", firstBranchName: "Única" });
+    const later = await createBusiness(ctx, owner, { name: "Nuevo", firstBranchName: "Única", color: "violeta" });
     expect((await assertBranchAccess(ctx, owner, later.branch.id)).id).toBe(later.branch.id);
     expect((await assertBranchAccess(ctx, owner, centro.id)).id).toBe(centro.id);
     await ctx.store.branches.update(sendero.id, { archivedAt: ctx.clock.now(), updatedAt: ctx.clock.now() });

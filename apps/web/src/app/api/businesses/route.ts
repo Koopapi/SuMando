@@ -1,18 +1,19 @@
-// RF-17, RF-31: negocios (solo el dueño).
+// Spec 001 RF-17, RF-31: negocios (solo el dueño). Spec 002 RF-8 y RF-10: color elegido y color sugerido.
 import { z } from "zod";
 import { appCtx } from "@/server/app-context";
 import { requireOwner } from "@/server/auth/session";
 import { handler, readJson } from "@/server/http";
-import { branchView, businessView, createBusiness, listBusinesses } from "@/server/services/businesses";
+import { branchView, businessView, createBusiness, listBusinesses, suggestedColor } from "@/server/services/businesses";
 
 export const GET = handler(async (request: Request) => {
   const { user } = await requireOwner(request);
-  return Response.json({ businesses: (await listBusinesses(appCtx(), user)).map(businessView) });
+  const ctx = appCtx();
+  return Response.json({ businesses: (await listBusinesses(ctx, user)).map(businessView), suggestedColor: await suggestedColor(ctx, user) });
 });
 
 export const POST = handler(async (request: Request) => {
   const { user } = await requireOwner(request);
-  const input = await readJson(request, z.object({ name: z.string(), firstBranchName: z.string() }));
+  const input = await readJson(request, z.object({ name: z.string(), firstBranchName: z.string(), color: z.unknown().optional() }));
   const { business, branch } = await createBusiness(appCtx(), user, input);
   return Response.json({ business: businessView({ ...business, branches: [branch] }), branch: branchView(branch) }, { status: 201 });
 });

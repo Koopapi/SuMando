@@ -50,9 +50,9 @@ export async function ownerApi() {
   };
 }
 
-export async function seedBusiness(name: string, branches: string[]) {
+export async function seedBusiness(name: string, branches: string[], color = "turquesa") {
   const call = await ownerApi();
-  const { business } = await call("/api/businesses", { name, firstBranchName: branches[0] });
+  const { business } = await call("/api/businesses", { name, firstBranchName: branches[0], color });
   for (const branch of branches.slice(1)) await call(`/api/businesses/${business.id}/branches`, { name: branch });
   return business as { id: string; name: string; branches: { id: string; name: string }[] };
 }

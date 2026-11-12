@@ -4,6 +4,8 @@ export const shell = {
   noBranch: "Sin sucursal",
   activeBranch: (business: string, branch: string) => `${business} · ${branch}`,
   nav: "Navegación",
+  workingIn: "Trabajando en",
+  menu: "Abrir el menú",
   home: "Inicio",
   businesses: "Negocios",
   people: "Personas",

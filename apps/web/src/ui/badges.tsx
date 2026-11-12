@@ -18,7 +18,7 @@ export function StatusBadge({ tone, children }: { tone: Tone; children: string }
  * Negocio activo (RF-12 a RF-14): punto del color del negocio junto a su nombre, nunca solo el color. En la banda
  * azul usa el tono claro del color; sobre superficie, el fondo suave con borde.
  */
-export function BusinessBadge({ color, children, tone = "surface", className = "" }: { color: BusinessColor; children: string; tone?: "surface" | "band"; className?: string }) {
+export function BusinessBadge({ color, children, tone = "surface", className = "", testId }: { color: BusinessColor; children: string; tone?: "surface" | "band"; className?: string; testId?: string }) {
   const look =
     tone === "band"
       ? "bg-band-pill text-on-band text-xs tracking-wider uppercase rounded-md"
@@ -26,7 +26,9 @@ export function BusinessBadge({ color, children, tone = "surface", className = "
   return (
     <span data-business-color={color} title={children} className={`biz-${color} inline-flex h-8 max-w-full min-w-0 items-center gap-2 px-3 font-semibold ${look} ${className}`}>
       <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${tone === "band" ? "bg-biz-band" : "bg-biz"}`} />
-      <span className="truncate">{children}</span>
+      <span className="truncate" data-testid={testId}>
+        {children}
+      </span>
     </span>
   );
 }

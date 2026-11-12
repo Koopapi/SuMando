@@ -11,6 +11,8 @@ export interface DialOptions {
   scale?: number;
   /** Trazo grueso para tamaños de 44 px o menos. */
   small?: boolean;
+  /** Sin el cuadro azul: la perilla sola, para ponerla sobre la banda (dirección Tablero). */
+  bare?: boolean;
 }
 
 const point = (r: number, deg: number) => {
@@ -21,14 +23,14 @@ const point = (r: number, deg: number) => {
 /** Arco en sentido horario desde `from` grados (contrarreloj desde la derecha) durante `sweep` grados. */
 const arc = (r: number, from: number, sweep: number) => `M ${point(r, from)} A ${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${point(r, from - sweep)}`;
 
-export function dialSvg({ square = false, scale = 1, small = false }: DialOptions = {}): string {
+export function dialSvg({ square = false, scale = 1, small = false, bare = false }: DialOptions = {}): string {
   // Anillo como en Pencil: diámetro 64 con hueco del 72 %; en chico, diámetro 72 con hueco del 60 %.
   const radius = small ? 36 : 32;
   const ringInner = small ? 21.6 : 23;
   const r = (radius + ringInner) / 2;
   const width = radius - ringInner;
   const dot = small ? 12 : 10;
-  const bg = square ? `<rect width="100" height="100" fill="${BRAND_NAVY}"/>` : `<rect width="100" height="100" rx="24" fill="${BRAND_NAVY}"/>`;
+  const bg = bare ? "" : square ? `<rect width="100" height="100" fill="${BRAND_NAVY}"/>` : `<rect width="100" height="100" rx="24" fill="${BRAND_NAVY}"/>`;
   const t = `translate(${50 - 50 * scale} ${50 - 50 * scale}) scale(${scale})`;
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">`,

@@ -15,7 +15,7 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf17_crea_el_negocio_con_su_primera_sucursal", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business, branch } = await createBusiness(ctx, actor, { name: "  Pastatti ", firstBranchName: "Sendero" });
+    const { business, branch } = await createBusiness(ctx, actor, { name: "  Pastatti ", firstBranchName: "Sendero", color: "violeta" });
     expect(business).toMatchObject({ name: "Pastatti", nameKey: "pastatti", archivedAt: null, createdBy: actor.id });
     expect(branch).toMatchObject({ businessId: business.id, name: "Sendero", archivedAt: null });
     const list = await listBusinesses(ctx, actor);
@@ -26,7 +26,7 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf18_anade_sucursales_y_renombra_negocios_y_sucursales", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     const centro = await addBranch(ctx, actor, business.id, { name: "Centro" });
     expect(centro.businessId).toBe(business.id);
     expect((await renameBusiness(ctx, actor, business.id, { name: "Pastatti MX" })).name).toBe("Pastatti MX");
@@ -39,10 +39,10 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf19_rechaza_duplicados_ignorando_mayusculas_y_espacios_pero_permite_la_misma_sucursal_en_otro_negocio", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Centro" });
-    await expect(createBusiness(ctx, actor, { name: "  PASTATTI ", firstBranchName: "Otra" })).rejects.toMatchObject({ code: "duplicate_name", status: 409 });
+    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Centro", color: "violeta" });
+    await expect(createBusiness(ctx, actor, { name: "  PASTATTI ", firstBranchName: "Otra", color: "violeta" })).rejects.toMatchObject({ code: "duplicate_name", status: 409 });
     await expect(addBranch(ctx, actor, business.id, { name: "centro " })).rejects.toMatchObject({ code: "duplicate_name" });
-    const pirrus = await createBusiness(ctx, actor, { name: "Pirrus", firstBranchName: "Centro" });
+    const pirrus = await createBusiness(ctx, actor, { name: "Pirrus", firstBranchName: "Centro", color: "violeta" });
     expect(pirrus.branch.name).toBe("Centro");
     await expect(renameBusiness(ctx, actor, pirrus.business.id, { name: "pastatti" })).rejects.toMatchObject({ code: "duplicate_name" });
     expect((await renameBusiness(ctx, actor, pirrus.business.id, { name: "PIRRUS" })).name).toBe("PIRRUS");
@@ -51,15 +51,15 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf20_rechaza_nombres_vacios_o_de_mas_de_60_caracteres", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    await expect(createBusiness(ctx, actor, { name: "   ", firstBranchName: "Centro" })).rejects.toMatchObject({ code: "name_invalid", params: { max: 60 } });
-    await expect(createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "x".repeat(61) })).rejects.toMatchObject({ code: "name_invalid" });
+    await expect(createBusiness(ctx, actor, { name: "   ", firstBranchName: "Centro", color: "violeta" })).rejects.toMatchObject({ code: "name_invalid", params: { max: 60 } });
+    await expect(createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "x".repeat(61), color: "violeta" })).rejects.toMatchObject({ code: "name_invalid" });
     expect(await listBusinesses(ctx, actor)).toHaveLength(0);
   });
 
   it("test_s001_rf21_archivar_un_negocio_archiva_sus_sucursales_y_no_borra_nada", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     await addBranch(ctx, actor, business.id, { name: "Centro" });
     ctx.clock.advanceMinutes(1);
     const archived = await archiveBusiness(ctx, actor, business.id);
@@ -74,7 +74,7 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf21_rf22_archivar_y_reactivar_una_sucursal_suelta", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     expect((await archiveBranch(ctx, actor, branch.id)).archivedAt).not.toBeNull();
     expect((await reactivateBranch(ctx, actor, branch.id)).archivedAt).toBeNull();
     await archiveBusiness(ctx, actor, business.id);
@@ -85,7 +85,7 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf22_reactivar_un_negocio_devuelve_sus_sucursales", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     await archiveBusiness(ctx, actor, business.id);
     const back = await reactivateBusiness(ctx, actor, business.id);
     expect(back.archivedAt).toBeNull();
@@ -96,11 +96,11 @@ describe("spec 001 — negocios y sucursales", () => {
   it("test_s001_rf31_un_administrador_no_puede_tocar_negocios_ni_sucursales", async () => {
     const ctx = makeCtx();
     const actor = await owner(ctx);
-    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business, branch } = await createBusiness(ctx, actor, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     const admin = publicUser(await ctx.store.users.insert({ name: "Admin", email: "admin@mando.test", passwordHash: "x", role: "admin", createdAt: ctx.clock.now() }));
     const calls = [
       () => listBusinesses(ctx, admin),
-      () => createBusiness(ctx, admin, { name: "Otro", firstBranchName: "Centro" }),
+      () => createBusiness(ctx, admin, { name: "Otro", firstBranchName: "Centro", color: "violeta" }),
       () => addBranch(ctx, admin, business.id, { name: "Centro" }),
       () => renameBusiness(ctx, admin, business.id, { name: "X" }),
       () => renameBranch(ctx, admin, branch.id, { name: "X" }),

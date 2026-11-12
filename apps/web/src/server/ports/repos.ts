@@ -58,8 +58,8 @@ export interface AuditRepo {
   insert(entry: NewAudit): Promise<void>;
 }
 
-export type NewBusiness = { name: string; nameKey: string; createdBy: string | null; createdAt: Date };
-export type BusinessPatch = Partial<Pick<Business, "name" | "nameKey" | "archivedAt">> & { updatedAt: Date };
+export type NewBusiness = { name: string; nameKey: string; color: string; createdBy: string | null; createdAt: Date };
+export type BusinessPatch = Partial<Pick<Business, "name" | "nameKey" | "color" | "archivedAt">> & { updatedAt: Date };
 
 export interface BusinessesRepo {
   list(): Promise<Business[]>;

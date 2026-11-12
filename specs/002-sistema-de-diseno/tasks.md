@@ -146,28 +146,30 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 5 — Color de negocio y estructura
 
-- [ ] **T25 — Paleta y color sugerido**
+- [x] **T25 — Paleta y color sugerido**
   - RF: 8, 10
   - Depende de: —
   - Hecho cuando: `test_s002_rf10_*` cubre primer libre, todos usados y archivados contando como usados.
-- [ ] **T26 — Migración del color**
+- [x] **T26 — Migración del color**
   - RF: 10
   - Depende de: T25
   - Hecho cuando: `pnpm db:generate --name color_negocio` más el relleno; el test de integración aplica `0000`,
     siembra 10 negocios, aplica `0001` y encuentra las claves 1 a 8 y luego la primera dos veces.
-- [ ] **T27 — Servicio y API del color**
+- [x] **T27 — Servicio y API del color**
   - RF: 8, 9, 11, 15
   - Depende de: T26
   - Hecho cuando: integración: alta sin color o con uno fuera de la paleta da `invalid_color`; el dueño cambia el
     color y queda en `audit_log` con el anterior; un administrador recibe 403; el `PATCH` de nombre de la 001 sigue
     igual.
-- [ ] **T28 — Estructura de la app**
+- [x] **T28 — Estructura de la app**
   - RF: 12, 16, 17, 18
   - Depende de: T16, T27
+  - Nota: un solo bloque azul (`<aside>`) es la banda en teléfono y el menú lateral desde 1024 px, así el negocio
+    activo aparece una sola vez en la página.
   - Hecho cuando: `AppShell` reemplaza la barra de la 001; E2E en 1023 px ve el botón de menú y abre la
     navegación con un toque; en 1024 px ve el menú lateral; la barra muestra negocio, sucursal y su color, y los
     nombres de 60 caracteres se recortan sin desbordar en 360 px.
-- [ ] **T29 — Elegir y cambiar color en Negocios**
+- [x] **T29 — Elegir y cambiar color en Negocios**
   - RF: 8, 9, 13, 14
   - Depende de: T27, T28
   - Hecho cuando: el alta llega con el color sugerido elegido y se puede cambiar; editar un negocio cambia su color;

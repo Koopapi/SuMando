@@ -33,11 +33,11 @@ async function adminClient() {
 describe("spec 001 — API de negocios", () => {
   it("test_s001_rf17_rf18_rf19_crea_negocio_anade_sucursal_renombra_y_rechaza_duplicados", async () => {
     const client = await ownerClient();
-    const created = await client.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero" } });
+    const created = await client.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" } });
     expect(created.status).toBe(201);
     const { business } = await json(created);
     expect(business).toMatchObject({ name: "Pastatti", archived: false, branches: [{ name: "Sendero", archived: false }] });
-    const dup = await client.call(createBusiness, "/api/businesses", { body: { name: " pastatti", firstBranchName: "Otra" } });
+    const dup = await client.call(createBusiness, "/api/businesses", { body: { name: " pastatti", firstBranchName: "Otra", color: "violeta" } });
     expect(dup.status).toBe(409);
     expect((await json(dup)).error.code).toBe("duplicate_name");
     const branch = await client.call((r) => addBranch(r, ctx(business.id)), `/api/businesses/${business.id}/branches`, { body: { name: "Centro" } });
@@ -53,14 +53,14 @@ describe("spec 001 — API de negocios", () => {
 
   it("test_s001_rf20_un_nombre_vacio_responde_422_con_el_limite", async () => {
     const client = await ownerClient();
-    const res = await client.call(createBusiness, "/api/businesses", { body: { name: " ", firstBranchName: "Centro" } });
+    const res = await client.call(createBusiness, "/api/businesses", { body: { name: " ", firstBranchName: "Centro", color: "violeta" } });
     expect(res.status).toBe(422);
     expect((await json(res)).error).toMatchObject({ code: "name_invalid", params: { max: 60 } });
   });
 
   it("test_s001_rf21_rf22_archiva_y_reactiva_negocios_y_sucursales", async () => {
     const client = await ownerClient();
-    const { business } = await json(await client.call(createBusiness, "/api/businesses", { body: { name: "Pirrus", firstBranchName: "Centro" } }));
+    const { business } = await json(await client.call(createBusiness, "/api/businesses", { body: { name: "Pirrus", firstBranchName: "Centro", color: "violeta" } }));
     const branchId = business.branches[0].id;
     expect((await json(await client.call((r) => archiveBranch(r, ctx(branchId)), `/api/branches/${branchId}/archive`, { method: "POST" }))).branch.archived).toBe(true);
     expect((await json(await client.call((r) => reactivateBranch(r, ctx(branchId)), `/api/branches/${branchId}/reactivate`, { method: "POST" }))).branch.archived).toBe(false);
@@ -74,12 +74,12 @@ describe("spec 001 — API de negocios", () => {
 
   it("test_s001_rf31_un_administrador_recibe_403_en_todas_las_rutas_aunque_llame_directo", async () => {
     const owner = await ownerClient();
-    const { business } = await json(await owner.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero" } }));
+    const { business } = await json(await owner.call(createBusiness, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" } }));
     const branchId = business.branches[0].id;
     const admin = await adminClient();
     const attempts: Promise<Response>[] = [
       admin.call(listBusinesses, "/api/businesses"),
-      admin.call(createBusiness, "/api/businesses", { body: { name: "Otro", firstBranchName: "Centro" } }),
+      admin.call(createBusiness, "/api/businesses", { body: { name: "Otro", firstBranchName: "Centro", color: "violeta" } }),
       admin.call((r) => renameBusiness(r, ctx(business.id)), "/api/businesses/x", { method: "PATCH", body: { name: "X" } }),
       admin.call((r) => archiveBusiness(r, ctx(business.id)), "/api/businesses/x/archive", { method: "POST" }),
       admin.call((r) => reactivateBusiness(r, ctx(business.id)), "/api/businesses/x/reactivate", { method: "POST" }),

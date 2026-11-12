@@ -15,8 +15,8 @@ import { makeCtx, OWNER } from "./helpers";
 async function world() {
   const ctx = makeCtx();
   const owner = await createFirstOwner(ctx, OWNER);
-  const pastatti = await createBusiness(ctx, owner.user, { name: "Pastatti", firstBranchName: "Sendero" });
-  const pirrus = await createBusiness(ctx, owner.user, { name: "Pirrus", firstBranchName: "Centro" });
+  const pastatti = await createBusiness(ctx, owner.user, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
+  const pirrus = await createBusiness(ctx, owner.user, { name: "Pirrus", firstBranchName: "Centro", color: "violeta" });
   const { person, temporaryPassword } = await createPerson(ctx, owner.user, { name: "Ana", email: "ana@mando.test", role: "admin", branchIds: [pastatti.branch.id] });
   const ana = await loginService(ctx, { email: "ana@mando.test", password: temporaryPassword });
   const auth = (await authenticate(ctx, ana.token))!;
@@ -66,8 +66,8 @@ describe("spec 001 — sucursal activa", () => {
     const owner = new ApiClient();
     await owner.call(setupPost, "/api/setup", { body: OWNER });
     const { createBusiness: createBusinessApi } = { createBusiness: (await import("@/app/api/businesses/route")).POST };
-    const { business: pastatti } = await json(await owner.call(createBusinessApi, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero" } }));
-    await owner.call(createBusinessApi, "/api/businesses", { body: { name: "Pirrus", firstBranchName: "Centro" } });
+    const { business: pastatti } = await json(await owner.call(createBusinessApi, "/api/businesses", { body: { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" } }));
+    await owner.call(createBusinessApi, "/api/businesses", { body: { name: "Pirrus", firstBranchName: "Centro", color: "violeta" } });
     const first = await json(await owner.call(me, "/api/me"));
     expect(first.state).toBe("choose");
     expect(first.choices).toHaveLength(2);

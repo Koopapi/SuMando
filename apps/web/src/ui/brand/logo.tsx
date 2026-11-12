@@ -4,25 +4,25 @@ import { dialSvg } from "./logo-svg";
 
 const NAME = es.common.appName;
 
-export function LogoMark({ size = 32 }: { size?: number }) {
+export function LogoMark({ size = 32, bare = false }: { size?: number; bare?: boolean }) {
   return (
     <span
       aria-hidden
       className="inline-block shrink-0"
       style={{ width: size, height: size }}
-      dangerouslySetInnerHTML={{ __html: dialSvg({ small: size <= 44 }) }}
+      dangerouslySetInnerHTML={{ __html: dialSvg({ small: size <= 44, bare }) }}
     />
   );
 }
 
 /** Nombre escrito: «Su» + «M» en ámbar + «ando». Se lee como un solo nombre para lectores de pantalla. */
-export function Wordmark({ size = "md" }: { size?: "md" | "lg" }) {
+export function Wordmark({ size = "md", tone = "surface" }: { size?: "md" | "lg"; tone?: "surface" | "band" }) {
   return (
-    <span aria-label={NAME} className={`font-brand leading-none tracking-tight ${size === "lg" ? "text-4xl" : "text-lg"}`}>
+    <span aria-label={NAME} className={`font-brand leading-none tracking-tight ${size === "lg" ? "text-4xl" : "text-lg"} ${tone === "band" ? "text-on-band" : ""}`}>
       <span aria-hidden className="font-medium">
         {NAME.slice(0, 2)}
       </span>
-      <span aria-hidden className="font-bold text-accent-text">
+      <span aria-hidden className={`font-bold ${tone === "band" ? "text-band-accent" : "text-accent-text"}`}>
         {NAME.slice(2, 3)}
       </span>
       <span aria-hidden className="font-bold">

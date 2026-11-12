@@ -17,4 +17,6 @@ export const errors = {
   last_owner: "No se puede: el sistema se quedaría sin ningún dueño activo.",
   no_branch: "No tienes ninguna sucursal asignada. Pide al dueño que te asigne una.",
   business_archived: "El negocio está archivado. Reactívalo primero.",
+  invalid_color: "Elige uno de los colores de la lista.",
+  nothing_to_update: "No hay cambios que guardar.",
 } as const;

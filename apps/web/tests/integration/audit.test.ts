@@ -23,7 +23,7 @@ describe("spec 001 — registro de cambios", () => {
     const ctx = makeCtx();
     const owner = await createFirstOwner(ctx, OWNER);
     ctx.clock.advanceMinutes(5);
-    const { business, branch } = await createBusiness(ctx, owner.user, { name: "Pastatti", firstBranchName: "Sendero" });
+    const { business, branch } = await createBusiness(ctx, owner.user, { name: "Pastatti", firstBranchName: "Sendero", color: "violeta" });
     const rows = await db.select().from(auditLog);
     const created = rows.filter((r) => r.action.endsWith(".created"));
     expect(created.map((r) => r.action).sort()).toEqual(["branch.created", "business.created", "user.created"]);

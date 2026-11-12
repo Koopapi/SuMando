@@ -15,7 +15,11 @@ export function BranchChooser({ choices, activeId }: { choices: BranchChoice[]; 
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="error">{error}</Alert> : null}
       {choices.map((c) => (
-        <Card key={c.business.id} title={c.business.name}>
+        <Card key={c.business.id}>
+          <h2 className={`biz-${c.business.color} mb-3 flex items-center gap-3 font-brand text-xl font-bold`} data-business-color={c.business.color}>
+            <span aria-hidden className="h-7 w-1 rounded-full bg-biz" />
+            {c.business.name}
+          </h2>
           <ul className="flex flex-col gap-2">
             {c.branches.map((b) => (
               <li key={b.id}>
