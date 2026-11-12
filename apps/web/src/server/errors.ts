@@ -21,6 +21,14 @@ const STATUS: Record<ErrorCode, number> = {
   business_archived: 409,
   invalid_color: 422,
   nothing_to_update: 422,
+  catalog_name_invalid: 422,
+  invalid_unit: 422,
+  invalid_factor: 422,
+  invalid_quantity: 422,
+  max_below_min: 422,
+  base_unit_locked: 409,
+  supplier_archived: 409,
+  invalid_responsible: 422,
 };
 
 export class AppError extends Error {

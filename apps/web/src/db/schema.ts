@@ -8,6 +8,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -142,9 +143,151 @@ export const auditLog = pgTable(
   (t) => [index("audit_log_entity_idx").on(t.entityType, t.entityId), index("audit_log_created_idx").on(t.createdAt)],
 );
 
+// Catálogo de cada negocio (spec 003, plan sección 2). Nombres únicos entre los activos (`name_key`, RF-31): lo
+// archivado no bloquea un alta nueva y su reactivación se comprueba en el servicio (RF-34).
+const activeOnly = sql`archived_at is null`;
+
+export const suppliers = pgTable(
+  "suppliers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    phone: varchar("phone", { length: 30 }),
+    notes: varchar("notes", { length: 500 }),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("suppliers_active_name_unique").on(t.businessId, t.nameKey).where(activeOnly), index("suppliers_business_idx").on(t.businessId)],
+);
+
+export const BASE_UNIT_KEYS = ["g", "ml", "pz"] as const;
+
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    // Unidad base fija (RF-10, RF-16): la presentación de unidad base es implícita, con equivalencia 1 (RF-12).
+    baseUnit: varchar("base_unit", { length: 4 }).$type<(typeof BASE_UNIT_KEYS)[number]>().notNull(),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    notes: varchar("notes", { length: 500 }),
+    // Presentaciones de compra y de conteo (RF-15); nulo = la unidad base.
+    purchasePresentationId: uuid("purchase_presentation_id").references((): AnyPgColumn => productPresentations.id),
+    countPresentationId: uuid("count_presentation_id").references((): AnyPgColumn => productPresentations.id),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("products_active_name_unique").on(t.businessId, t.nameKey).where(activeOnly),
+    index("products_business_idx").on(t.businessId),
+    check("products_base_unit_check", sql`${t.baseUnit} in ('g', 'ml', 'pz')`),
+  ],
+);
+
+export const productPresentations = pgTable(
+  "product_presentations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references((): AnyPgColumn => products.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    // Equivalencia en unidad base, mayor que cero y con hasta 3 decimales (RF-11, RF-13).
+    factor: numeric("factor", { precision: 14, scale: 3 }).notNull(),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("product_presentations_name_unique").on(t.productId, t.nameKey), check("product_presentations_factor_check", sql`${t.factor} > 0`)],
+);
+
+export const warehouses = pgTable(
+  "warehouses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    // Nulo = del negocio completo (RF-3). La unicidad cruzada de RF-20 la comprueba el servicio.
+    branchId: uuid("branch_id").references(() => branches.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [index("warehouses_business_idx").on(t.businessId)],
+);
+
+export const areas = pgTable(
+  "areas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    // Responsable: una persona con cuenta (RF-19).
+    responsibleId: uuid("responsible_id")
+      .notNull()
+      .references(() => users.id),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("areas_active_name_unique").on(t.branchId, t.nameKey).where(activeOnly), index("areas_business_idx").on(t.businessId)],
+);
+
+// Mínimo y máximo de un producto en un almacén, en unidad base (RF-22 a RF-25).
+export const stockLevels = pgTable(
+  "stock_levels",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    minBase: numeric("min_base", { precision: 20, scale: 6 }),
+    maxBase: numeric("max_base", { precision: 20, scale: 6 }),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("stock_levels_product_warehouse_unique").on(t.productId, t.warehouseId),
+    index("stock_levels_business_idx").on(t.businessId),
+    check("stock_levels_non_negative", sql`(${t.minBase} is null or ${t.minBase} >= 0) and (${t.maxBase} is null or ${t.maxBase} >= 0)`),
+    check("stock_levels_max_ge_min", sql`${t.minBase} is null or ${t.maxBase} is null or ${t.maxBase} >= ${t.minBase}`),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
 export type Membership = typeof memberships.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type AuditEntry = typeof auditLog.$inferSelect;
+export type Supplier = typeof suppliers.$inferSelect;
+export type Product = typeof products.$inferSelect;
+export type ProductPresentation = typeof productPresentations.$inferSelect;
+export type Warehouse = typeof warehouses.$inferSelect;
+export type Area = typeof areas.$inferSelect;
+export type StockLevel = typeof stockLevels.$inferSelect;

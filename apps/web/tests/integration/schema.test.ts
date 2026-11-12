@@ -6,7 +6,7 @@ describe("spec 001 — esquema", () => {
   it("test_s001_esquema_la_migracion_inicial_crea_las_seis_tablas", async () => {
     const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public' order by tablename`;
     const names = rows.map((r) => r.tablename).filter((n) => n !== "__drizzle_migrations");
-    expect(names).toEqual(["audit_log", "branches", "businesses", "memberships", "sessions", "users"]);
+    expect(names).toEqual(expect.arrayContaining(["audit_log", "branches", "businesses", "memberships", "sessions", "users"]));
   });
 
   it("test_s001_esquema_el_correo_y_las_claves_de_nombre_son_unicos", async () => {

@@ -2,6 +2,7 @@
 import { and, count, desc, eq, inArray, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import { auditLog, branches, businesses, memberships, sessions, users } from "@/db/schema";
 import type { Db, DbOrTx } from "@/db/client";
+import { catalogRepo } from "./catalog";
 import type { AuditRepo, BranchesRepo, BusinessesRepo, MembershipsRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
 
 function usersRepo(db: DbOrTx): UsersRepo {
@@ -78,7 +79,7 @@ function auditRepo(db: DbOrTx): AuditRepo {
 }
 
 export function makeRepos(db: DbOrTx): Repos {
-  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db) };
+  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db), catalog: catalogRepo(db) };
 }
 
 export function drizzleStore(db: Db): Store {

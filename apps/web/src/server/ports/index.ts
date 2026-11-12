@@ -13,3 +13,4 @@ export interface Ports {
   random: RandomSource;
   tokens: TokenSource;
 }
+export type * from "./catalog";

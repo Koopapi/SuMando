@@ -19,4 +19,12 @@ export const errors = {
   business_archived: "El negocio está archivado. Reactívalo primero.",
   invalid_color: "Elige uno de los colores de la lista.",
   nothing_to_update: "No hay cambios que guardar.",
+  catalog_name_invalid: (p: { max: number }) => `El nombre no puede estar vacío ni pasar de ${p.max} caracteres.`,
+  invalid_unit: "Elige la unidad base: gramo, mililitro o pieza.",
+  invalid_factor: "La equivalencia debe ser mayor que cero, con punto o coma y hasta 3 decimales. Por ejemplo, 1000 o 0.5.",
+  invalid_quantity: "Escribe una cantidad de 0 o más, con hasta 3 decimales.",
+  max_below_min: "El máximo debe ser igual o mayor que el mínimo.",
+  base_unit_locked: "La unidad base no se puede cambiar. Archiva el producto y da de alta uno nuevo.",
+  supplier_archived: "Ese proveedor está archivado. Reactívalo o elige otro.",
+  invalid_responsible: "Elige como responsable a una persona con acceso a esta sucursal.",
 } as const;
