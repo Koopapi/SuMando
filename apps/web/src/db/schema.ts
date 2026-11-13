@@ -2,6 +2,7 @@
 // `is_active` y `revoked_at` marcan lo que dejó de estar vigente.
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   bigserial,
   boolean,
   check,
@@ -577,6 +578,8 @@ export const inventoryMovements = pgTable(
     transferId: uuid("transfer_id").references(() => inventoryTransfers.id),
     countId: uuid("count_id").references(() => inventoryCounts.id),
     reversesId: uuid("reverses_id").references((): AnyPgColumn => inventoryMovements.id),
+    // Spec 007, RF-45: la entrada que generó la recepción de una requisición.
+    requisitionId: uuid("requisition_id").references((): AnyPgColumn => requisitions.id),
     createdBy: uuid("created_by")
       .notNull()
       .references(() => users.id),
@@ -645,6 +648,142 @@ export const productLinks = pgTable(
   (t) => [uniqueIndex("product_links_from_business_unique").on(t.fromProductId, t.toBusinessId)],
 );
 
+// --- Spec 007: requisiciones (plan, sección 2) ---
+
+export const REQUISITION_STATUS_KEYS = ["requested", "approved", "rejected", "cancelled", "closed"] as const;
+
+export const requisitions = pgTable(
+  "requisitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    folio: integer("folio").notNull(),
+    status: varchar("status", { length: 10 }).$type<(typeof REQUISITION_STATUS_KEYS)[number]>().notNull(),
+    note: varchar("note", { length: 200 }),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("requisitions_business_folio_unique").on(t.businessId, t.folio),
+    index("requisitions_branch_idx").on(t.branchId, t.createdAt),
+    check("requisitions_status_check", sql`${t.status} in ('requested', 'approved', 'rejected', 'cancelled', 'closed')`),
+  ],
+);
+
+export const requisitionLines = pgTable(
+  "requisition_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requisitionId: uuid("requisition_id")
+      .notNull()
+      .references(() => requisitions.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    presentationId: uuid("presentation_id").references(() => productPresentations.id),
+    requestedBase: numeric("requested_base", { precision: 20, scale: 6 }).notNull(),
+    quantityBase: numeric("quantity_base", { precision: 20, scale: 6 }).notNull(),
+    receivedBase: numeric("received_base", { precision: 20, scale: 6 }).notNull().default("0"),
+    amountCents: bigint("amount_cents", { mode: "bigint" }),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+    closeReason: varchar("close_reason", { length: 200 }),
+    position: integer("position").notNull(),
+  },
+  (t) => [
+    uniqueIndex("requisition_lines_product_unique").on(t.requisitionId, t.productId),
+    check("requisition_lines_quantity_positive", sql`${t.quantityBase} > 0`),
+    check("requisition_lines_amount_non_negative", sql`${t.amountCents} is null or ${t.amountCents} >= 0`),
+  ],
+);
+
+export const requisitionGroups = pgTable(
+  "requisition_groups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requisitionId: uuid("requisition_id")
+      .notNull()
+      .references(() => requisitions.id),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    buyer: varchar("buyer", { length: 60 }),
+    purchasedAt: timestamp("purchased_at", { withTimezone: true }),
+    purchasedBy: uuid("purchased_by").references(() => users.id),
+    totalCents: bigint("total_cents", { mode: "bigint" }),
+  },
+  (t) => [
+    uniqueIndex("requisition_groups_supplier_unique").on(t.requisitionId, t.supplierId).where(sql`${t.supplierId} is not null`),
+    uniqueIndex("requisition_groups_no_supplier_unique").on(t.requisitionId).where(sql`${t.supplierId} is null`),
+    check("requisition_groups_total_non_negative", sql`${t.totalCents} is null or ${t.totalCents} >= 0`),
+  ],
+);
+
+// Historial de cada paso (RF-44).
+export const requisitionEvents = pgTable(
+  "requisition_events",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    requisitionId: uuid("requisition_id")
+      .notNull()
+      .references(() => requisitions.id),
+    kind: varchar("kind", { length: 20 }).notNull(),
+    actorId: uuid("actor_id")
+      .notNull()
+      .references(() => users.id),
+    at: timestamp("at", { withTimezone: true }).notNull(),
+    detail: jsonb("detail"),
+  },
+  (t) => [index("requisition_events_requisition_idx").on(t.requisitionId, t.id)],
+);
+
+export const purchaseTemplates = pgTable(
+  "purchase_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("purchase_templates_active_name_unique").on(t.branchId, t.nameKey).where(activeOnly)],
+);
+
+export const purchaseTemplateItems = pgTable(
+  "purchase_template_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => purchaseTemplates.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    presentationId: uuid("presentation_id").references(() => productPresentations.id),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    quantityBase: numeric("quantity_base", { precision: 20, scale: 6 }).notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [uniqueIndex("purchase_template_items_unique").on(t.templateId, t.productId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -673,3 +812,9 @@ export type InventoryCount = typeof inventoryCounts.$inferSelect;
 export type InventoryCountLine = typeof inventoryCountLines.$inferSelect;
 export type AreaProduct = typeof areaProducts.$inferSelect;
 export type ProductLink = typeof productLinks.$inferSelect;
+export type Requisition = typeof requisitions.$inferSelect;
+export type RequisitionLine = typeof requisitionLines.$inferSelect;
+export type RequisitionGroup = typeof requisitionGroups.$inferSelect;
+export type RequisitionEvent = typeof requisitionEvents.$inferSelect;
+export type PurchaseTemplate = typeof purchaseTemplates.$inferSelect;
+export type PurchaseTemplateItem = typeof purchaseTemplateItems.$inferSelect;

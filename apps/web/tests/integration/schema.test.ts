@@ -76,3 +76,30 @@ describe("spec 005 — esquema", () => {
     expect(checks).toHaveLength(3);
   });
 });
+
+describe("spec 007 — esquema", () => {
+  it("test_s007_rf1_las_tablas_de_requisiciones_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["requisitions", "requisition_lines", "requisition_groups", "requisition_events", "purchase_templates", "purchase_template_items"]));
+  });
+
+  it("test_s007_rf2_el_folio_es_unico_por_negocio", async () => {
+    const [idx] = await sql<{ indexdef: string }[]>`select indexdef from pg_indexes where indexname = 'requisitions_business_folio_unique'`;
+    expect(idx.indexdef).toContain("UNIQUE");
+  });
+
+  it("test_s007_rf7_cada_renglon_guarda_cantidad_solicitada_vigente_y_recibida", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'requisition_lines'`;
+    expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["requested_base", "quantity_base", "received_base", "supplier_id", "amount_cents", "close_reason"]));
+  });
+
+  it("test_s007_rf44_cada_paso_queda_en_el_historial", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'requisition_events'`;
+    expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["kind", "actor_id", "at", "detail"]));
+  });
+
+  it("test_s007_rf45_la_entrada_de_inventario_guarda_su_requisicion", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'inventory_movements' and column_name = 'requisition_id'`;
+    expect(cols).toHaveLength(1);
+  });
+});

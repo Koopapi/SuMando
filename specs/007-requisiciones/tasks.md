@@ -4,15 +4,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y esquema
 
-- [ ] **T1 — Sugerencias y suma de repetidos**
+- [x] **T1 — Sugerencias y suma de repetidos**
   - RF: RF-10, RF-14, RF-15, RF-16
   - Depende de: —
   - Hecho cuando: `suggest.test.ts` en verde (sin máximo, negativo, redondeo a cartones, cálculo con y sin presentación).
-- [ ] **T2 — Estados, pendiente y montos**
+- [x] **T2 — Estados, pendiente y montos**
   - RF: RF-22, RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-37, RF-38, RF-39, RF-40, RF-46
   - Depende de: —
   - Hecho cuando: `state.test.ts` y `money.test.ts` en verde.
-- [ ] **T3 — Migración y repositorios**
+- [x] **T3 — Migración y repositorios**
   - RF: RF-1, RF-2, RF-7, RF-44, RF-45
   - Depende de: —
   - Hecho cuando: `0005_requisiciones` aplica y el test de esquema comprueba tablas, índices y la columna nueva de movimientos.

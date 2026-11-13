@@ -26,7 +26,7 @@ export interface MovementInput {
 export async function applyMovement(
   repos: Repos,
   wh: Warehouse,
-  data: { kind: MovementKind; createdBy: string; createdAt: Date; reason?: string | null; supplierId?: string | null; reference?: string | null; note?: string | null; transferId?: string | null; countId?: string | null; reversesId?: string | null },
+  data: { kind: MovementKind; createdBy: string; createdAt: Date; reason?: string | null; supplierId?: string | null; reference?: string | null; note?: string | null; transferId?: string | null; countId?: string | null; reversesId?: string | null; requisitionId?: string | null },
   deltas: { productId: string; deltaMicro: bigint }[],
 ): Promise<InventoryMovement> {
   const balances = await repos.inventory.stock.apply(
