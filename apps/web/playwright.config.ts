@@ -8,6 +8,8 @@ const env = {
   NEXT_DIST_DIR: ".next-e2e",
   DEV_ENDPOINTS: "1",
   NODE_ENV: "production",
+  // Spec 008: los archivos de documentos del E2E van aparte y fuera del repo.
+  FILES_DIR: ".e2e-files",
 };
 
 export default defineConfig({

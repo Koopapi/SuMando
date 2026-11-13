@@ -11,3 +11,8 @@ coverage/
 .DS_Store
 # Material del cliente con nombres de personas reales: se queda fuera del repo.
 Referencias/
+# Archivos de documentos de empleados (spec 008): datos personales, nunca al repo.
+data/
+apps/web/data/
+.e2e-files/
+apps/web/.e2e-files/

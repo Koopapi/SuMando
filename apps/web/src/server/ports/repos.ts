@@ -2,6 +2,7 @@
 import type { Branch, Business, Membership, Session, User, UserRole } from "@/db/schema";
 import type { CatalogRepo } from "./catalog";
 import type { InventoryRepo } from "./inventory";
+import type { PersonnelRepo } from "./personnel";
 import type { RecipesRepo } from "./recipes";
 import type { RequisitionsRepo } from "./requisitions";
 
@@ -107,6 +108,7 @@ export interface Repos {
   recipes: RecipesRepo;
   inventory: InventoryRepo;
   requisitions: RequisitionsRepo;
+  personnel: PersonnelRepo;
 }
 
 export interface Store extends Repos {

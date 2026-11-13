@@ -4,15 +4,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio, archivos y esquema
 
-- [ ] **T1 — Documentos, archivos y expediente**
+- [x] **T1 — Documentos, archivos y expediente**
   - RF: RF-9, RF-13, RF-16, RF-18, RF-20, RF-21, RF-22, RF-23, RF-28, RF-29, RF-30
   - Depende de: —
   - Hecho cuando: `documents.test.ts`, `files.test.ts` y `employee.test.ts` en verde.
-- [ ] **T2 — Puerto de archivos**
+- [x] **T2 — Puerto de archivos**
   - RF: RF-18, RF-27
   - Depende de: —
   - Hecho cuando: adaptador en disco y falso en memoria con su test.
-- [ ] **T3 — Migración y repositorios**
+- [x] **T3 — Migración y repositorios**
   - RF: RF-1, RF-15, RF-26, RF-33
   - Depende de: —
   - Hecho cuando: `0006_personal` aplica y el test de esquema comprueba tablas e índices.

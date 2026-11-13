@@ -4,6 +4,7 @@ import { auditLog, branches, businesses, memberships, sessions, users } from "@/
 import type { Db, DbOrTx } from "@/db/client";
 import { catalogRepo } from "./catalog";
 import { inventoryRepo } from "./inventory";
+import { personnelRepo } from "./personnel";
 import { recipesRepo } from "./recipes";
 import { requisitionsRepo } from "./requisitions";
 import type { AuditRepo, BranchesRepo, BusinessesRepo, MembershipsRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
@@ -82,7 +83,7 @@ function auditRepo(db: DbOrTx): AuditRepo {
 }
 
 export function makeRepos(db: DbOrTx): Repos {
-  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db), catalog: catalogRepo(db), recipes: recipesRepo(db), inventory: inventoryRepo(db), requisitions: requisitionsRepo(db) };
+  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db), catalog: catalogRepo(db), recipes: recipesRepo(db), inventory: inventoryRepo(db), requisitions: requisitionsRepo(db), personnel: personnelRepo(db) };
 }
 
 export function drizzleStore(db: Db): Store {

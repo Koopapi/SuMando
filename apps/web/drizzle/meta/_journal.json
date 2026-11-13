@@ -43,6 +43,13 @@
       "when": 1794596327277,
       "tag": "0005_requisiciones",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794599426593,
+      "tag": "0006_personal",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,10 @@ RUN pnpm --filter web build
 FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1 MIGRATE_ON_START=1
-RUN groupadd --system mando && useradd --system --gid mando --home /app mando
+RUN groupadd --system mando && useradd --system --gid mando --home /app mando \
+  && mkdir -p /app/data/files && chown -R mando:mando /app/data
+# Spec 008: documentos de empleados; en Coolify se monta un volumen persistente en /app/data.
+ENV FILES_DIR=/app/data/files
 COPY --from=builder --chown=mando:mando /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=mando:mando /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=mando:mando /app/apps/web/public ./apps/web/public
