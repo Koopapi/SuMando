@@ -2,6 +2,7 @@
 import type { Branch, Business, Membership, Session, User, UserRole } from "@/db/schema";
 import type { CatalogRepo } from "./catalog";
 import type { InventoryRepo } from "./inventory";
+import type { PersonnelRepo } from "./personnel";
 import type { RecipesRepo } from "./recipes";
 import type { RequisitionsRepo } from "./requisitions";
 
@@ -58,8 +59,12 @@ export type NewAudit = {
   createdAt: Date;
 };
 
+export type AuditEntryView = { action: string; createdAt: Date; actorName: string | null; before: unknown; after: unknown };
+
 export interface AuditRepo {
   insert(entry: NewAudit): Promise<void>;
+  /** Registro de una entidad, del más reciente al más antiguo, con el nombre de quién lo hizo (spec 008, RF-42). */
+  listByEntity(entityType: string, entityId: string): Promise<AuditEntryView[]>;
 }
 
 export type NewBusiness = { name: string; nameKey: string; color: string; createdBy: string | null; createdAt: Date };
@@ -107,6 +112,7 @@ export interface Repos {
   recipes: RecipesRepo;
   inventory: InventoryRepo;
   requisitions: RequisitionsRepo;
+  personnel: PersonnelRepo;
 }
 
 export interface Store extends Repos {

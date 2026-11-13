@@ -59,6 +59,14 @@ const STATUS: Record<ErrorCode, number> = {
   invalid_amount: 422,
   not_purchased: 409,
   buyer_too_long: 422,
+  employee_exists: 409,
+  invalid_pay: 422,
+  invalid_date: 422,
+  leave_before_hire: 422,
+  employee_state: 409,
+  file_type: 422,
+  file_size: 413,
+  owner_only: 403,
 };
 
 export class AppError extends Error {

@@ -4,6 +4,7 @@ import { auditLog, branches, businesses, memberships, sessions, users } from "@/
 import type { Db, DbOrTx } from "@/db/client";
 import { catalogRepo } from "./catalog";
 import { inventoryRepo } from "./inventory";
+import { personnelRepo } from "./personnel";
 import { recipesRepo } from "./recipes";
 import { requisitionsRepo } from "./requisitions";
 import type { AuditRepo, BranchesRepo, BusinessesRepo, MembershipsRepo, Repos, SessionsRepo, Store, UsersRepo } from "@/server/ports/repos";
@@ -78,11 +79,20 @@ function auditRepo(db: DbOrTx): AuditRepo {
     insert: async (entry) => {
       await db.insert(auditLog).values({ ...entry, before: entry.before ?? null, after: entry.after ?? null });
     },
+    listByEntity: async (entityType, entityId) =>
+      (
+        await db
+          .select({ a: auditLog, actorName: users.name })
+          .from(auditLog)
+          .leftJoin(users, eq(users.id, auditLog.actorId))
+          .where(and(eq(auditLog.entityType, entityType), eq(auditLog.entityId, entityId)))
+          .orderBy(desc(auditLog.id))
+      ).map((r) => ({ action: r.a.action, createdAt: r.a.createdAt, actorName: r.actorName, before: r.a.before, after: r.a.after })),
   };
 }
 
 export function makeRepos(db: DbOrTx): Repos {
-  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db), catalog: catalogRepo(db), recipes: recipesRepo(db), inventory: inventoryRepo(db), requisitions: requisitionsRepo(db) };
+  return { users: usersRepo(db), sessions: sessionsRepo(db), businesses: businessesRepo(db), branches: branchesRepo(db), memberships: membershipsRepo(db), audit: auditRepo(db), catalog: catalogRepo(db), recipes: recipesRepo(db), inventory: inventoryRepo(db), requisitions: requisitionsRepo(db), personnel: personnelRepo(db) };
 }
 
 export function drizzleStore(db: Db): Store {

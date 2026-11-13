@@ -21,19 +21,25 @@ lo nuevo se prueba en local y con la CI, y al mergear a `main` se publica.
    Activa *Backups* programados (diarios) en el recurso: desde el primer día hay datos reales.
 2. **Aplicación**: *New resource → Application → Public Repository*, `https://github.com/Koopapi/SuMando`, rama
    `main`, *Build Pack: Dockerfile* (está en la raíz; contexto `/`). Puerto `3000`.
-3. **Variables de entorno** (ninguna hace falta en compilación):
+3. **Almacenamiento persistente** (spec 008, documentos de empleados): en la app, *Persistent Storage → + Add →
+   Volume Mount* (no *Directory Mount*: una carpeta del servidor queda de root y la app, que corre sin privilegios,
+   no podría escribir), nombre `sumando-data`, destino `/app/data`; guardar y hacer *Redeploy* (reiniciar no monta
+   el volumen). La imagen ya trae `FILES_DIR=/app/data/files`. Sin el volumen, los documentos se pierden en cada
+   despliegue. Comprobar: subir un documento, volver a desplegar y abrirlo; o en *Terminal*, `ls -la /app/data/files`
+   (dueño `mando`). Los *Backups* de Coolify son solo de PostgreSQL: este volumen no se respalda hasta la spec 013.
+4. **Variables de entorno** (ninguna hace falta en compilación):
    - `DATABASE_URL`: la URL interna de la base de datos del paso 1.
    - `COOKIE_SECURE=1` (hay HTTPS). `MIGRATE_ON_START=1` ya viene en la imagen.
    - **Nunca** `DEV_ENDPOINTS=1`: abre las rutas de siembra y reinicio de la base de datos.
-4. **Dominio**: `sumando.com.mx` (registrado en HostGator el 11 de noviembre de 2026).
+5. **Dominio**: `sumando.com.mx` (registrado en HostGator el 11 de noviembre de 2026).
    - En el administrador de DNS de HostGator (Zone Editor), registros **A** para `@` (la raíz) y `www` apuntando a la
      IPv4 pública del VPS, con TTL corto (300). Sin proxy ni redirección de HostGator: Let's Encrypt necesita llegar
      directo al VPS. Si ya hay un registro A de la raíz hacia el hosting de HostGator, se cambia por la IP del VPS.
    - Esperar la propagación: `dig +short A sumando.com.mx` debe devolver la IP del VPS.
    - En Coolify, *Domains* de la app: `https://sumando.com.mx,https://www.sumando.com.mx`. Coolify (Traefik) pide y
      renueva el certificado solo. Si se desplegó antes de que el DNS apuntara al VPS, volver a desplegar.
-5. **Despliegue automático**: activar *Auto Deploy* (webhook de GitHub) para que cada merge a `main` publique.
-6. **Primer arranque**: abrir `https://sumando.com.mx` → aparece «Crear la cuenta del dueño» (solo mientras no haya
+6. **Despliegue automático**: activar *Auto Deploy* (webhook de GitHub) para que cada merge a `main` publique.
+7. **Primer arranque**: abrir `https://sumando.com.mx` → aparece «Crear la cuenta del dueño» (solo mientras no haya
    cuentas). Crearla de inmediato. Después, instalar SuMando en el teléfono desde el menú del navegador («Añadir a
    pantalla de inicio»).
 

@@ -103,3 +103,22 @@ describe("spec 007 — esquema", () => {
     expect(cols).toHaveLength(1);
   });
 });
+
+describe("spec 008 — esquema", () => {
+  it("test_s008_rf1_las_tablas_de_personal_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["positions", "employees", "employee_periods", "document_types", "employee_files"]));
+  });
+
+  it("test_s008_rf15_rf33_un_solo_periodo_abierto_y_la_baja_no_antes_del_ingreso", async () => {
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('employee_periods_open_unique', 'employee_files_storage_key_unique')`;
+    expect(idx).toHaveLength(2);
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('employee_periods_dates', 'employees_pay_positive')`;
+    expect(checks).toHaveLength(2);
+  });
+
+  it("test_s008_rf26_los_archivos_no_se_borran_se_reemplazan_o_retiran", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'employee_files'`;
+    expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["replaced_at", "retired_at", "retire_reason", "storage_key"]));
+  });
+});

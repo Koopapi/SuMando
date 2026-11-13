@@ -57,4 +57,12 @@ export const errors = {
   invalid_amount: "El importe debe ser en pesos, sin negativos y con hasta 2 decimales (por ejemplo, 1,250.50).",
   not_purchased: "Marca primero este proveedor como comprado.",
   buyer_too_long: "El nombre de quien compra no puede pasar de 60 caracteres.",
+  employee_exists: (p: { name: string }) => `Ya hay un empleado activo llamado «${p.name}» en esta sucursal. ¿Es otra persona?`,
+  invalid_pay: "El sueldo por día debe ser en pesos, mayor que cero y con hasta 2 decimales.",
+  invalid_date: "Escribe una fecha válida.",
+  leave_before_hire: "La fecha de baja no puede ser anterior a la fecha de ingreso.",
+  employee_state: (p: { state: string }) => `No se puede: el empleado está ${p.state}.`,
+  file_type: "El archivo debe ser una foto (JPG, PNG, HEIC o WEBP) o un PDF.",
+  file_size: "El archivo no puede pasar de 10 MB.",
+  owner_only: "Solo el dueño puede ver esto.",
 } as const;

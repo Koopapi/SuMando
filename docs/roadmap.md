@@ -22,7 +22,7 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 | 005 | Inventarios | Entradas, salidas, ajustes con motivo, traspasos entre almacenes y entre negocios, conteo físico por área, existencias y mínimos **Hecha** |
 | 006 | Importar inventario por áreas | Subir la hoja «Inventario por áreas» de cada negocio: productos, presentaciones, proveedores, áreas con su lista, mínimos y existencia inicial como conteo, con revisión antes de guardar **Hecha** |
 | 007 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario **Hecha** |
-| 008 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo |
+| 008 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo **Hecha** |
 | 009 | Nómina | Semana de nómina: días y medias jornadas por pago diario capturados por el administrador, retardos con descuento, extras, bonos, comida, préstamos con abono semanal, hoja de pago con billetes, cerrar y reabrir, historial |
 | 010 | Checklists | Plantillas de apertura y cierre por sección con responsable, puntos clave, hoja del día, cierre y reapertura, historial |
 | 011 | Corte de caja | El corte asistido de Pirrus adaptado a Mando: apertura con fondo inicial, lo que reporta el punto de venta en efectivo y tarjeta, conteo de efectivo por denominación, tarjetas por terminal, transferencias y otros, movimientos de caja (gastos, retiros, ingresos), diferencias con tolerancia, motivo cuando no cuadra, firma e historial por sucursal |

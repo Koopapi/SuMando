@@ -82,6 +82,16 @@ Lo construido en la spec 007:
   aprobar; el historial vive en `requisition_events`. Recibir bloquea la requisición (`for update`) y registra una
   entrada de la spec 005 con `requisition_id`. Montos en centavos (`bigint`).
 
+Lo construido en la spec 008:
+
+- **Personal**: `server/services/personnel`; el empleado es de una sucursal y no tiene cuenta. El sueldo, los
+  archivos y el registro solo van en las vistas del dueño (el servicio arma la vista según el rol y las rutas
+  responden `owner_only`). El historial del expediente es `audit_log` con `entity_type = employee`, también las
+  aperturas de archivos.
+- **Archivos**: puerto `FileStore` (`ports.files`); en disco con `FILES_DIR` (`server/adapters/local-files.ts`,
+  claves aleatorias sin datos de la persona) y en memoria en las pruebas (`tests/fakes/files.ts`). El tipo se decide
+  por la firma del contenido. Se sirven solo al dueño con `Cache-Control: private, no-store`.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

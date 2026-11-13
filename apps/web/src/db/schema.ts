@@ -6,6 +6,7 @@ import {
   bigserial,
   boolean,
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -784,6 +785,117 @@ export const purchaseTemplateItems = pgTable(
   (t) => [uniqueIndex("purchase_template_items_unique").on(t.templateId, t.productId)],
 );
 
+// --- Spec 008: personal (plan, sección 2) ---
+
+export const positions = pgTable(
+  "positions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("positions_active_name_unique").on(t.businessId, t.nameKey).where(activeOnly)],
+);
+
+export const employees = pgTable(
+  "employees",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    positionId: uuid("position_id")
+      .notNull()
+      .references(() => positions.id),
+    phone: varchar("phone", { length: 30 }),
+    notes: varchar("notes", { length: 500 }),
+    // RF-13: solo el dueño lo ve y lo cambia; nulo = sin sueldo (RF-14).
+    dailyPayCents: bigint("daily_pay_cents", { mode: "bigint" }),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [index("employees_branch_idx").on(t.branchId, t.active), check("employees_pay_positive", sql`${t.dailyPayCents} is null or ${t.dailyPayCents} > 0`)],
+);
+
+// Cada periodo de trabajo (RF-33): el actual no tiene fecha de baja.
+export const employeePeriods = pgTable(
+  "employee_periods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id),
+    hiredOn: date("hired_on", { mode: "string" }).notNull(),
+    leftOn: date("left_on", { mode: "string" }),
+    leaveReason: varchar("leave_reason", { length: 12 }),
+    leaveNote: varchar("leave_note", { length: 200 }),
+  },
+  (t) => [
+    index("employee_periods_employee_idx").on(t.employeeId),
+    uniqueIndex("employee_periods_open_unique").on(t.employeeId).where(sql`left_on is null`),
+    check("employee_periods_dates", sql`${t.leftOn} is null or ${t.leftOn} >= ${t.hiredOn}`),
+  ],
+);
+
+export const documentTypes = pgTable(
+  "document_types",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    required: boolean("required").notNull().default(true),
+    validityMonths: smallint("validity_months"),
+    position: integer("position").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("document_types_active_name_unique").on(t.businessId, t.nameKey).where(activeOnly), check("document_types_validity", sql`${t.validityMonths} is null or ${t.validityMonths} between 1 and 120`)],
+);
+
+export const employeeFiles = pgTable(
+  "employee_files",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id),
+    documentTypeId: uuid("document_type_id")
+      .notNull()
+      .references(() => documentTypes.id),
+    // Clave aleatoria en el almacén de archivos: no revela a la persona (RNF «Datos personales protegidos»).
+    storageKey: varchar("storage_key", { length: 80 }).notNull(),
+    originalName: varchar("original_name", { length: 200 }).notNull(),
+    contentType: varchar("content_type", { length: 40 }).notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    issuedOn: date("issued_on", { mode: "string" }),
+    uploadedBy: uuid("uploaded_by")
+      .notNull()
+      .references(() => users.id),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull(),
+    replacedAt: timestamp("replaced_at", { withTimezone: true }),
+    replacedBy: uuid("replaced_by").references(() => users.id),
+    retiredAt: timestamp("retired_at", { withTimezone: true }),
+    retiredBy: uuid("retired_by").references(() => users.id),
+    retireReason: varchar("retire_reason", { length: 200 }),
+  },
+  (t) => [index("employee_files_employee_idx").on(t.employeeId, t.documentTypeId), uniqueIndex("employee_files_storage_key_unique").on(t.storageKey)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -818,3 +930,8 @@ export type RequisitionGroup = typeof requisitionGroups.$inferSelect;
 export type RequisitionEvent = typeof requisitionEvents.$inferSelect;
 export type PurchaseTemplate = typeof purchaseTemplates.$inferSelect;
 export type PurchaseTemplateItem = typeof purchaseTemplateItems.$inferSelect;
+export type Position = typeof positions.$inferSelect;
+export type Employee = typeof employees.$inferSelect;
+export type EmployeePeriod = typeof employeePeriods.$inferSelect;
+export type DocumentType = typeof documentTypes.$inferSelect;
+export type EmployeeFile = typeof employeeFiles.$inferSelect;

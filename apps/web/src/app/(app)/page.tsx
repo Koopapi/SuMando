@@ -9,6 +9,7 @@ import { listPeople } from "@/server/services/people";
 import { stockAlerts } from "@/server/services/inventory/stock";
 import { pendingIncoming } from "@/server/services/inventory/transfers";
 import { requisitionCounts } from "@/server/services/requisitions/requisitions";
+import { personnelCounts } from "@/server/services/personnel/employees";
 import { listCalculations } from "@/server/services/recipes/calculations";
 import { listRecipes } from "@/server/services/recipes/recipes";
 import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel, formatDateTime } from "@/ui";
@@ -35,7 +36,7 @@ export default async function HomePage() {
   const activePeople = people.filter((p) => p.isActive);
   const scope = { actor: user, active };
   const [catalog, recipes, calculations, alerts, pending] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope), stockAlerts(ctx, scope), pendingIncoming(ctx, scope)]);
-  const reqCounts = await requisitionCounts(ctx, scope);
+  const [reqCounts, staff] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope)]);
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -74,6 +75,12 @@ export default async function HomePage() {
           <ListRow href="/inventario/conteo" icon="clipboard" title={es.inventory.homeCount} detail={es.inventory.homeCountDetail} />
           <ListRow href="/inventario/traspasos" icon="swap" title={es.inventory.homeTransfers} detail={es.inventory.homeTransfersDetail(pending)} />
           <ListRow href="/requisiciones" icon="cart" title={es.requisitions.title} detail={es.requisitions.homeDetail(reqCounts.toApprove, reqCounts.toReceive)} />
+        </div>
+      </section>
+      <section className="flex flex-col gap-1">
+        <SectionLabel>{es.personnel.homeLabel}</SectionLabel>
+        <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/personal" icon="idcard" title={es.personnel.title} detail={es.personnel.homeDetail(staff.active, staff.incomplete)} />
         </div>
       </section>
       <section className="flex flex-col gap-1">
