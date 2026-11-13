@@ -123,6 +123,21 @@ Origen: spec 005 (aprobada el 13 de noviembre de 2026; construida y validada el 
   nuevo (RF-60 a RF-66).
 - **Hora del servidor**: no hay movimientos con fecha pasada.
 
+## 5 bis. Importar inventario por áreas
+
+Origen: spec 006 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+
+- Se sube la hoja «Inventario por áreas» (.xlsx, hasta 40 MB, imágenes ignoradas) del negocio activo; se revisa
+  antes de guardar y solo entran las filas sin problema (RF-5 a RF-24).
+- **Unidades**: kilogramo y gramo pasan a gramos, litro y mililitro a mililitros, cualquier otra a piezas con su
+  nombre como presentación de conteo; la presentación final con su conversión es la de compra (RF-10 a RF-15).
+- **Producto existente** (mismo nombre, activo): no se cambia; solo se le añade lo que falte (presentaciones,
+  proveedor, mínimo, área). Con otra unidad base, la fila no entra (RF-20, RF-26).
+- Proveedores y áreas se reutilizan por nombre o se crean; las áreas nuevas quedan con quien importa como
+  responsable (RF-27, RF-28).
+- **Existencia inicial**: la cantidad de la hoja entra como un conteo por área en el almacén elegido; lo que no trae
+  cantidad no cambia (RF-32, RF-33).
+
 ## 6. Requisiciones
 
 ## 7. Personal y nómina

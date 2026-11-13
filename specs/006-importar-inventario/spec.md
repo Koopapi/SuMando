@@ -1,6 +1,6 @@
 # Spec 006 — Importar inventario por áreas
 
-**Borrador para aprobación del dueño (13 de noviembre de 2026).**
+**Aprobada por el dueño el 13 de noviembre de 2026.**
 
 ## Contexto y objetivo
 Cada negocio ya tiene su inventario en una hoja de cálculo «Inventario por áreas»: por área, cada artículo con su
