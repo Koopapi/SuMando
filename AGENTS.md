@@ -14,15 +14,37 @@ el VPS propio.
    «Hecho cuando», agrupadas en entregas, y su tabla de cobertura.
 4. **Implementación** tarea a tarea, con el test antes que el código.
 5. **Validación** RF por RF (`scripts/rf-coverage.mjs`, escribe `validation.md`) y E2E de la spec en verde.
-6. **Pull request** a `pruebas`; el dueño revisa, prueba y mergea.
+6. **Pull request** a `main`; el dueño revisa, prueba y mergea (al mergear se publica en `sumando.com.mx`).
 
 ## Comandos
-Se definen en la spec 001 (esqueleto) y se anotan aquí en la misma tarea. Previstos, desde `apps/web`:
-- `pnpm dev`, `pnpm typecheck`, `pnpm lint`
-- `pnpm test` (Vitest: `unit` en `src/**/*.test.ts` e `integration` en `tests/integration`, con BD propia que se recrea)
-- `pnpm e2e` (Playwright contra la versión compilada, con BD propia que se recrea)
-- `pnpm db:generate --name <nombre>` y `pnpm db:migrate`
-- `node ../../scripts/rf-coverage.mjs ../../specs/NNN-nombre`
+Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew: `pg_ctl -D /opt/homebrew/var/postgresql@16 start`):
+- `pnpm dev` (puerto 3400; `.env.local` se copia de `.env.example` y apunta a la BD `mando_dev`), `pnpm typecheck`, `pnpm lint`
+- `pnpm test` (Vitest: proyecto `unit` en `src/**/*.test.ts` y `integration` en `tests/integration`, que recrea la BD
+  `mando_test` y aplica las migraciones en cada ejecución)
+- `pnpm e2e` (compila en `.next-e2e` y corre Playwright contra `next start` en el puerto 3500 con la BD `mando_e2e`,
+  que se recrea; proyectos `chromium-desktop`, `pixel-7` e `iphone-14` tras un paso `warmup`). `pnpm e2e:desktop` solo
+  escritorio. Un proyecto suelto, con la compilación ya hecha: `pnpm exec playwright test --project=iphone-14`.
+  Cada test empieza con la BD vacía (`e2e/fixtures.ts`) y el reloj de pruebas en la hora real.
+- `pnpm db:generate --name <nombre>` y `pnpm db:migrate` (sobre `mando_dev`; `DATABASE_URL` para otra)
+- `node ../../scripts/rf-coverage.mjs ../../specs/NNN-nombre` (escribe `validation.md`)
+- Reloj de pruebas: `POST /api/dev/clock {"advanceHours": 2}` adelanta la hora del servidor y `DELETE` la devuelve;
+  solo con `DEV_ENDPOINTS=1` (desarrollo y E2E; nunca en producción). Usa `now()` de `src/server/clock.ts`, nunca
+  `new Date()`, en todo lo que dependa de la hora; los servicios reciben el reloj como puerto (`src/server/ports`).
+- `/sistema`: catálogo del sistema de diseño (`src/ui`) y pantallas tipo en `/sistema/tabla`, `/sistema/captura` y
+  `/sistema/asistente`; solo con `DEV_ENDPOINTS=1` (en producción, 404). Diseño en Pencil: `recursos/sumando.pen`.
+- Diseño (spec 002, dirección «Tablero»): tokens en `src/ui/tokens.css` (claro en `:root`, oscuro por
+  `prefers-color-scheme`); las pantallas usan solo componentes de `src/ui` (lo vigila `src/ui/theme/styles.test.ts`).
+  Nombre visible «SuMando» desde `es.common.appName`. El barrido `e2e/qa-sweep.spec.ts` corre en claro y oscuro con axe.
+- Textos de la interfaz: nunca literales en componentes; van en `src/i18n/es/<área>.ts`. Errores de negocio:
+  `new AppError("codigo", params)` (`src/server/errors.ts`) con su mensaje en `src/i18n/es/errors.ts`;
+  `src/i18n/i18n.test.ts` falla si hay texto suelto o un código sin mensaje.
+- PWA: `src/app/manifest.ts`, iconos en `public/icons` y `src/app` (se regeneran desde la perilla de `src/ui/brand/logo-svg.ts` con
+  `node scripts/make-icons.mjs`) y `public/sw.js`
+  (solo la página `/offline` y los estáticos ya vistos; nada de captura sin conexión).
+- Imagen de producción: `docker build -t mando .` desde la raíz; migra sola al arrancar (`MIGRATE_ON_START=1`, ver
+  `src/instrumentation.ts`). Pasos de Coolify en `docs/despliegue.md`.
+- CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `main`.
+- Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones
 - TypeScript estricto. Server Components por defecto; `"use client"` solo donde hay interacción.
@@ -39,8 +61,10 @@ Se definen en la spec 001 (esqueleto) y se anotan aquí en la misma tarea. Previ
 - No añadas dependencias sin justificarlas antes en el plan de la spec.
 - No cambies el esquema de la base de datos fuera de una migración de Drizzle.
 - Toda consulta filtra por el negocio activo; todo permiso se comprueba en el servidor.
-- Git: `main` estable y `pruebas` para juntar lo nuevo. Cada spec o arreglo en su rama desde `pruebas` y por pull
-  request con la CI en verde. Nunca se sube directamente a `main` ni a `pruebas`; solo el dueño mergea.
+- Git: `main` es lo publicado en `sumando.com.mx` (un solo servidor, sin app de pruebas). Cada spec o arreglo en su
+  rama desde `main` y por pull request con la CI en verde. Nunca se sube directamente a `main`; solo el dueño mergea.
+- Hay datos reales en producción: toda migración conserva los datos existentes (nada de borrar columnas o tablas
+  con información sin un paso de traslado en la misma migración).
 - Secretos solo en `.env` (fuera de git) y en Coolify. Nunca contraseñas ni tokens en el repositorio ni en el chat.
 - Sin nombres de personas reales en textos, specs ni código: usar roles («el dueño», «un encargado»).
 - La suite E2E completa satura la Mac: preguntar antes de correrla; en el día a día, escritorio y las E2E afectadas.

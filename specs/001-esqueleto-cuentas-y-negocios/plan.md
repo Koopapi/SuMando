@@ -145,6 +145,19 @@ Variables de entorno: `DATABASE_URL`, `DEV_ENDPOINTS` (1 solo en desarrollo y E2
 Cabeceras de seguridad desde el primer día (como Waifu Baker): `X-Frame-Options: DENY`, `nosniff`,
 `Referrer-Policy`, `Permissions-Policy` sin sensores. HSTS y CSP llegan con la spec 010.
 
+### Ajustes al construir (11 de noviembre de 2026)
+
+- La migración al arrancar se hace desde `src/instrumentation.ts` (gancho `register()` de Next con
+  `MIGRATE_ON_START=1`) en vez de un `docker-entrypoint.sh` con `scripts/migrate.mjs`: así el migrador de Drizzle
+  queda incluido en la compilación `standalone` sin copiar `node_modules` a mano.
+- Los servicios se prueban en integración contra la BD real (`tests/integration`), no con repositorios en memoria:
+  los repositorios siguen siendo puertos (`server/ports/repos.ts`) con su implementación en Drizzle, pero escribir
+  una segunda implementación en memoria no aportaba cobertura que la BD de pruebas no diera ya.
+- La cookie `mando_pwchange` (sin datos, solo presencia) permite al proxy redirigir a cambiar la contraseña
+  temporal sin consultar la BD; el servidor sigue exigiéndolo en cada petición (RF-12).
+- Elegir sucursal recarga la página completa en vez de navegar en cliente: la sucursal activa cambia toda la
+  aplicación y la caché del enrutador no debe reutilizar nada.
+
 ## 6. Dependencias
 
 | Paquete | Para qué |
