@@ -36,3 +36,12 @@ describe("spec 001 — proxy", () => {
     expect(location(proxy(req("/sistemas")))).toBe("/login");
   });
 });
+
+describe("spec 006 — el proxy no toca la API", () => {
+  it("test_s006_rf5_las_rutas_de_la_api_quedan_fuera_del_proxy", async () => {
+    const { config } = await import("./proxy");
+    const matcher = new RegExp(`^${config.matcher[0]}$`);
+    expect(matcher.test("/api/inventory/import")).toBe(false);
+    expect(matcher.test("/inventario/importar")).toBe(true);
+  });
+});

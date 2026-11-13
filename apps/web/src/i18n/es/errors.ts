@@ -51,4 +51,5 @@ export const errors = {
   area_without_warehouse: "Esta área todavía no tiene almacén ni lista de productos. Ármala primero.",
   count_changed: (p: { products: string }) => `Mientras contabas cambió la existencia de: ${p.products}. Revisa y confirma para aplicar.`,
   not_cancellable: "Este movimiento no se puede cancelar. Corrígelo con un ajuste o un conteo nuevo.",
+  import_empty: "No hay ninguna fila que se pueda importar. Revisa los problemas de cada producto y corrige la hoja.",
 } as const;

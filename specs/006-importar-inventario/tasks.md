@@ -19,11 +19,11 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 2 — Servicio y API
 
-- [ ] **T4 — Revisión y confirmación**
+- [x] **T4 — Revisión y confirmación**
   - RF: RF-1, RF-2, RF-3, RF-4, RF-16, RF-17, RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-36
   - Depende de: T2, T3
   - Hecho cuando: tests de integración de revisión sin guardar, importación completa con conteo, reimportar, existente que se completa, permisos, aislamiento y auditoría en verde.
-- [ ] **T5 — API**
+- [x] **T5 — API**
   - RF: RF-5, RF-8, RF-16, RF-23
   - Depende de: T4
   - Hecho cuando: test del handler con formulario, archivo grande, inválido y vacío en verde.
