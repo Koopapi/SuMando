@@ -4,23 +4,23 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y esquema
 
-- [ ] **T1 — Cantidades, estados y permisos por almacén**
+- [x] **T1 — Cantidades, estados y permisos por almacén**
   - RF: RF-3, RF-4, RF-7, RF-8, RF-9, RF-18, RF-19, RF-20, RF-21, RF-56
   - Depende de: —
   - Hecho cuando: `quantities.test.ts` y `access.test.ts` en verde (renglón > 0 con 3 decimales, ajuste con signo, conversión exacta, negativo y bajo mínimo, almacén de sucursal y del negocio).
-- [ ] **T2 — Validación de movimientos**
+- [x] **T2 — Validación de movimientos**
   - RF: RF-10, RF-14, RF-15, RF-16, RF-19, RF-64
   - Depende de: —
   - Hecho cuando: `movement.test.ts` en verde (sin renglones, producto repetido, motivos de salida, «otro» sin nota, motivos y textos).
-- [ ] **T3 — Traspasos: estados y producto propuesto**
+- [x] **T3 — Traspasos: estados y producto propuesto**
   - RF: RF-23, RF-27, RF-31, RF-32, RF-33, RF-37
   - Depende de: —
   - Hecho cuando: `transfer.test.ts` en verde (transiciones válidas e inválidas, correspondencia recordada, nombre y unidad base, unidad distinta).
-- [ ] **T4 — Conteo: diferencias y cambios**
+- [x] **T4 — Conteo: diferencias y cambios**
   - RF: RF-46, RF-47, RF-49, RF-50, RF-51, RF-52
   - Depende de: —
   - Hecho cuando: `count.test.ts` en verde («Igual», «Lo que falta, igual», diferencia contra la existencia al aplicar, sin capturar no cambia, productos que cambiaron).
-- [ ] **T5 — Migración y repositorios**
+- [x] **T5 — Migración y repositorios**
   - RF: RF-1, RF-53, RF-60, RF-63
   - Depende de: —
   - Hecho cuando: `0004_inventarios` aplica sobre `mando_test` y el test de esquema comprueba tablas, índices únicos y CHECK; suma atómica probada contra la base.
