@@ -11,10 +11,11 @@ import { home } from "./es/home";
 import { inventory } from "./es/inventory";
 import { offline } from "./es/offline";
 import { people } from "./es/people";
+import { personnel } from "./es/personnel";
 import { shell } from "./es/shell";
 import { system } from "./es/system";
 
-export const es = { auth, businesses, catalog, common, errors, home, inventory, offline, people, recipes, requisitions, shell, system } as const;
+export const es = { auth, businesses, catalog, common, errors, home, inventory, offline, people, personnel, recipes, requisitions, shell, system } as const;
 export type Dictionary = typeof es;
 export type ErrorCode = keyof typeof errors;
 

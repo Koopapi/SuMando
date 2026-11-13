@@ -38,11 +38,11 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Pantallas
 
-- [ ] **T8 — Lista, alta y expediente**
+- [x] **T8 — Lista, alta y expediente**
   - RF: RF-9, RF-12, RF-13, RF-14, RF-15, RF-21, RF-22, RF-23, RF-24, RF-25, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-36, RF-37, RF-38, RF-39
   - Depende de: T7
   - Hecho cuando: `/personal`, `/personal/nuevo` y `/personal/[id]` con documentos por cámara, a 360 px y en escritorio.
-- [ ] **T9 — Documentos y puestos**
+- [x] **T9 — Documentos y puestos**
   - RF: RF-11, RF-17
   - Depende de: T8
   - Hecho cuando: `/personal/documentos` y `/personal/puestos`.

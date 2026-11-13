@@ -30,6 +30,7 @@ const PATHS = {
   upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
   clipboard: "M9 4h6v3H9zM7 5H5v16h14V5h-2M8.5 12l2 2 4-4M8 18h8",
   swap: "M4 8h13l-3-3M20 16H7l3 3",
+  idcard: "M3 5h18v14H3zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 16a3 3 0 0 1 6 0M14 9h4M14 13h4",
   cart: "M3 4h2l2.4 11h10.2L20 7H6.2M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
   layers: "M12 3l9 5-9 5-9-5zM3 13l9 5 9-5",
   trash: "M5 7h14M10 11v6M14 11v6M7 7l1 13h8l1-13M9 7V4h6v3",
