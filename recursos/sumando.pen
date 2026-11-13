@@ -32314,7 +32314,10 @@
                         {
                           "type": "frame",
                           "id": "kWjsH",
+                          "x": 276,
+                          "y": 0,
                           "name": "Menú",
+                          "enabled": false,
                           "width": 44,
                           "height": 44,
                           "cornerRadius": 8,
@@ -32418,6 +32421,252 @@
                               "letterSpacing": 1.4
                             }
                           ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pqVGw",
+                  "name": "Barra inferior/Teléfono",
+                  "reusable": true,
+                  "width": 360,
+                  "height": 65,
+                  "fill": "$surface",
+                  "stroke": "$line",
+                  "strokeWidth": {
+                    "top": 1
+                  },
+                  "padding": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "iAbAT",
+                      "name": "Botón Inicio",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "iddZK",
+                          "name": "Marca",
+                          "width": 48,
+                          "height": 28,
+                          "fill": "$primary-soft",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "sYnDe",
+                              "name": "Icono",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "house",
+                              "library": "lucide",
+                              "fill": "$primary"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "TIf5q",
+                          "name": "Nombre",
+                          "fill": "$primary",
+                          "content": "Inicio",
+                          "fontFamily": "$font-text",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DyZCY",
+                      "name": "Botón Productos",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "eynaa",
+                          "name": "Marca",
+                          "width": 48,
+                          "height": 28,
+                          "fill": "#00000000",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "B5r3qa",
+                              "name": "Icono",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "package",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "NnDPy",
+                          "name": "Nombre",
+                          "fill": "$ink-muted",
+                          "content": "Productos",
+                          "fontFamily": "$font-text",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZSc6x",
+                      "name": "Botón Almacenes",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "q3GRZA",
+                          "name": "Marca",
+                          "width": 48,
+                          "height": 28,
+                          "fill": "#00000000",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "u6vOeJ",
+                              "name": "Icono",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "warehouse",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "mg0X3",
+                          "name": "Nombre",
+                          "fill": "$ink-muted",
+                          "content": "Almacenes",
+                          "fontFamily": "$font-text",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gVmp8",
+                      "name": "Botón Proveedores",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "K3tHrV",
+                          "name": "Marca",
+                          "width": 48,
+                          "height": 28,
+                          "fill": "#00000000",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "pY9bO",
+                              "name": "Icono",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "truck",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "e0SmjN",
+                          "name": "Nombre",
+                          "fill": "$ink-muted",
+                          "content": "Proveedores",
+                          "fontFamily": "$font-text",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yo65J",
+                      "name": "Botón Más",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "t29Qc",
+                          "name": "Marca",
+                          "width": 48,
+                          "height": 28,
+                          "fill": "#00000000",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "ExyKS",
+                              "name": "Icono",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "layout-grid",
+                              "library": "lucide",
+                              "fill": "$ink-muted"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "H4jbU",
+                          "name": "Nombre",
+                          "fill": "$ink-muted",
+                          "content": "Más",
+                          "fontFamily": "$font-text",
+                          "fontSize": 11,
+                          "fontWeight": "500"
                         }
                       ]
                     }
@@ -33066,6 +33315,12 @@
                   "id": "QzrS2",
                   "type": "ref",
                   "ref": "O3rnq"
+                },
+                {
+                  "id": "FpREc",
+                  "type": "ref",
+                  "ref": "pqVGw",
+                  "name": "Barra inferior"
                 }
               ]
             },
@@ -35334,6 +35589,15 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "id": "Ev83a",
+                      "type": "ref",
+                      "ref": "pqVGw",
+                      "name": "Barra inferior",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 735
                     }
                   ]
                 },
@@ -35751,6 +36015,15 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "id": "n1otk",
+                      "type": "ref",
+                      "ref": "pqVGw",
+                      "name": "Barra inferior",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 735
                     }
                   ]
                 },
