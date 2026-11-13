@@ -45,11 +45,11 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 4 — Cierre
 
-- [ ] **T9 — E2E, volumen y barrido**
+- [x] **T9 — E2E, volumen y barrido**
   - RF: RF-14, RF-22, RF-25, RF-27, RF-29, RF-30, RF-34, RF-35, RF-38, RF-39, RF-40, RF-42, RF-47, RF-48
   - Depende de: T8
   - Hecho cuando: `e2e/requisiciones.spec.ts` en verde con 300 renglones y las páginas en el barrido con axe.
-- [ ] **T10 — Validación y documentos**
+- [x] **T10 — Validación y documentos**
   - RF: todos
   - Depende de: T9
   - Hecho cuando: `validation.md` 48 de 48; reglas en «Vigente»; roadmap y arquitectura al día; Vitest y E2E de escritorio en verde.

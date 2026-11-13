@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF) y 006 (37 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF) y 007 (48 RF) vigentes, con test en verde.
 
 ---
 
@@ -140,7 +140,7 @@ Origen: spec 006 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 6. Requisiciones
 
-Origen: spec 007 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 007 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Cada requisición es de una sucursal, con un almacén de destino y folio consecutivo por negocio (RF-1, RF-2).
 - Se arma desde lo que está bajo el mínimo (lo que falta para el máximo, o el mínimo, redondeado a presentaciones

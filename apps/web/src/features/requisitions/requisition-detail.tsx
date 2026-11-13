@@ -73,7 +73,7 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
               </Button>
             ) : null}
             {r.canCancel ? (
-              <Button variant="ghost" onClick={() => setModal({ kind: "cancel" })}>
+              <Button variant="secondary" onClick={() => setModal({ kind: "cancel" })}>
                 {t.cancelReq}
               </Button>
             ) : null}
@@ -99,7 +99,21 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
             </div>
             {g.purchasedAt ? <p className="text-sm text-ink-muted">{t.purchasedLine(g.purchasedBy ?? "", formatDateTime(new Date(g.purchasedAt)))}</p> : null}
             {r.canOperate && g.id && !g.anyReceived ? <BuyerForm key={g.buyer ?? ""} group={g} name={name} busy={busy} onSave={(buyer) => call(`/api/requisitions/${r.id}/groups/${g.id}`, { buyer }, "PATCH")} /> : g.buyer ? <p className="text-sm">{`${t.buyer}: ${g.buyer}`}</p> : null}
-            <div className="overflow-x-auto">
+            <ul className="flex flex-col lg:hidden">
+              {lines.map((l) => (
+                <li key={l.id} className="border-b border-line py-2 text-sm" data-testid="req-line-phone">
+                  <span className="flex flex-wrap justify-between gap-x-3">
+                    <span className="font-semibold">{l.name}</span>
+                    <span className="tabular-nums">{`${t.colApproved}: ${qty(l.quantity, l)}`}</span>
+                  </span>
+                  <span className="block text-ink-muted tabular-nums">{`${t.colReceived}: ${qty(l.received, l)} · ${t.colPending}: ${l.closed ? "—" : qty(l.pending, l)}${l.amount ? ` · ${money(l.amount)}` : ""}`}</span>
+                  {l.quantity !== l.requested ? <span className="block text-ink-muted">{`${t.colRequested}: ${qty(l.requested, l)}`}</span> : null}
+                  {l.closed ? <span className="block text-ink-muted">{t.closedLine(l.closed.reason ?? "")}</span> : null}
+                  {l.excess !== "0" ? <span className="block text-warning">{t.excess(qty(l.excess, l))}</span> : null}
+                </li>
+              ))}
+            </ul>
+            <div className="hidden lg:block">
               <table className="w-full text-left text-sm">
                 <thead className="text-xs tracking-widest text-ink-muted uppercase">
                   <tr>

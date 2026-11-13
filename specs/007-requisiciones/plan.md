@@ -88,3 +88,15 @@ Ninguna nueva.
 
 1. **Dominio y esquema**. 2. **Servicios y API**. 3. **Pantallas**. 4. **Cierre**: E2E, volumen, barrido,
 validación y documentos.
+
+## Ajustes al construir
+
+- El dueño ajusta antes de aprobar editando la requisición (queda «Editada» en el historial) o mandando los
+  renglones al aprobar (`approve` con `lines`, que guarda los cambios en el evento). Lo que el dueño agrega al aprobar
+  queda con «solicitado» en cero.
+- Cancelar la pueden quien opera en el almacén de destino y el dueño.
+- Recibir pide el grupo marcado como comprado (`not_purchased`).
+- En el teléfono los renglones de cada proveedor se muestran como lista; la tabla es de escritorio.
+- Requisiciones está en «Más» y en el menú lateral después de Inventario; el inicio suma una fila «Requisiciones»
+  con lo que espera aprobación (al dueño) y lo que está por recibir. El E2E de la barra inferior (spec 002, RF-46) lo
+  espera.

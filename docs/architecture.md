@@ -75,6 +75,13 @@ Lo construido en la spec 006:
   (las fotos del libro no cuentan). El `matcher` del proxy deja fuera `/api/` para que los archivos grandes no pasen
   por su búfer de 10 MB.
 
+Lo construido en la spec 007:
+
+- **Requisiciones**: `server/services/requisitions` sobre el mismo alcance del inventario; la requisición es de la
+  sucursal, con folio por negocio (calculado con el cerrojo del negocio). Los grupos por proveedor se fijan al
+  aprobar; el historial vive en `requisition_events`. Recibir bloquea la requisición (`for update`) y registra una
+  entrada de la spec 005 con `requisition_id`. Montos en centavos (`bigint`).
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

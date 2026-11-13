@@ -132,3 +132,11 @@ export async function seedInventory(branchId: string, productId: string, otherBr
   const { transfer } = await back("/api/inventory/transfers", { fromWarehouseId: camara, toWarehouseId: warehouse.id, lines: [{ productId, quantity: "250" }] });
   return { warehouseId: camara, areaId: areas[0].id as string, movementId: movement.id as string, transferId: transfer.id as string };
 }
+
+/** Una requisición aprobada y una plantilla de compra sobre `seedCatalog` (spec 007). */
+export async function seedRequisition(branchId: string, productId: string, warehouseId: string) {
+  const call = await ownerApiAt(branchId);
+  const { requisition } = await call("/api/requisitions", { warehouseId, lines: [{ productId, quantity: "2000" }], note: "Compra semanal" });
+  await call("/api/purchase-templates", { name: "Compra semanal", lines: [{ productId, quantity: "2000" }] });
+  return requisition.id as string;
+}
