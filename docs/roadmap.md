@@ -20,7 +20,7 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 | 003 | Catálogo | Productos con presentación individual, unidad, factor de conversión y presentación final; áreas con responsable; almacenes por negocio; proveedores; mínimos. **Hecha** |
 | 004 | Recetario e insumos | Plantilla de receta por platillo (ingredientes del catálogo, cantidad bruta y unidad, medias porciones); el administrador captura las piezas de cada platillo y obtiene la lista de insumos a pedir sumada por ingrediente; cálculos guardados para repetirlos. **Hecha** |
 | 005 | Inventarios | Entradas, salidas, ajustes con motivo, traspasos entre almacenes y entre negocios, conteo físico por área, existencias y mínimos **Hecha** |
-| 006 | Importar inventario por áreas | Subir la hoja «Inventario por áreas» de cada negocio: productos, presentaciones, proveedores, áreas con su lista, mínimos y existencia inicial como conteo, con revisión antes de guardar |
+| 006 | Importar inventario por áreas | Subir la hoja «Inventario por áreas» de cada negocio: productos, presentaciones, proveedores, áreas con su lista, mínimos y existencia inicial como conteo, con revisión antes de guardar **Hecha** |
 | 007 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario |
 | 008 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo |
 | 009 | Nómina | Semana de nómina: días y medias jornadas por pago diario capturados por el administrador, retardos con descuento, extras, bonos, comida, préstamos con abono semanal, hoja de pago con billetes, cerrar y reabrir, historial |

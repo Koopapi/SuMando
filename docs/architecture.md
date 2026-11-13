@@ -67,6 +67,14 @@ Lo construido en la spec 005:
   (índice único sobre `reverses_id`). El conteo compara en el servidor lo que el cliente vio al abrir; el borrador
   vive en el dispositivo. `readJson` acepta un límite de cuerpo por ruta (64 KB en inventario).
 
+Lo construido en la spec 006:
+
+- **Importar inventario**: `domain/inventory/sheet-import.ts` analiza la hoja «Inventario por áreas» (puro) y
+  `server/services/inventory/import.ts` la guarda en una transacción con el cerrojo del negocio, con un conteo por
+  área. El lector .xlsx recibe su límite de tamaño por llamada y cuenta los bytes descomprimidos solo de lo que lee
+  (las fotos del libro no cuentan). El `matcher` del proxy deja fuera `/api/` para que los archivos grandes no pasen
+  por su búfer de 10 MB.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

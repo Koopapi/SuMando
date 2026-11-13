@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { es } from "@/i18n";
 import type { ProductView, SupplierView, WarehouseView } from "@/server/services/catalog/views";
-import { Alert, Button, DataTable, Dialog, PageHeader, SelectField, StatusBadge, TextField, type Column, type Filter } from "@/ui";
+import { Alert, Button, DataTable, Dialog, PageHeader, SelectField, StatusBadge, TextField, type Column, type Filter, LinkButton } from "@/ui";
 import { formValues } from "../api";
 import { countLabel, unitOptions, unitShort } from "./labels";
 import { useAction } from "./use-action";
@@ -63,7 +63,15 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
 
   return (
     <>
-      <PageHeader title={tp.title} subtitle={tp.intro} figure={String(products.filter((p) => !p.archived).length)} figureLabel={tp.figureLabel} action={<Button onClick={() => setCreating(true)}>{tp.create}</Button>} />
+      <PageHeader title={tp.title} subtitle={tp.intro} figure={String(products.filter((p) => !p.archived).length)} figureLabel={tp.figureLabel} action={
+          <span className="flex flex-wrap gap-2">
+            <Button onClick={() => setCreating(true)}>{tp.create}</Button>
+            <LinkButton href="/inventario/importar" variant="secondary" icon="upload">
+              {es.inventory.importer.link}
+            </LinkButton>
+          </span>
+        }
+      />
       {error && !creating ? <Alert tone="error">{error}</Alert> : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:max-w-2xl">
         <SelectField label={tp.supplierFilter} value={supplier} onChange={(e) => setSupplier(e.target.value)} options={supplierOptions} />

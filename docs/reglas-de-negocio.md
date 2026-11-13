@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF) y 005 (67 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF) y 006 (37 RF) vigentes, con test en verde.
 
 ---
 
@@ -125,7 +125,7 @@ Origen: spec 005 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 5 bis. Importar inventario por áreas
 
-Origen: spec 006 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 006 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Se sube la hoja «Inventario por áreas» (.xlsx, hasta 40 MB, imágenes ignoradas) del negocio activo; se revisa
   antes de guardar y solo entran las filas sin problema (RF-5 a RF-24).

@@ -30,15 +30,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Pantalla y cierre
 
-- [ ] **T6 — Pantalla de importación y enlaces**
+- [x] **T6 — Pantalla de importación y enlaces**
   - RF: RF-3, RF-16, RF-17, RF-22, RF-36, RF-37
   - Depende de: T5
   - Hecho cuando: `/inventario/importar` elige almacén, revisa con filtros y confirma, a 360 px y en escritorio; enlaces en Productos y Conteo.
-- [ ] **T7 — E2E, volumen y barrido**
+- [x] **T7 — E2E, volumen y barrido**
   - RF: RF-3, RF-16, RF-17, RF-32, RF-36, RF-37
   - Depende de: T6
   - Hecho cuando: `e2e/importar-inventario.spec.ts` en verde con 300 productos y la página en el barrido con axe.
-- [ ] **T8 — Validación y documentos**
+- [x] **T8 — Validación y documentos**
   - RF: todos
   - Depende de: T7
   - Hecho cuando: `validation.md` 37 de 37; reglas en «Vigente»; roadmap y arquitectura al día; Vitest y E2E de escritorio en verde.

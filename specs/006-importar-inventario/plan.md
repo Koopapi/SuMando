@@ -65,3 +65,15 @@ Ninguna nueva.
 1. **Dominio y lector**: unidades, análisis de hojas y ajustes del lector, con sus tests.
 2. **Servicio y API**: revisión, confirmación, conteo, permisos y tests de integración.
 3. **Pantalla y cierre**: importar, enlaces, E2E, volumen, barrido, validación y documentos.
+
+## Ajustes al construir
+
+- RF-15 se aclaró en la spec: si la presentación final es igual a la unidad o a la unidad base, no hay presentación
+  de compra y tampoco aviso (sería ruido en casi todas las filas de kilogramos); el aviso queda para presentación
+  final vacía o conversión inválida.
+- Un producto que ya se cuenta en otra área del almacén se queda en esa área (aviso), pero su cantidad entra en el
+  conteo del área de la hoja: la existencia es del almacén.
+- La nota del movimiento de conteo lleva el nombre del archivo importado.
+- Prueba con las hojas reales (fuera del repositorio): Pirrus 09/11 (96 productos, 6 áreas), Sendero 09/11 (53, 8
+  áreas) y la base de Sendero de 35 MB (97, 12 áreas) se revisan en milisegundos y se importan sin problemas; solo
+  avisos de presentación de compra donde la hoja no trae presentación final.
