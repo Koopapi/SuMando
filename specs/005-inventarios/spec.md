@@ -1,6 +1,6 @@
 # Spec 005 — Inventarios
 
-**Borrador para aprobación del dueño (13 de noviembre de 2026).**
+**Aprobada por el dueño el 13 de noviembre de 2026.**
 
 ## Contexto y objetivo
 Hoy el inventario de cada negocio vive en una hoja que se llena por áreas cada semana (Bebidas, Lácteos,
@@ -184,6 +184,6 @@ conteo, no venta por venta.
 - `docs/reglas-de-negocio.md` actualizado.
 
 ## Dudas abiertas
-- [NECESITA ACLARACIÓN: la barra inferior del teléfono tiene fijos Inicio, Productos, Almacenes y Proveedores
-  (spec 002, RF-45). El inventario y el conteo se usarán más que Proveedores en el día a día. ¿Dejamos Inventario
-  en «Más» (RF-67) o cambiamos Proveedores por Inventario en la barra, como ajuste a la spec 002?]
+Ninguna. Resuelta en la aprobación (13 de noviembre de 2026): Inventario va en «Más» del teléfono y en el menú
+lateral (RF-67); la barra inferior de la spec 002 no cambia. Si el uso pide Inventario en la barra, entra como ajuste
+a la spec 002.

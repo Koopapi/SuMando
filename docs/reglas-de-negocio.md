@@ -102,6 +102,27 @@ Origen: spec 004 (aprobada el 12 de noviembre de 2026; construida y validada el 
 
 ## 5. Inventarios
 
+Origen: spec 005 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+
+- **Existencias por almacén**: cada producto tiene su existencia en cada almacén, en unidad base y sin redondeo;
+  se muestra en la presentación de conteo (RF-1, RF-7, RF-9).
+- **Quién mueve**: en un almacén de sucursal, el dueño y los administradores de esa sucursal; en uno del negocio
+  completo, el dueño y los administradores con alguna sucursal del negocio (RF-3, RF-4).
+- **Entradas** con proveedor, folio y nota opcionales; **salidas** con motivo de lista cerrada (merma, caducado,
+  consumo de personal, cortesía, otro con nota); **ajustes** que suman o restan con motivo escrito (RF-11 a RF-19).
+- **Negativos permitidos**: un movimiento que deja la existencia bajo cero se guarda y la existencia se marca en
+  rojo; el siguiente conteo la corrige (RF-20, RF-21).
+- **Traspasos**: dentro del negocio, inmediatos; entre negocios, «en camino» hasta que el negocio que recibe
+  confirma lo que llegó, con la diferencia registrada para los dos. El producto destino se propone por nombre y
+  unidad base, y si no existe lo elige quien recibe y se recuerda (RF-22 a RF-38).
+- **Conteo por área**: cada área cuenta su lista de productos en un almacén; un producto está en una sola área por
+  almacén. Lo aplica cualquier administrador de la sucursal sin aprobación; la existencia queda en lo contado y la
+  diferencia queda como movimiento de conteo; lo no contado no cambia (RF-39 a RF-54).
+- **Nada se edita ni se borra**: entradas, salidas, ajustes y traspasos dentro del negocio se cancelan con un
+  movimiento inverso y motivo; conteos y traspasos entre negocios recibidos se corrigen con un ajuste o un conteo
+  nuevo (RF-60 a RF-66).
+- **Hora del servidor**: no hay movimientos con fecha pasada.
+
 ## 6. Requisiciones
 
 ## 7. Personal y nómina
