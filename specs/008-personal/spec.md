@@ -1,6 +1,6 @@
 # Spec 008 — Personal
 
-**Borrador para aprobación del dueño (13 de noviembre de 2026).**
+**Aprobada por el dueño el 13 de noviembre de 2026.**
 
 ## Contexto y objetivo
 Cada negocio pide a quien contrata 13 documentos (acta de nacimiento, CURP, INE, comprobante de domicilio, constancia
