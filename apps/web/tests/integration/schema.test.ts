@@ -122,3 +122,24 @@ describe("spec 008 — esquema", () => {
     expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["replaced_at", "retired_at", "retire_reason", "storage_key"]));
   });
 });
+
+describe("spec 009 — esquema", () => {
+  it("test_s009_rf1_una_semana_por_sucursal_y_lunes", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["payroll_weeks", "payroll_lines", "payroll_days", "loans", "loan_payments"]));
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('payroll_weeks_branch_start_unique', 'payroll_lines_week_employee_unique', 'payroll_days_line_day_unique', 'loan_payments_loan_week_unique')`;
+    expect(idx).toHaveLength(4);
+  });
+
+  it("test_s009_rf20_la_base_rechaza_montos_negativos_y_semanas_que_no_empiezan_en_lunes", async () => {
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('payroll_weeks_monday', 'payroll_lines_amounts', 'payroll_days_day_range', 'loans_amounts', 'loan_payments_amount')`;
+    expect(checks).toHaveLength(5);
+  });
+
+  it("test_s009_rf27_el_saldo_del_prestamo_no_pasa_del_monto_ni_baja_de_cero", async () => {
+    const [c] = await sql<{ def: string }[]>`select pg_get_constraintdef(oid) as def from pg_constraint where conname = 'loans_amounts'`;
+    expect(c.def).toMatch(/balance_cents >= 0/);
+    expect(c.def).toMatch(/balance_cents <= amount_cents/);
+  });
+});
+
