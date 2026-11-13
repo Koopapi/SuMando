@@ -53,6 +53,11 @@ export function MovementDetail({ movement }: { movement: MovementView }) {
           {t.viewOriginal}
         </Link>
       ) : null}
+      {m.requisition ? (
+        <Link href={`/requisiciones/${m.requisition.id}`} className="inline-flex min-h-11 items-center self-start font-semibold text-primary">
+          {es.requisitions.folio(m.requisition.folio)}
+        </Link>
+      ) : null}
       {m.transferId ? (
         <Link href={`/inventario/traspasos/${m.transferId}`} className="inline-flex min-h-11 items-center self-start font-semibold text-primary">
           {t.viewTransfer}

@@ -15,6 +15,7 @@ import type { Repos } from "../../ports";
 import { businessLock, type CatalogScope } from "../catalog/shared";
 import type { Ctx } from "../context";
 import { applyMovement } from "../inventory/movements";
+import { productOption, warehouseOption } from "../inventory/stock";
 import { activeProduct, inventoryAccess, loadBook, movableWarehouse, optionalText, presentationFactor, uuidOrNotFound, visibleWarehouse, type Book, type InventoryAccess } from "../inventory/shared";
 import type { DraftLine, EventItem, GroupView, LineView, RequisitionSummaryView, RequisitionView } from "./views";
 
@@ -510,4 +511,28 @@ export async function requisitionCounts(ctx: Ctx, scope: CatalogScope): Promise<
   await inventoryAccess(ctx.store, scope);
   const counts = await ctx.store.requisitions.requisitions.countByStatus(scope.active.branch.id);
   return { toApprove: isOwner(scope.actor) ? (counts.requested ?? 0) : null, toReceive: counts.approved ?? 0 };
+}
+
+/** Lo que necesita la pantalla de armado: almacenes, productos con proveedor y presentación de compra, proveedores,
+ * cálculos guardados y plantillas activas de la sucursal. */
+export async function builderData(ctx: Ctx, scope: CatalogScope) {
+  const access = await inventoryAccess(ctx.store, scope);
+  const [book, suppliers, calcs, templates] = await Promise.all([
+    loadBook(ctx.store, access.businessId),
+    ctx.store.catalog.suppliers.listByBusiness(access.businessId),
+    ctx.store.recipes.calculations.listByBranch(scope.active.branch.id),
+    ctx.store.requisitions.templates.listByBranch(scope.active.branch.id),
+  ]);
+  const byName = <T extends { name: string }>(a: T, b: T) => a.name.localeCompare(b.name, "es");
+  return {
+    owner: isOwner(scope.actor),
+    warehouses: access.visible.filter((w) => !w.archivedAt && canMoveInWarehouse(scope.actor, access.memberships, access.branches, w)).map(warehouseOption).sort(byName),
+    products: [...book.products.values()]
+      .filter((p) => !p.archivedAt)
+      .map((p) => ({ ...productOption(book, p), supplierId: p.supplierId, purchasePresentationId: p.purchasePresentationId }))
+      .sort(byName),
+    suppliers: suppliers.filter((s) => !s.archivedAt).map((s) => ({ id: s.id, name: s.name })).sort(byName),
+    calculations: calcs.slice(0, 30).map((c) => ({ id: c.id, createdAt: c.createdAt.toISOString(), author: c.authorName })),
+    templates: templates.filter((x) => !x.archivedAt).map((x) => ({ id: x.id, name: x.name })),
+  };
 }
