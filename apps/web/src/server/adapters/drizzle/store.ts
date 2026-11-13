@@ -79,6 +79,15 @@ function auditRepo(db: DbOrTx): AuditRepo {
     insert: async (entry) => {
       await db.insert(auditLog).values({ ...entry, before: entry.before ?? null, after: entry.after ?? null });
     },
+    listByEntity: async (entityType, entityId) =>
+      (
+        await db
+          .select({ a: auditLog, actorName: users.name })
+          .from(auditLog)
+          .leftJoin(users, eq(users.id, auditLog.actorId))
+          .where(and(eq(auditLog.entityType, entityType), eq(auditLog.entityId, entityId)))
+          .orderBy(desc(auditLog.id))
+      ).map((r) => ({ action: r.a.action, createdAt: r.a.createdAt, actorName: r.actorName, before: r.a.before, after: r.a.after })),
   };
 }
 

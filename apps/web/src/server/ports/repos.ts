@@ -59,8 +59,12 @@ export type NewAudit = {
   createdAt: Date;
 };
 
+export type AuditEntryView = { action: string; createdAt: Date; actorName: string | null; before: unknown; after: unknown };
+
 export interface AuditRepo {
   insert(entry: NewAudit): Promise<void>;
+  /** Registro de una entidad, del más reciente al más antiguo, con el nombre de quién lo hizo (spec 008, RF-42). */
+  listByEntity(entityType: string, entityId: string): Promise<AuditEntryView[]>;
 }
 
 export type NewBusiness = { name: string; nameKey: string; color: string; createdBy: string | null; createdAt: Date };
