@@ -5,7 +5,7 @@ import type { AuditRepo } from "../ports/repos";
 export interface AuditInput {
   actorId: string | null;
   action: string;
-  entityType: "user" | "business" | "branch" | "membership" | "product" | "presentation" | "supplier" | "warehouse" | "area" | "stock_level" | "recipe" | "recipe_template" | "transfer";
+  entityType: "user" | "business" | "branch" | "membership" | "product" | "presentation" | "supplier" | "warehouse" | "area" | "stock_level" | "recipe" | "recipe_template" | "transfer" | "inventory_import";
   entityId: string;
   businessId?: string | null;
   branchId?: string | null;

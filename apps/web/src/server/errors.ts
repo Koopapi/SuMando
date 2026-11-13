@@ -53,6 +53,7 @@ const STATUS: Record<ErrorCode, number> = {
   area_without_warehouse: 409,
   count_changed: 409,
   not_cancellable: 409,
+  import_empty: 422,
 };
 
 export class AppError extends Error {

@@ -13,6 +13,8 @@ export interface Sheet {
   name: string;
   /** Filas con algún valor, en orden; cada celda como texto («» si está vacía). */
   rows: string[][];
+  /** Número de fila de Excel de cada una de `rows` (spec 006, RF-22). */
+  numbers: number[];
 }
 
 const invalid = () => new AppError("invalid_file");
@@ -37,23 +39,27 @@ function entries(buf: Buffer): Map<string, Entry> {
   const count = buf.readUInt16LE(end + 10);
   let p = buf.readUInt32LE(end + 16);
   const map = new Map<string, Entry>();
-  let total = 0;
   for (let n = 0; n < count; n++) {
     if (p + 46 > buf.length || buf.readUInt32LE(p) !== 0x02014b50) throw invalid();
     const nameLen = buf.readUInt16LE(p + 28);
     const entry: Entry = { method: buf.readUInt16LE(p + 10), packed: buf.readUInt32LE(p + 20), size: buf.readUInt32LE(p + 24), offset: buf.readUInt32LE(p + 42) };
     const name = buf.toString("utf8", p + 46, p + 46 + nameLen);
-    total += entry.size;
-    if (total > MAX_INFLATED_BYTES) throw invalid();
     map.set(name, entry);
     p += 46 + nameLen + buf.readUInt16LE(p + 30) + buf.readUInt16LE(p + 32);
   }
   return map;
 }
 
-function read(buf: Buffer, files: Map<string, Entry>, name: string): string | null {
+/** Lleva la cuenta de lo descomprimido: solo cuenta lo que se lee, no las imágenes del libro (spec 006, RF-5). */
+interface Budget {
+  left: number;
+}
+
+function read(buf: Buffer, files: Map<string, Entry>, name: string, budget: Budget): string | null {
   const e = files.get(name);
   if (!e) return null;
+  budget.left -= e.size;
+  if (budget.left < 0) throw invalid();
   if (e.offset + 30 > buf.length || buf.readUInt32LE(e.offset) !== 0x04034b50) throw invalid();
   const start = e.offset + 30 + buf.readUInt16LE(e.offset + 26) + buf.readUInt16LE(e.offset + 28);
   const data = buf.subarray(start, start + e.packed);
@@ -98,11 +104,12 @@ function column(ref: string | null, fallback: number): number {
   return n - 1;
 }
 
-function sheetRows(xml: string, shared: string[]): string[][] {
+function sheetRows(xml: string, shared: string[]): { rows: string[][]; numbers: number[] } {
   const rows: string[][] = [];
-  for (const row of xml.matchAll(/<row\b[^>]*?(?:\/>|>([\s\S]*?)<\/row>)/g)) {
+  const numbers: number[] = [];
+  for (const row of xml.matchAll(/<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g)) {
     const cells: string[] = [];
-    for (const cell of (row[1] ?? "").matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
+    for (const cell of (row[2] ?? "").matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
       const tag = cell[1];
       const body = cell[2] ?? "";
       const type = attr(tag, "t");
@@ -118,19 +125,23 @@ function sheetRows(xml: string, shared: string[]): string[][] {
       cells[at] = text;
     }
     while (cells.length && cells[cells.length - 1] === "") cells.pop();
-    if (cells.length) rows.push(cells);
+    if (cells.length) {
+      rows.push(cells);
+      numbers.push(Number(attr(row[1], "r")) || numbers.length + 1);
+    }
     if (rows.length > MAX_ROWS) throw invalid();
   }
-  return rows;
+  return { rows, numbers };
 }
 
 const resolve = (target: string) => (target.startsWith("/") ? target.slice(1) : `xl/${target}`).replace(/\/\.\//g, "/");
 
-export function readWorkbook(buf: Buffer): { sheets: Sheet[] } {
-  if (buf.length > MAX_FILE_BYTES) throw new AppError("file_too_large");
+export function readWorkbook(buf: Buffer, opts: { maxBytes?: number } = {}): { sheets: Sheet[] } {
+  if (buf.length > (opts.maxBytes ?? MAX_FILE_BYTES)) throw new AppError("file_too_large");
   const files = entries(buf);
-  const workbook = read(buf, files, "xl/workbook.xml");
-  const relsXml = read(buf, files, "xl/_rels/workbook.xml.rels");
+  const budget: Budget = { left: MAX_INFLATED_BYTES };
+  const workbook = read(buf, files, "xl/workbook.xml", budget);
+  const relsXml = read(buf, files, "xl/_rels/workbook.xml.rels", budget);
   if (!workbook || !relsXml) throw invalid();
   const rels = new Map<string, string>();
   for (const m of relsXml.matchAll(/<Relationship\b[^>]*>/g)) {
@@ -138,16 +149,16 @@ export function readWorkbook(buf: Buffer): { sheets: Sheet[] } {
     const target = attr(m[0], "Target");
     if (id && target) rels.set(id, resolve(target));
   }
-  const sharedXml = read(buf, files, "xl/sharedStrings.xml");
+  const sharedXml = read(buf, files, "xl/sharedStrings.xml", budget);
   const shared = sharedXml ? [...sharedXml.matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => runs(m[1])) : [];
   const list = [...workbook.matchAll(/<sheet\b[^>]*>/g)];
   if (list.length === 0 || list.length > MAX_SHEETS) throw invalid();
   const sheets = list.map((m) => {
     const name = attr(m[0], "name") ?? "";
     const path = rels.get(attr(m[0], "r:id") ?? "");
-    const xml = path ? read(buf, files, path) : null;
+    const xml = path ? read(buf, files, path, budget) : null;
     if (xml === null) throw invalid();
-    return { name, rows: sheetRows(xml, shared) };
+    return { name, ...sheetRows(xml, shared) };
   });
   return { sheets };
 }

@@ -4,6 +4,7 @@ import { GET as areaGet, PUT as areaPut } from "@/app/api/areas/[id]/products/ro
 import { POST as areaPost } from "@/app/api/areas/route";
 import { POST as login } from "@/app/api/auth/login/route";
 import { GET as countSheet } from "@/app/api/inventory/counts/[areaId]/route";
+import { POST as importPost } from "@/app/api/inventory/import/route";
 import { POST as countPost } from "@/app/api/inventory/counts/route";
 import { GET as destinations } from "@/app/api/inventory/destinations/route";
 import { GET as history } from "@/app/api/inventory/history/route";
@@ -22,6 +23,7 @@ import { POST as warehousePost } from "@/app/api/warehouses/route";
 import { appCtx } from "@/server/app-context";
 import { addBranch, createBusiness } from "@/server/services/businesses";
 import { publicUser } from "@/server/services/users-public";
+import { xlsx } from "../support/xlsx";
 import { ApiClient, json } from "./api";
 import { OWNER } from "./helpers";
 
@@ -147,5 +149,24 @@ describe("spec 005 — API del inventario", () => {
     expect((await stale.json()).error).toMatchObject({ code: "count_changed", params: { products: "Queso" } });
     const big = await w.sendero.call(countPost, "/api/inventory/counts", { body: { areaId: area.id, lines: Array.from({ length: 300 }, (_, i) => ({ productId: `00000000-0000-0000-0000-${String(i).padStart(12, "0")}`, quantity: "1", seen: "0.000000" })) } });
     expect(big.status).toBe(404);
+  });
+
+  it("test_s006_rf16_rf23_la_importacion_por_formulario_revisa_y_confirma", async () => {
+    const w = await world();
+    const file = xlsx([{ name: "Inventario por áreas", rows: [["ÁREA", "ARTÍCULO", "CANT", "UNIDAD", "CONVERSIÓN", "PRESENTACIÓN FINAL", "PROVEEDOR", "MÍNIMO"], ["BEBIDAS", "Bohemia", 20, "PIEZA", 24, "CARTON", "Heineken", 10]] }]);
+    const form = (confirm: boolean) => {
+      const f = new FormData();
+      f.set("file", new Blob([new Uint8Array(file)]), "inventario.xlsx");
+      f.set("warehouseId", w.bodega);
+      if (confirm) f.set("confirm", "1");
+      return f;
+    };
+    const review = await json(await w.sendero.form(importPost, "/api/inventory/import", form(false)));
+    expect(review.summary).toMatchObject({ newProducts: 1, newAreas: 1, newSuppliers: 1 });
+    expect(review.rows[0]).toMatchObject({ name: "Bohemia", purchase: { name: "Carton", factor: "24" }, min: "240", quantity: "20" });
+    const done = await w.sendero.form(importPost, "/api/inventory/import", form(true));
+    expect(done.status).toBe(200);
+    expect(await json(done)).toEqual({ created: 1, completed: 0, skipped: 0, areasCounted: 1 });
+    expect((await w.inCentro.form(importPost, "/api/inventory/import", form(false))).status).toBe(404);
   });
 });

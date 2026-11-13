@@ -21,6 +21,8 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+// `/api/` queda fuera: sus handlers deciden con la sesión real, y así los archivos grandes (spec 006) no pasan por el
+// búfer de 10 MB que Next 16 pone a los cuerpos que atraviesan el proxy.
 export const config = {
-  matcher: ["/((?!_next/|favicon.ico|icon.png|icons/|manifest.webmanifest|sw.js|robots.txt).*)"],
+  matcher: ["/((?!api/|_next/|favicon.ico|icon.png|icons/|manifest.webmanifest|sw.js|robots.txt).*)"],
 };

@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF) y 005 (67 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF) y 006 (37 RF) vigentes, con test en verde.
 
 ---
 
@@ -122,6 +122,21 @@ Origen: spec 005 (aprobada el 13 de noviembre de 2026; construida y validada el 
   movimiento inverso y motivo; conteos y traspasos entre negocios recibidos se corrigen con un ajuste o un conteo
   nuevo (RF-60 a RF-66).
 - **Hora del servidor**: no hay movimientos con fecha pasada.
+
+## 5 bis. Importar inventario por áreas
+
+Origen: spec 006 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- Se sube la hoja «Inventario por áreas» (.xlsx, hasta 40 MB, imágenes ignoradas) del negocio activo; se revisa
+  antes de guardar y solo entran las filas sin problema (RF-5 a RF-24).
+- **Unidades**: kilogramo y gramo pasan a gramos, litro y mililitro a mililitros, cualquier otra a piezas con su
+  nombre como presentación de conteo; la presentación final con su conversión es la de compra (RF-10 a RF-15).
+- **Producto existente** (mismo nombre, activo): no se cambia; solo se le añade lo que falte (presentaciones,
+  proveedor, mínimo, área). Con otra unidad base, la fila no entra (RF-20, RF-26).
+- Proveedores y áreas se reutilizan por nombre o se crean; las áreas nuevas quedan con quien importa como
+  responsable (RF-27, RF-28).
+- **Existencia inicial**: la cantidad de la hoja entra como un conteo por área en el almacén elegido; lo que no trae
+  cantidad no cambia (RF-32, RF-33).
 
 ## 6. Requisiciones
 

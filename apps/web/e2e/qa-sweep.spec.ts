@@ -120,6 +120,7 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/inventario/movimientos",
     `/inventario/movimientos/${inv.movementId}`,
     `/inventario/historial?almacen=${inv.warehouseId}&producto=${productId}`,
+    "/inventario/importar",
   ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog], problems, async (page) => {

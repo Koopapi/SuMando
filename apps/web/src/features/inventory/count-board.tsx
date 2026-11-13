@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { es } from "@/i18n";
 import type { CountBoardView } from "@/server/services/inventory/counts";
-import { ListRow, PageHeader, SectionLabel, formatDateTime } from "@/ui";
+import { LinkButton, ListRow, PageHeader, SectionLabel, formatDateTime } from "@/ui";
 
 const t = es.inventory;
 
@@ -10,7 +10,15 @@ export function CountBoard({ board }: { board: CountBoardView }) {
   const missing = board.withoutArea.filter((w) => w.products.length > 0);
   return (
     <>
-      <PageHeader title={t.countTitle} subtitle={t.countIntro} />
+      <PageHeader
+        title={t.countTitle}
+        subtitle={t.countIntro}
+        action={
+          <LinkButton href="/inventario/importar" variant="secondary" icon="upload">
+            {t.importer.link}
+          </LinkButton>
+        }
+      />
       <section aria-label={t.areas} className="flex flex-col gap-1">
         <SectionLabel>{t.areas}</SectionLabel>
         {board.areas.length === 0 ? <p className="text-sm text-ink-muted">{t.noAreas}</p> : null}
