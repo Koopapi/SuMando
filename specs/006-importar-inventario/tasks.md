@@ -4,15 +4,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y lector
 
-- [ ] **T1 — Unidades y números exactos**
+- [x] **T1 — Unidades y números exactos**
   - RF: RF-10, RF-11, RF-12, RF-13, RF-14, RF-21, RF-34
   - Depende de: —
   - Hecho cuando: `sheet-units.test.ts` en verde (variantes de unidad, kilogramo y litro × 1,000, 7.6879999999999997, redondeo a la mitad hacia arriba).
-- [ ] **T2 — Análisis de hojas**
+- [x] **T2 — Análisis de hojas**
   - RF: RF-6, RF-7, RF-9, RF-15, RF-16, RF-17, RF-18, RF-19, RF-20, RF-21, RF-22, RF-26, RF-29, RF-30
   - Depende de: T1
   - Hecho cuando: `sheet-import.test.ts` en verde con el formato real (filas de grupo, hoja sin encabezado, repetidos, existente con otra unidad, área en otro almacén, avisos).
-- [ ] **T3 — Lector: límite por llamada y número de fila**
+- [x] **T3 — Lector: límite por llamada y número de fila**
   - RF: RF-5, RF-8, RF-22
   - Depende de: —
   - Hecho cuando: `xlsx.test.ts` en verde con un libro con imágenes grandes que pasa, uno inflado que se rechaza y el número de fila de Excel.

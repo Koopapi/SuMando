@@ -1,3 +1,4 @@
+import { inflateRawSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { xlsx, zip } from "../../../tests/support/xlsx";
 import { MAX_FILE_BYTES, readWorkbook } from "./xlsx";
@@ -39,7 +40,7 @@ describe("spec 004 — lector de .xlsx", () => {
       false,
     );
     const book = readWorkbook(file);
-    expect(book.sheets[0]).toEqual({ name: "H&1", rows: [["", "hola", "TRUE"]] });
+    expect(book.sheets[0]).toEqual({ name: "H&1", rows: [["", "hola", "TRUE"]], numbers: [1] });
   });
 
   it("test_s004_rf48_un_archivo_que_no_es_xlsx_se_rechaza", () => {
@@ -73,3 +74,40 @@ describe("spec 004 — lector de .xlsx", () => {
     expect(codeOf(() => readWorkbook(bomb))).toBe("invalid_file");
   });
 });
+
+describe("spec 006 — lector de .xlsx para la hoja de inventario", () => {
+  const book = xlsx([{ name: "Inventario por áreas", rows: [["ÁREA", "ARTÍCULO", "UNIDAD"], [null], ["BEBIDAS", "Bohemia", "PIEZA"]] }]);
+
+  it("test_s006_rf5_las_imagenes_del_libro_no_cuentan_ni_se_descomprimen", () => {
+    // Un libro como la base de Sendero: hoja pequeña y 35 MB de fotos.
+    const files = { "xl/media/image1.png": Buffer.alloc(35 * 1024 * 1024, 7) };
+    const withImages = zip({ ...unzipEntries(book), ...files });
+    expect(withImages.length).toBeLessThan(2 * 1024 * 1024);
+    expect(readWorkbook(withImages, { maxBytes: 40 * 1024 * 1024 }).sheets[0].rows).toHaveLength(2);
+  });
+
+  it("test_s006_rf8_el_limite_de_tamano_se_elige_por_llamada", () => {
+    const big = Buffer.concat([book, Buffer.alloc(3 * 1024 * 1024)]);
+    expect(codeOf(() => readWorkbook(big))).toBe("file_too_large");
+    expect(codeOf(() => readWorkbook(big, { maxBytes: 40 * 1024 * 1024 }))).not.toBe("file_too_large");
+  });
+
+  it("test_s006_rf22_cada_fila_conserva_su_numero_de_excel", () => {
+    expect(readWorkbook(book).sheets[0].numbers).toEqual([1, 3]);
+  });
+});
+
+/** Entradas de un zip hecho por `xlsx()` para armar otro con archivos de más. */
+function unzipEntries(buf: Buffer): Record<string, Buffer> {
+  const out: Record<string, Buffer> = {};
+  let p = 0;
+  while (buf.readUInt32LE(p) === 0x04034b50) {
+    const packed = buf.readUInt32LE(p + 18);
+    const nameLen = buf.readUInt16LE(p + 26);
+    const name = buf.toString("utf8", p + 30, p + 30 + nameLen);
+    const data = buf.subarray(p + 30 + nameLen, p + 30 + nameLen + packed);
+    out[name] = buf.readUInt16LE(p + 8) === 8 ? inflateRawSync(data) : data;
+    p += 30 + nameLen + packed;
+  }
+  return out;
+}

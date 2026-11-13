@@ -43,7 +43,7 @@ como si se hubiera capturado y contado en la app.
 - RF-12: CUANDO la UNIDAD es kilogramo o litro, EL SISTEMA dará al producto una presentación «Kilogramo» o «Litro» equivalente a 1,000 de la unidad base y la marcará como presentación de conteo.
 - RF-13: CUANDO la PRESENTACIÓN FINAL es distinta de la UNIDAD y la CONVERSIÓN es un número mayor que cero, EL SISTEMA dará al producto una presentación con el nombre de la presentación final, equivalente a CONVERSIÓN unidades, y la marcará como presentación de compra.
 - RF-14: CUANDO la PRESENTACIÓN FINAL es kilogramo, gramo, litro o mililitro, EL SISTEMA usará su equivalencia estándar en la unidad base en vez de la CONVERSIÓN.
-- RF-15: SI la PRESENTACIÓN FINAL está vacía, es igual a la UNIDAD o su CONVERSIÓN no es válida, ENTONCES EL SISTEMA no creará presentación de compra y lo señalará como aviso en la revisión, sin impedir importar la fila.
+- RF-15: SI la PRESENTACIÓN FINAL está vacía o su CONVERSIÓN no es válida, ENTONCES EL SISTEMA no creará presentación de compra y lo señalará como aviso en la revisión, sin impedir importar la fila; si es igual a la UNIDAD o a la unidad base, tampoco la creará, sin aviso (se compra en la misma unidad). *Aclarado al construir, 13 de noviembre de 2026.*
 
 ### Revisión antes de guardar
 - RF-16: CUANDO se sube el archivo, EL SISTEMA mostrará, sin guardar nada, cada producto con su área, su unidad base, sus presentaciones, su mínimo, su cantidad y su estado: nuevo, ya existe (se completa) o con problema.
