@@ -28,6 +28,9 @@ const PATHS = {
   calculator: "M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01",
   history: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2",
   upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
+  clipboard: "M9 4h6v3H9zM7 5H5v16h14V5h-2M8.5 12l2 2 4-4M8 18h8",
+  swap: "M4 8h13l-3-3M20 16H7l3 3",
+  layers: "M12 3l9 5-9 5-9-5zM3 13l9 5 9-5",
   trash: "M5 7h14M10 11v6M14 11v6M7 7l1 13h8l1-13M9 7V4h6v3",
   searchX: "M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM20 20l-4-4M9 9l4 4M13 9l-4 4",
 } as const;

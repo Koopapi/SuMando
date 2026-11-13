@@ -149,3 +149,21 @@ Ninguna nueva.
    integración.
 3. **Pantallas**: existencias, movimientos, traspasos y recepción, áreas, conteo, historial y navegación.
 4. **Cierre**: E2E, barrido, volumen, validación RF por RF y documentación.
+
+## Ajustes al construir
+
+- Un almacén visible en el que la persona no puede mover responde `not_found`, igual que uno de otro negocio
+  (RF-5); en la práctica todo almacén visible desde la sucursal activa es movible para quien trabaja en ella.
+- `isUniqueViolation` mira también la causa del error, porque Drizzle envuelve el error de PostgreSQL: así dos
+  cancelaciones simultáneas del mismo movimiento dejan pasar solo una y la otra responde `not_cancellable` (RF-65).
+- Los identificadores que no son uuid responden `not_found` antes de llegar a la base (`uuidOrNotFound`).
+- La recepción de un traspaso entre negocios se captura en la unidad base del producto; la propuesta de producto
+  se calcula solo para quien recibe (RF-38).
+- La lista del área vive en `almacenes/areas/[id]`, con enlace «Lista de conteo» desde Almacenes y áreas y desde
+  Conteo. Un área sin almacén manda a armar su lista.
+- `SelectField` admite `hideLabel` (etiqueta solo para lectores de pantalla), como `TextField`, para el renglón de
+  conteo en el teléfono. Iconos nuevos: inventario (`layers`), conteo (`clipboard`) y traspaso (`swap`).
+- Las fechas del filtro de movimientos se toman como días completos en la hora de la Ciudad de México.
+- Inventario está en «Más» y en el menú lateral, antes de Recetas; el E2E de la barra inferior (spec 002, RF-46) lo
+  espera. El inicio tiene la sección «Inventario» (existencias, conteo y traspasos) y sale de «Próximamente».
+- El volumen se probó con 1,000 productos, 50,000 movimientos y un conteo de 200 productos por la API.

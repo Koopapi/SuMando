@@ -25,7 +25,7 @@ completa y los 8 colores de negocio en `specs/002-sistema-de-diseno/plan.md`. To
 
 ## Componentes (`src/ui`)
 Botón (con estado ocupado), enlace con aspecto de botón (`LinkButton`), botón de icono, campo de texto, texto largo
-(`TextArea`), archivo (`FileField`), número, dinero, selector, casilla, selector de color,
+(`TextArea`), archivo (`FileField`), número, dinero, selector (con etiqueta oculta para lectores de pantalla cuando el renglón ya la muestra), casilla, selector de color,
 avisos en línea y flotantes (4 s el de guardado; el de error hasta cerrarlo), diálogo y panel lateral con foco
 atrapado, estados de cargando, vacío y error, insignias de estado y de negocio, rótulo, perilla, cabecera de página,
 fila de lista, bloque de negocio, barra inferior del teléfono (`BottomNav`, reserva `--nav-space`), tabla de datos (tarjetas bajo 1024 px), captura por renglones y asistente por pasos.

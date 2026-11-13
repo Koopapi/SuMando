@@ -34,6 +34,7 @@ function destinations(user: PublicUser) {
     ["/proveedores", t.suppliers, "truck"],
   ];
   const more: Destination[] = [
+    ["/inventario", t.inventory, "layers"],
     ["/recetas", t.recipes, "recipe"],
     ["/insumos", t.supplies, "calculator"],
     ...(user.role === "owner"

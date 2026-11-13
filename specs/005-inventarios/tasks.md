@@ -54,34 +54,34 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Pantallas
 
-- [ ] **T12 — Existencias, detalle del producto y navegación**
+- [x] **T12 — Existencias, detalle del producto y navegación**
   - RF: RF-9, RF-21, RF-55, RF-56, RF-57, RF-58, RF-59, RF-67
   - Depende de: T11
   - Hecho cuando: `/inventario` muestra existencias por almacén con búsqueda y filtros; el detalle del producto muestra sus existencias; Inventario en el menú lateral, en «Más» y en el inicio; a 360 px y en escritorio.
-- [ ] **T13 — Entrada, salida y ajuste**
+- [x] **T13 — Entrada, salida y ajuste**
   - RF: RF-7, RF-8, RF-10, RF-11, RF-12, RF-13, RF-14, RF-15, RF-16, RF-17, RF-18, RF-19, RF-20
   - Depende de: T12
   - Hecho cuando: formularios con renglones, presentación y motivo; errores en español; la existencia cambia al guardar.
-- [ ] **T14 — Traspasos y recepción**
+- [x] **T14 — Traspasos y recepción**
   - RF: RF-22, RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-36, RF-37, RF-38
   - Depende de: T12
   - Hecho cuando: traspaso a otro almacén o negocio, lista por recibir y enviados, recepción con cantidad y producto, cancelación.
-- [ ] **T15 — Lista del área y conteo**
+- [x] **T15 — Lista del área y conteo**
   - RF: RF-39, RF-40, RF-41, RF-42, RF-43, RF-44, RF-45, RF-46, RF-47, RF-48, RF-51, RF-54
   - Depende de: T12
   - Hecho cuando: `almacenes/areas/[id]` arma y ordena la lista; `/inventario/conteo` muestra áreas, último conteo y productos sin área; el conteo captura con teclado numérico, «Igual», borrador local y aviso de cambios.
-- [ ] **T16 — Movimientos, historial y cancelación**
+- [x] **T16 — Movimientos, historial y cancelación**
   - RF: RF-61, RF-62, RF-64, RF-66
   - Depende de: T12
   - Hecho cuando: lista con filtros, detalle con cancelación y motivo, historial de un producto en un almacén.
 
 ## Entrega 4 — Cierre
 
-- [ ] **T17 — E2E, volumen y barrido**
+- [x] **T17 — E2E, volumen y barrido**
   - RF: RF-7, RF-11, RF-14, RF-20, RF-21, RF-22, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-40, RF-44, RF-45, RF-46, RF-47, RF-48, RF-49, RF-55, RF-56, RF-57, RF-61, RF-64, RF-67
   - Depende de: T13, T14, T15, T16
   - Hecho cuando: `e2e/inventario.spec.ts` en verde con el volumen de 1,000 productos y 50,000 movimientos, y las páginas nuevas en el barrido con axe en claro y oscuro, en escritorio.
-- [ ] **T18 — Validación y documentos**
+- [x] **T18 — Validación y documentos**
   - RF: todos
   - Depende de: T17
   - Hecho cuando: `validation.md` con 67 de 67 RF; `docs/reglas-de-negocio.md` en «Vigente»; roadmap y arquitectura al día; Vitest y E2E de escritorio en verde.

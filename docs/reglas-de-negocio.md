@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 12 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF) y 004 (55 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF) y 005 (67 RF) vigentes, con test en verde.
 
 ---
 
@@ -102,7 +102,7 @@ Origen: spec 004 (aprobada el 12 de noviembre de 2026; construida y validada el 
 
 ## 5. Inventarios
 
-Origen: spec 005 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 005 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - **Existencias por almacén**: cada producto tiene su existencia en cada almacén, en unidad base y sin redondeo;
   se muestra en la presentación de conteo (RF-1, RF-7, RF-9).

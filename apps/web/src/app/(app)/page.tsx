@@ -6,6 +6,8 @@ import { requirePageBranch } from "@/server/auth/page-guards";
 import { listBusinesses } from "@/server/services/businesses";
 import { catalogView } from "@/server/services/catalog/views";
 import { listPeople } from "@/server/services/people";
+import { stockAlerts } from "@/server/services/inventory/stock";
+import { pendingIncoming } from "@/server/services/inventory/transfers";
 import { listCalculations } from "@/server/services/recipes/calculations";
 import { listRecipes } from "@/server/services/recipes/recipes";
 import { BusinessBlock, Icon, ListRow, PageShell, SectionLabel, formatDateTime } from "@/ui";
@@ -31,7 +33,7 @@ export default async function HomePage() {
   const branchCount = activeBusinesses.reduce((n, b) => n + b.branches.filter((br) => !br.archivedAt).length, 0);
   const activePeople = people.filter((p) => p.isActive);
   const scope = { actor: user, active };
-  const [catalog, recipes, calculations] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope)]);
+  const [catalog, recipes, calculations, alerts, pending] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope), stockAlerts(ctx, scope), pendingIncoming(ctx, scope)]);
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -61,6 +63,14 @@ export default async function HomePage() {
           <ListRow href="/productos" icon="box" title={es.shell.products} detail={t.productsDetail(activeCount(catalog.products))} />
           <ListRow href="/proveedores" icon="truck" title={es.shell.suppliers} detail={t.suppliersDetail(activeCount(catalog.suppliers))} />
           <ListRow href="/almacenes" icon="warehouse" title={es.shell.places} detail={t.placesDetail(activeCount(catalog.warehouses), activeCount(catalog.areas))} />
+        </div>
+      </section>
+      <section className="flex flex-col gap-1">
+        <SectionLabel>{es.inventory.homeLabel}</SectionLabel>
+        <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/inventario" icon="layers" title={es.inventory.homeStock} detail={es.inventory.homeStockDetail(alerts.negative, alerts.belowMin)} />
+          <ListRow href="/inventario/conteo" icon="clipboard" title={es.inventory.homeCount} detail={es.inventory.homeCountDetail} />
+          <ListRow href="/inventario/traspasos" icon="swap" title={es.inventory.homeTransfers} detail={es.inventory.homeTransfersDetail(pending)} />
         </div>
       </section>
       <section className="flex flex-col gap-1">
