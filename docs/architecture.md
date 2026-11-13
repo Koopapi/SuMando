@@ -99,7 +99,7 @@ corrigen con otro movimiento. Cada cambio guarda autor, fecha, negocio y valores
   creada desde `main` y entra por pull request con la CI en verde; se prueba en local antes de mergear.
 - Nunca se sube directamente a `main`. Solo el dueño aprueba specs y mergea.
 - Como producción tiene datos reales, las migraciones conservan los datos y la base tiene respaldos diarios en
-  Coolify hasta que la spec 012 formalice respaldos cifrados y restauración.
+  Coolify hasta que la spec 013 formalice respaldos cifrados y restauración.
 - Los secretos viven en `.env` (fuera de git) y en Coolify; nunca en el repositorio.
 
 ## Lecciones que traemos de Waifu Baker

@@ -20,13 +20,17 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 | 003 | Catálogo | Productos con presentación individual, unidad, factor de conversión y presentación final; áreas con responsable; almacenes por negocio; proveedores; mínimos. **Hecha** |
 | 004 | Recetario e insumos | Plantilla de receta por platillo (ingredientes del catálogo, cantidad bruta y unidad, medias porciones); el administrador captura las piezas de cada platillo y obtiene la lista de insumos a pedir sumada por ingrediente; cálculos guardados para repetirlos. **Hecha** |
 | 005 | Inventarios | Entradas, salidas, ajustes con motivo, traspasos entre almacenes y entre negocios, conteo físico por área, existencias y mínimos **Hecha** |
-| 006 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario |
-| 007 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo |
-| 008 | Nómina | Semana de nómina: días y medias jornadas por pago diario capturados por el administrador, retardos con descuento, extras, bonos, comida, préstamos con abono semanal, hoja de pago con billetes, cerrar y reabrir, historial |
-| 009 | Checklists | Plantillas de apertura y cierre por sección con responsable, puntos clave, hoja del día, cierre y reapertura, historial |
-| 010 | Corte de caja | El corte asistido de Pirrus adaptado a Mando: apertura con fondo inicial, lo que reporta el punto de venta en efectivo y tarjeta, conteo de efectivo por denominación, tarjetas por terminal, transferencias y otros, movimientos de caja (gastos, retiros, ingresos), diferencias con tolerancia, motivo cuando no cuadra, firma e historial por sucursal |
-| 011 | Tablero y reportes | Vista por negocio y consolidada, alertas (existencias bajas, requisiciones pendientes, nómina por cerrar, cortes con diferencia), exportar |
-| 012 | Operación | Respaldos cifrados y restauración, monitoreo de errores, aviso de despliegue, lista de lanzamiento |
+| 006 | Importar inventario por áreas | Subir la hoja «Inventario por áreas» de cada negocio: productos, presentaciones, proveedores, áreas con su lista, mínimos y existencia inicial como conteo, con revisión antes de guardar |
+| 007 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario |
+| 008 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo |
+| 009 | Nómina | Semana de nómina: días y medias jornadas por pago diario capturados por el administrador, retardos con descuento, extras, bonos, comida, préstamos con abono semanal, hoja de pago con billetes, cerrar y reabrir, historial |
+| 010 | Checklists | Plantillas de apertura y cierre por sección con responsable, puntos clave, hoja del día, cierre y reapertura, historial |
+| 011 | Corte de caja | El corte asistido de Pirrus adaptado a Mando: apertura con fondo inicial, lo que reporta el punto de venta en efectivo y tarjeta, conteo de efectivo por denominación, tarjetas por terminal, transferencias y otros, movimientos de caja (gastos, retiros, ingresos), diferencias con tolerancia, motivo cuando no cuadra, firma e historial por sucursal |
+| 012 | Tablero y reportes | Vista por negocio y consolidada, alertas (existencias bajas, requisiciones pendientes, nómina por cerrar, cortes con diferencia), exportar |
+| 013 | Operación | Respaldos cifrados y restauración, monitoreo de errores, aviso de despliegue, lista de lanzamiento |
+
+El 13 de noviembre de 2026 entró la importación como spec 006 y las siguientes se recorrieron un número: en las
+specs ya cerradas, «spec 006» a «spec 012» se refieren a las que hoy son 007 a 013.
 
 Las reglas configurables por negocio (tolerancia de retardo, valor de la media jornada, día de inicio de la
 semana, tolerancia del corte, quién puede qué) van dentro de la spec que las usa, no en una spec aparte.
