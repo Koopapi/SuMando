@@ -45,3 +45,17 @@ export function stockStatus(baseMicro: bigint, minMicro: bigint | null): StockSt
   if (minMicro !== null && baseMicro < minMicro) return "below_min";
   return "ok";
 }
+
+/** Columnas `numeric(20,6)` con signo ↔ millonésimas del dominio. */
+export function signedMicroToDb(v: bigint): string {
+  const abs = v < 0n ? -v : v;
+  const text = `${abs / 1_000_000n}.${String(abs % 1_000_000n).padStart(6, "0")}`;
+  return v < 0n ? `-${text}` : text;
+}
+
+export function dbToSignedMicro(text: string): bigint {
+  const negative = text.trim().startsWith("-");
+  const [int, frac = ""] = text.trim().replace(/^[-+]/, "").split(".");
+  const v = BigInt(int || "0") * 1_000_000n + BigInt(frac.padEnd(6, "0").slice(0, 6));
+  return negative ? -v : v;
+}

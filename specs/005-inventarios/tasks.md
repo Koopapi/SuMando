@@ -27,27 +27,27 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 2 — Servicios y API
 
-- [ ] **T6 — Visibilidad y existencias**
+- [x] **T6 — Visibilidad y existencias**
   - RF: RF-1, RF-2, RF-5, RF-6, RF-55, RF-56, RF-57, RF-58, RF-59
   - Depende de: T1, T5
   - Hecho cuando: tests de integración de almacenes visibles por sucursal, existencias con mínimos, bajo mínimo, archivados y existencia en el detalle del producto en verde.
-- [ ] **T7 — Entradas, salidas y ajustes**
+- [x] **T7 — Entradas, salidas y ajustes**
   - RF: RF-3, RF-4, RF-6, RF-7, RF-8, RF-11, RF-12, RF-13, RF-14, RF-15, RF-16, RF-17, RF-18, RF-19, RF-20, RF-60
   - Depende de: T1, T2, T6
   - Hecho cuando: tests de integración de cada tipo, permisos por almacén, archivados, negativos y movimientos simultáneos sin pérdida en verde.
-- [ ] **T8 — Historial, lista y cancelaciones**
+- [x] **T8 — Historial, lista y cancelaciones**
   - RF: RF-61, RF-62, RF-63, RF-64, RF-65, RF-66
   - Depende de: T7
   - Hecho cuando: tests de integración del historial con existencia que dejó, lista con filtros, cancelación con inverso, doble cancelación y no cancelables en verde.
-- [ ] **T9 — Traspasos**
+- [x] **T9 — Traspasos**
   - RF: RF-22, RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-36, RF-37, RF-38
   - Depende de: T3, T7
   - Hecho cuando: tests de integración de traspaso interno, entre negocios en camino, recepción con diferencia, producto elegido y recordado, cancelación, estados y lo que ve el remitente en verde.
-- [ ] **T10 — Áreas de conteo y conteos**
+- [x] **T10 — Áreas de conteo y conteos**
   - RF: RF-39, RF-40, RF-41, RF-42, RF-43, RF-44, RF-45, RF-46, RF-47, RF-48, RF-49, RF-50, RF-51, RF-52, RF-53, RF-54
   - Depende de: T4, T7
   - Hecho cuando: tests de integración de lista del área, producto en otra área, sin área, conteo aplicado, sin capturar, cambio concurrente con confirmación y último conteo en verde.
-- [ ] **T11 — API y aislamiento**
+- [x] **T11 — API y aislamiento**
   - RF: RF-1, RF-2, RF-3, RF-4, RF-5, RF-6
   - Depende de: T6, T7, T8, T9, T10
   - Hecho cuando: tests de handlers de cada ruta (contrato y errores) y de aislamiento entre negocios y sucursales en verde.

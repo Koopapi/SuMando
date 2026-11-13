@@ -51,3 +51,12 @@ describe("spec 005 — cantidades del inventario", () => {
     expect(stockStatus(0n, null)).toBe("ok");
   });
 });
+
+describe("spec 005 — cantidades con signo en la base", async () => {
+  const { dbToSignedMicro, signedMicroToDb } = await import("./quantities");
+  it("test_s005_rf9_las_existencias_negativas_se_guardan_y_leen_exactas", () => {
+    for (const v of [0n, 1n, -1n, -500_000n, 123_456_789n, -9_999_999_999_000_000n]) expect(dbToSignedMicro(signedMicroToDb(v))).toBe(v);
+    expect(signedMicroToDb(-500_000n)).toBe("-0.500000");
+    expect(dbToSignedMicro("-0.500000")).toBe(-500_000n);
+  });
+});

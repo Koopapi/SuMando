@@ -39,6 +39,20 @@ const STATUS: Record<ErrorCode, number> = {
   invalid_file: 422,
   file_too_large: 413,
   product_archived: 409,
+  invalid_line_quantity: 422,
+  invalid_adjustment: 422,
+  duplicate_line: 422,
+  movement_empty: 422,
+  reason_required: 422,
+  archived_item: 409,
+  same_warehouse: 422,
+  transfer_state: 409,
+  product_required: 422,
+  unit_mismatch: 422,
+  product_in_area: 409,
+  area_without_warehouse: 409,
+  count_changed: 409,
+  not_cancellable: 409,
 };
 
 export class AppError extends Error {
