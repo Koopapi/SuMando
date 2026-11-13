@@ -41,6 +41,7 @@ export const personnel = {
   back: "Personal",
   branchLine: (position: string, branch: string) => `${position} · ${branch}`,
   edit: "Editar datos",
+  editShort: "Editar",
   editTitle: "Editar datos",
   setPay: "Guardar sueldo",
   periods: "Periodos de trabajo",

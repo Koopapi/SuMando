@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedInventory, seedRecipes, seedRequisition } from "./helpers";
+import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedEmployee, seedInventory, seedRecipes, seedRequisition } from "./helpers";
 
 const VIEWPORTS = [
   { name: "escritorio", width: 1360, height: 950 },
@@ -96,6 +96,8 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   const inv = await seedInventory(pastatti.branches[0].id, productId, pirrus.branches[0].id);
   // Spec 007: una requisición aprobada y una plantilla de compra.
   const requisitionId = await seedRequisition(pastatti.branches[0].id, productId, inv.warehouseId);
+  // Spec 008: un empleado con su expediente.
+  const employeeId = await seedEmployee(pastatti.branches[0].id);
   const catalog = [
     "/productos",
     `/productos/${productId}`,
@@ -127,6 +129,11 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/requisiciones/nueva",
     `/requisiciones/${requisitionId}`,
     "/requisiciones/plantillas",
+    "/personal",
+    "/personal/nuevo",
+    `/personal/${employeeId}`,
+    "/personal/documentos",
+    "/personal/puestos",
   ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog], problems, async (page) => {

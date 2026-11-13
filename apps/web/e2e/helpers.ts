@@ -140,3 +140,11 @@ export async function seedRequisition(branchId: string, productId: string, wareh
   await call("/api/purchase-templates", { name: "Compra semanal", lines: [{ productId, quantity: "2000" }] });
   return requisition.id as string;
 }
+
+/** Un empleado con un documento subido (spec 008). */
+export async function seedEmployee(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  const { position } = await call("/api/positions", { name: "Mesero" });
+  const { employee } = await call("/api/employees", { name: "Empleado de prueba", positionId: position.id, hiredOn: "2026-11-01", dailyPay: "400" });
+  return employee.id as string;
+}

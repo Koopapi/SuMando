@@ -47,7 +47,7 @@ export function DocumentTypesManager({ types, owner }: { types: DocumentTypeView
                   <Icon name="chevronDown" size={18} />
                 </Button>
                 <Button variant="ghost" aria-label={t.editDocument(d.name)} onClick={() => (setError(null), setEditing(d))}>
-                  {t.edit}
+                  {t.editShort}
                 </Button>
                 <Button variant="ghost" aria-label={t.actionFor(d.archived ? t.reactivate : t.archive, d.name)} onAction={() => run(`/api/document-types/${d.id}/${d.archived ? "reactivate" : "archive"}`)}>
                   {d.archived ? t.reactivate : t.archive}

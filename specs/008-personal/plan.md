@@ -81,3 +81,14 @@ Ninguna nueva.
 ## 8. Entregas
 
 1. **Dominio, puerto de archivos y esquema**. 2. **Servicios y API**. 3. **Pantallas**. 4. **Cierre**.
+
+## Ajustes al construir
+
+- El historial del expediente también guarda en `employee` las subidas, reemplazos, retiros y aperturas de
+  archivos, para mostrarlo en una sola lista (RF-40 a RF-42).
+- `AuditRepo` suma `listByEntity` con el nombre de quien hizo cada cambio.
+- El falso aleatorio de las pruebas (`FakeRandom.bytes`) ya no repite valores: lleva el número de llamada en sus
+  primeros bytes (las claves de archivo salen de ahí).
+- La imagen de Docker crea `/app/data/files` con permisos del usuario `mando` y fija `FILES_DIR`; el E2E usa
+  `.e2e-files` (fuera de git, como `data/`).
+- Personal está en «Más» y en el menú lateral después de Requisiciones; el inicio suma la sección «Personal».

@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF) y 007 (48 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF) y 008 (42 RF) vigentes, con test en verde.
 
 ---
 
@@ -158,7 +158,7 @@ Origen: spec 007 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ### Personal
 
-Origen: spec 008 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 008 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Cada empleado es de una sucursal; los empleados no tienen cuenta en SuMando (RF-1, RF-8).
 - Administradores de la sucursal: dan de alta, editan, dan de baja, reactivan y suben documentos. **Solo el dueño**
