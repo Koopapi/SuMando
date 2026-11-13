@@ -140,6 +140,20 @@ Origen: spec 006 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 6. Requisiciones
 
+Origen: spec 007 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+
+- Cada requisición es de una sucursal, con un almacén de destino y folio consecutivo por negocio (RF-1, RF-2).
+- Se arma desde lo que está bajo el mínimo (lo que falta para el máximo, o el mínimo, redondeado a presentaciones
+  de compra), un cálculo de insumos, una plantilla de compra de la sucursal o a mano; un producto repetido se suma
+  (RF-10, RF-13 a RF-20).
+- **Aprueba solo el dueño**, y puede ajustar antes de aprobar; lo que él solicita queda aprobado. Se rechaza o
+  cancela con motivo (RF-5, RF-22 a RF-28).
+- **Compra por proveedor**: se anota quién compra (nombre) y se marca comprado; el monto es opcional, total del
+  proveedor o importe por renglón (RF-27, RF-29 a RF-33).
+- **Recepción parcial**: lo que llega entra como entrada de inventario con el folio; lo pendiente se recibe después
+  o se cierra con motivo; un excedente entra y se marca. Todo recibido o cerrado = requisición cerrada (RF-34 a
+  RF-41).
+
 ## 7. Personal y nómina
 
 ## 8. Checklists

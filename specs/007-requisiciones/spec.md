@@ -1,6 +1,6 @@
 # Spec 007 — Requisiciones
 
-**Borrador para aprobación del dueño (13 de noviembre de 2026).**
+**Aprobada por el dueño el 13 de noviembre de 2026.**
 
 ## Contexto y objetivo
 Hoy cada negocio arma su lista de compra en una hoja: artículo, cantidad en la presentación en que se compra,
