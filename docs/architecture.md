@@ -8,7 +8,7 @@ necesite y, si es general, se añade aquí en la misma tarea.
 - Next.js (App Router) + React + TypeScript estricto, Tailwind. PWA instalable (manifest e iconos, service worker).
 - PostgreSQL 16 con Drizzle ORM; el esquema solo cambia por migración.
 - Vitest (unit e integración con BD real) y Playwright (E2E).
-- GitHub Actions para la CI; Docker y Coolify en el VPS propio, con una app de pruebas y otra de producción.
+- GitHub Actions para la CI; Docker y Coolify en el VPS propio, con una sola app en `sumando.com.mx`.
 - Monorepo pnpm: `apps/web`, `packages/shared` cuando haga falta compartir tipos.
 
 ## Capas
@@ -85,10 +85,12 @@ corrigen con otro movimiento. Cada cambio guarda autor, fecha, negocio y valores
 
 ## Git y despliegue
 
-- `main` es la versión estable y `pruebas` donde se junta lo nuevo. Cada spec o arreglo va en su rama
-  (`spec/NNN-nombre`, `fix/...`, `docs/...`) creada desde `pruebas` y entra por pull request con la CI en verde.
-  Cuando `pruebas` está probado, también en el teléfono, un pull request de `pruebas` a `main` lo publica.
-- Nunca se sube directamente a `main` ni a `pruebas`. Solo el dueño aprueba specs y mergea.
+- `main` es lo publicado: Coolify despliega cada merge en `sumando.com.mx`. No hay app de pruebas aparte (decisión
+  del dueño, 12 de noviembre de 2026). Cada spec o arreglo va en su rama (`spec/NNN-nombre`, `fix/...`, `docs/...`)
+  creada desde `main` y entra por pull request con la CI en verde; se prueba en local antes de mergear.
+- Nunca se sube directamente a `main`. Solo el dueño aprueba specs y mergea.
+- Como producción tiene datos reales, las migraciones conservan los datos y la base tiene respaldos diarios en
+  Coolify hasta que la spec 012 formalice respaldos cifrados y restauración.
 - Los secretos viven en `.env` (fuera de git) y en Coolify; nunca en el repositorio.
 
 ## Lecciones que traemos de Waifu Baker

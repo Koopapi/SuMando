@@ -14,7 +14,7 @@ el VPS propio.
    «Hecho cuando», agrupadas en entregas, y su tabla de cobertura.
 4. **Implementación** tarea a tarea, con el test antes que el código.
 5. **Validación** RF por RF (`scripts/rf-coverage.mjs`, escribe `validation.md`) y E2E de la spec en verde.
-6. **Pull request** a `pruebas`; el dueño revisa, prueba y mergea.
+6. **Pull request** a `main`; el dueño revisa, prueba y mergea (al mergear se publica en `sumando.com.mx`).
 
 ## Comandos
 Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew: `pg_ctl -D /opt/homebrew/var/postgresql@16 start`):
@@ -43,7 +43,7 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
   (solo la página `/offline` y los estáticos ya vistos; nada de captura sin conexión).
 - Imagen de producción: `docker build -t mando .` desde la raíz; migra sola al arrancar (`MIGRATE_ON_START=1`, ver
   `src/instrumentation.ts`). Pasos de Coolify en `docs/despliegue.md`.
-- CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `pruebas` y `main`.
+- CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `main`.
 - Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones
@@ -61,8 +61,10 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
 - No añadas dependencias sin justificarlas antes en el plan de la spec.
 - No cambies el esquema de la base de datos fuera de una migración de Drizzle.
 - Toda consulta filtra por el negocio activo; todo permiso se comprueba en el servidor.
-- Git: `main` estable y `pruebas` para juntar lo nuevo. Cada spec o arreglo en su rama desde `pruebas` y por pull
-  request con la CI en verde. Nunca se sube directamente a `main` ni a `pruebas`; solo el dueño mergea.
+- Git: `main` es lo publicado en `sumando.com.mx` (un solo servidor, sin app de pruebas). Cada spec o arreglo en su
+  rama desde `main` y por pull request con la CI en verde. Nunca se sube directamente a `main`; solo el dueño mergea.
+- Hay datos reales en producción: toda migración conserva los datos existentes (nada de borrar columnas o tablas
+  con información sin un paso de traslado en la misma migración).
 - Secretos solo en `.env` (fuera de git) y en Coolify. Nunca contraseñas ni tokens en el repositorio ni en el chat.
 - Sin nombres de personas reales en textos, specs ni código: usar roles («el dueño», «un encargado»).
 - La suite E2E completa satura la Mac: preguntar antes de correrla; en el día a día, escritorio y las E2E afectadas.

@@ -1,10 +1,10 @@
-# Spec 001 (NF publicación): en cada pull request y en pruebas y main, revisión de código, tipos, Vitest (unidad e
+# Spec 001 (NF publicación): en cada pull request y en main, revisión de código, tipos, Vitest (unidad e
 # integración) y E2E de escritorio contra la versión compilada.
 name: CI
 
 on:
   push:
-    branches: [main, pruebas]
+    branches: [main]
     paths-ignore: ["docs/**", "specs/**", "**/*.md"]
   pull_request:
     paths-ignore: ["docs/**", "specs/**", "**/*.md"]
