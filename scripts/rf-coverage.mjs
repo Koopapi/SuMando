@@ -50,7 +50,7 @@ const rows = rfs.map(({ n, text }) => {
 });
 const covered = rows.filter((r) => r.ok).length;
 const date = new Date().toISOString().slice(0, 10);
-let md = `# Validación — Spec ${specNum}\n\nGenerado por \`apps/web/scripts/rf-coverage.mjs\` el ${date}. Vitest: ${report.numPassedTests} de ${report.numTotalTests} tests en verde. E2E: \`pnpm e2e\`.\n\n`;
+let md = `# Validación — Spec ${specNum}\n\nGenerado por \`scripts/rf-coverage.mjs\` el ${date}. Vitest: ${report.numPassedTests} de ${report.numTotalTests} tests en verde. E2E: \`pnpm e2e\`.\n\n`;
 md += `**Veredicto: ${covered === rows.length ? "spec cumplida" : "spec NO cumplida"}** (${covered} de ${rows.length} RF con al menos un test en verde).\n\n`;
 md += "| RF | Requisito | Tests unitarios / integración | Pasos E2E | Estado |\n|---|---|---|---|---|\n";
 for (const r of rows) {
