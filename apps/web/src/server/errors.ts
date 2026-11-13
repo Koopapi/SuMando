@@ -54,6 +54,11 @@ const STATUS: Record<ErrorCode, number> = {
   count_changed: 409,
   not_cancellable: 409,
   import_empty: 422,
+  requisition_empty: 422,
+  requisition_state: 409,
+  invalid_amount: 422,
+  not_purchased: 409,
+  buyer_too_long: 422,
 };
 
 export class AppError extends Error {

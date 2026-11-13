@@ -3,6 +3,7 @@ import type { Branch, Business, Membership, Session, User, UserRole } from "@/db
 import type { CatalogRepo } from "./catalog";
 import type { InventoryRepo } from "./inventory";
 import type { RecipesRepo } from "./recipes";
+import type { RequisitionsRepo } from "./requisitions";
 
 export type NewUser = {
   name: string;
@@ -105,6 +106,7 @@ export interface Repos {
   catalog: CatalogRepo;
   recipes: RecipesRepo;
   inventory: InventoryRepo;
+  requisitions: RequisitionsRepo;
 }
 
 export interface Store extends Repos {

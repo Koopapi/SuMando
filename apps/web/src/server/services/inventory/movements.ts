@@ -26,7 +26,7 @@ export interface MovementInput {
 export async function applyMovement(
   repos: Repos,
   wh: Warehouse,
-  data: { kind: MovementKind; createdBy: string; createdAt: Date; reason?: string | null; supplierId?: string | null; reference?: string | null; note?: string | null; transferId?: string | null; countId?: string | null; reversesId?: string | null },
+  data: { kind: MovementKind; createdBy: string; createdAt: Date; reason?: string | null; supplierId?: string | null; reference?: string | null; note?: string | null; transferId?: string | null; countId?: string | null; reversesId?: string | null; requisitionId?: string | null },
   deltas: { productId: string; deltaMicro: bigint }[],
 ): Promise<InventoryMovement> {
   const balances = await repos.inventory.stock.apply(
@@ -128,6 +128,7 @@ export async function movementDetail(ctx: Ctx, scope: CatalogScope, id: string):
   const [book, lines, reversal, users] = await Promise.all([loadBook(ctx.store, access.businessId), ctx.store.inventory.movements.lines(m.id), ctx.store.inventory.movements.reversalOf(m.id), ctx.store.users.list()]);
   const nameOf = (userId: string) => users.find((u) => u.id === userId)?.name ?? "";
   const supplier = m.supplierId ? await ctx.store.catalog.suppliers.findById(m.supplierId) : null;
+  const requisition = m.requisitionId ? await ctx.store.requisitions.requisitions.findById(m.requisitionId) : null;
   const wh = visibleWarehouse(access, m.warehouseId);
   return {
     id: m.id,
@@ -142,6 +143,7 @@ export async function movementDetail(ctx: Ctx, scope: CatalogScope, id: string):
     transferId: m.transferId,
     countId: m.countId,
     reverses: m.reversesId,
+    requisition: requisition ? { id: requisition.id, folio: requisition.folio } : null,
     reversal: reversal ? { id: reversal.id, createdAt: reversal.createdAt.toISOString(), author: nameOf(reversal.createdBy), reason: reversal.note } : null,
     cancellable: CANCELLABLE.includes(m.kind) && !reversal && !wh.archivedAt,
     lines: lines.map((l) => {

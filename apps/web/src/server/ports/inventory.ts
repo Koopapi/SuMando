@@ -16,6 +16,7 @@ export type NewMovement = {
   transferId?: string | null;
   countId?: string | null;
   reversesId?: string | null;
+  requisitionId?: string | null;
   createdBy: string;
   createdAt: Date;
   lines: { productId: string; deltaBase: string; balanceAfter: string }[];

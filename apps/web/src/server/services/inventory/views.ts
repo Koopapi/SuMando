@@ -70,6 +70,8 @@ export interface MovementView {
   transferId: string | null;
   countId: string | null;
   reverses: string | null;
+  /** Spec 007, RF-45: la requisición cuya recepción generó esta entrada. */
+  requisition: { id: string; folio: number } | null;
   /** RF-66: la cancelación, si la hubo. */
   reversal: { id: string; createdAt: string; author: string; reason: string | null } | null;
   cancellable: boolean;

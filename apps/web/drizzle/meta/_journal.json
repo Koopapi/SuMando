@@ -36,6 +36,13 @@
       "when": 1794551335291,
       "tag": "0004_inventarios",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794596327277,
+      "tag": "0005_requisiciones",
+      "breakpoints": true
     }
   ]
 }

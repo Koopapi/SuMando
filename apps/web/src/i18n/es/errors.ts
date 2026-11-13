@@ -52,4 +52,9 @@ export const errors = {
   count_changed: (p: { products: string }) => `Mientras contabas cambió la existencia de: ${p.products}. Revisa y confirma para aplicar.`,
   not_cancellable: "Este movimiento no se puede cancelar. Corrígelo con un ajuste o un conteo nuevo.",
   import_empty: "No hay ninguna fila que se pueda importar. Revisa los problemas de cada producto y corrige la hoja.",
+  requisition_empty: "Agrega al menos un producto a la requisición.",
+  requisition_state: (p: { state: string }) => `No se puede: la requisición está ${p.state}.`,
+  invalid_amount: "El importe debe ser en pesos, sin negativos y con hasta 2 decimales (por ejemplo, 1,250.50).",
+  not_purchased: "Marca primero este proveedor como comprado.",
+  buyer_too_long: "El nombre de quien compra no puede pasar de 60 caracteres.",
 } as const;
