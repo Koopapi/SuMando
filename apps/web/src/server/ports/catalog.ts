@@ -16,7 +16,7 @@ export type NewWarehouse = Meta & { businessId: string; branchId: string | null;
 export type WarehousePatch = Partial<Pick<Warehouse, "name" | "nameKey" | "archivedAt">> & { updatedAt: Date };
 
 export type NewArea = Meta & { businessId: string; branchId: string; name: string; nameKey: string; responsibleId: string };
-export type AreaPatch = Partial<Pick<Area, "name" | "nameKey" | "responsibleId" | "archivedAt">> & { updatedAt: Date };
+export type AreaPatch = Partial<Pick<Area, "name" | "nameKey" | "responsibleId" | "warehouseId" | "archivedAt">> & { updatedAt: Date };
 
 export type LevelValues = { businessId: string; productId: string; warehouseId: string; minBase: string | null; maxBase: string | null; updatedBy: string; at: Date };
 

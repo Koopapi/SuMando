@@ -116,3 +116,19 @@ export async function seedRecipes(branchId: string, productId: string) {
   await call("/api/recipe-templates", { name: "Fin de semana", items: [{ recipeId: recipe.id, full: 40, half: 0 }] });
   return { recipeId: recipe.id as string, calculationId: calculation.id as string };
 }
+
+/** Inventario mínimo sobre `seedCatalog` (spec 005): lista del área, una entrada, una salida y un traspaso a otro negocio. */
+export async function seedInventory(branchId: string, productId: string, otherBranchId: string) {
+  const call = await ownerApiAt(branchId);
+  const { warehouses } = await call("/api/inventory/stock");
+  const camara = warehouses.find((w: { name: string }) => w.name === "Cámara fría").id as string;
+  const { areas } = await call("/api/areas");
+  await call(`/api/areas/${areas[0].id}/products`, { warehouseId: camara, productIds: [productId] }, "PUT");
+  const { movement } = await call("/api/inventory/movements", { kind: "entry", warehouseId: camara, reference: "F-1", lines: [{ productId, quantity: "3000" }] });
+  await call("/api/inventory/movements", { kind: "exit", warehouseId: camara, reason: "waste", lines: [{ productId, quantity: "500" }] });
+  const other = await ownerApiAt(otherBranchId);
+  const { warehouse } = await other("/api/warehouses", { name: "Bodega Pirrus", scope: "branch" });
+  const back = await ownerApiAt(branchId);
+  const { transfer } = await back("/api/inventory/transfers", { fromWarehouseId: camara, toWarehouseId: warehouse.id, lines: [{ productId, quantity: "250" }] });
+  return { warehouseId: camara, areaId: areas[0].id as string, movementId: movement.id as string, transferId: transfer.id as string };
+}

@@ -47,3 +47,32 @@ describe("spec 004 — esquema", () => {
     expect(checks).toHaveLength(3);
   });
 });
+
+describe("spec 005 — esquema", () => {
+  it("test_s005_rf1_las_tablas_del_inventario_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(
+      expect.arrayContaining(["stock", "inventory_movements", "inventory_movement_lines", "inventory_transfers", "inventory_transfer_lines", "inventory_counts", "inventory_count_lines", "area_products", "product_links"]),
+    );
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('stock_warehouse_product_unique', 'inventory_movements_reverses_unique', 'area_products_area_product_unique', 'product_links_from_business_unique')`;
+    expect(idx).toHaveLength(4);
+  });
+
+  it("test_s005_rf53_el_conteo_guarda_esperado_contado_y_diferencia", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'inventory_count_lines'`;
+    expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["expected_base", "counted_base", "difference_base"]));
+  });
+
+  it("test_s005_rf60_cada_movimiento_guarda_tipo_almacen_autor_y_fecha", async () => {
+    const cols = await sql<{ column_name: string; is_nullable: string }[]>`select column_name, is_nullable from information_schema.columns where table_name = 'inventory_movements'`;
+    const required = cols.filter((c) => c.is_nullable === "NO").map((c) => c.column_name);
+    expect(required).toEqual(expect.arrayContaining(["kind", "warehouse_id", "business_id", "created_by", "created_at"]));
+  });
+
+  it("test_s005_rf63_un_movimiento_solo_se_cancela_una_vez", async () => {
+    const [def] = await sql<{ indexdef: string }[]>`select indexdef from pg_indexes where indexname = 'inventory_movements_reverses_unique'`;
+    expect(def.indexdef).toContain("UNIQUE");
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('inventory_transfers_distinct', 'inventory_movements_kind_check', 'inventory_count_lines_counted_non_negative')`;
+    expect(checks).toHaveLength(3);
+  });
+});

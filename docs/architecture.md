@@ -58,6 +58,15 @@ Lo construido en la spec 004:
   XML de celdas), con límites de tamaño, hojas, filas y bytes descomprimidos. `tests/support/xlsx.ts` arma archivos
   para las pruebas.
 
+Lo construido en la spec 005:
+
+- **Inventario**: `server/services/inventory` usa el mismo `CatalogScope`; los almacenes visibles son los de la
+  sucursal activa y los del negocio completo, y todo lo demás se filtra por ellos. La existencia vive en `stock`
+  (una fila por producto y almacén) y cambia con una suma atómica en la misma transacción que guarda el movimiento;
+  cada renglón guarda la existencia que dejó. Los movimientos no se modifican: se cancelan con un `reversal`
+  (índice único sobre `reverses_id`). El conteo compara en el servidor lo que el cliente vio al abrir; el borrador
+  vive en el dispositivo. `readJson` acepta un límite de cuerpo por ruta (64 KB en inventario).
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

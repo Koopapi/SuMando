@@ -15,5 +15,7 @@ export function assertValidEmail(raw: string): string {
 
 /** Una violación de índice único de PostgreSQL (dos altas simultáneas con el mismo nombre o correo). */
 export function isUniqueViolation(e: unknown): boolean {
-  return typeof e === "object" && e !== null && (e as { code?: string }).code === "23505";
+  if (typeof e !== "object" || e === null) return false;
+  // Drizzle puede envolver el error del controlador: se mira también su causa.
+  return (e as { code?: string }).code === "23505" || isUniqueViolation((e as { cause?: unknown }).cause);
 }

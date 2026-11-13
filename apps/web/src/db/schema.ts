@@ -246,6 +246,8 @@ export const areas = pgTable(
     responsibleId: uuid("responsible_id")
       .notNull()
       .references(() => users.id),
+    // Spec 005, RF-39: almacén donde se cuenta la lista del área; nulo hasta asignarlo.
+    warehouseId: uuid("warehouse_id").references((): AnyPgColumn => warehouses.id),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: uuid("created_by").references(() => users.id),
     ...timestamps,
@@ -427,6 +429,222 @@ export const recipeTemplateItems = pgTable(
   ],
 );
 
+// --- Spec 005: inventarios (plan, sección 2) ---
+
+// Existencia vigente de un producto en un almacén, en unidad base; puede ser negativa (RF-1, RF-20).
+export const stock = pgTable(
+  "stock",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    quantityBase: numeric("quantity_base", { precision: 20, scale: 6 }).notNull().default("0"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("stock_warehouse_product_unique").on(t.warehouseId, t.productId), index("stock_business_idx").on(t.businessId), index("stock_product_idx").on(t.productId)],
+);
+
+export const MOVEMENT_KINDS = ["entry", "exit", "adjustment", "transfer_out", "transfer_in", "count", "reversal"] as const;
+export type MovementKind = (typeof MOVEMENT_KINDS)[number];
+
+export const TRANSFER_STATUS_KEYS = ["done", "in_transit", "received", "cancelled"] as const;
+
+export const inventoryTransfers = pgTable(
+  "inventory_transfers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fromBusinessId: uuid("from_business_id")
+      .notNull()
+      .references(() => businesses.id),
+    fromWarehouseId: uuid("from_warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    toBusinessId: uuid("to_business_id")
+      .notNull()
+      .references(() => businesses.id),
+    toWarehouseId: uuid("to_warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    status: varchar("status", { length: 12 }).$type<(typeof TRANSFER_STATUS_KEYS)[number]>().notNull(),
+    note: varchar("note", { length: 200 }),
+    sentBy: uuid("sent_by")
+      .notNull()
+      .references(() => users.id),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull(),
+    receivedBy: uuid("received_by").references(() => users.id),
+    receivedAt: timestamp("received_at", { withTimezone: true }),
+    cancelledBy: uuid("cancelled_by").references(() => users.id),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    cancelReason: varchar("cancel_reason", { length: 200 }),
+  },
+  (t) => [
+    index("inventory_transfers_to_idx").on(t.toWarehouseId, t.status),
+    index("inventory_transfers_from_idx").on(t.fromWarehouseId, t.status),
+    check("inventory_transfers_distinct", sql`${t.fromWarehouseId} <> ${t.toWarehouseId}`),
+    check("inventory_transfers_status_check", sql`${t.status} in ('done', 'in_transit', 'received', 'cancelled')`),
+  ],
+);
+
+export const inventoryTransferLines = pgTable(
+  "inventory_transfer_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    transferId: uuid("transfer_id")
+      .notNull()
+      .references(() => inventoryTransfers.id),
+    fromProductId: uuid("from_product_id")
+      .notNull()
+      .references(() => products.id),
+    productName: varchar("product_name", { length: 80 }).notNull(),
+    baseUnit: varchar("base_unit", { length: 4 }).$type<(typeof BASE_UNIT_KEYS)[number]>().notNull(),
+    quantitySent: numeric("quantity_sent", { precision: 20, scale: 6 }).notNull(),
+    // Al recibir (RF-30 a RF-35): producto del negocio destino y cantidad recibida.
+    toProductId: uuid("to_product_id").references(() => products.id),
+    quantityReceived: numeric("quantity_received", { precision: 20, scale: 6 }),
+    position: integer("position").notNull(),
+  },
+  (t) => [index("inventory_transfer_lines_transfer_idx").on(t.transferId), check("inventory_transfer_lines_sent_positive", sql`${t.quantitySent} > 0`)],
+);
+
+// Conteo aplicado por área (RF-53).
+export const inventoryCounts = pgTable(
+  "inventory_counts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    areaId: uuid("area_id")
+      .notNull()
+      .references(() => areas.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [index("inventory_counts_area_idx").on(t.areaId, t.createdAt)],
+);
+
+export const inventoryCountLines = pgTable(
+  "inventory_count_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    countId: uuid("count_id")
+      .notNull()
+      .references(() => inventoryCounts.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    expectedBase: numeric("expected_base", { precision: 20, scale: 6 }).notNull(),
+    countedBase: numeric("counted_base", { precision: 20, scale: 6 }).notNull(),
+    differenceBase: numeric("difference_base", { precision: 20, scale: 6 }).notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [index("inventory_count_lines_count_idx").on(t.countId), check("inventory_count_lines_counted_non_negative", sql`${t.countedBase} >= 0`)],
+);
+
+// Movimientos (RF-60, RF-63): no se modifican ni se borran; se cancelan con un `reversal` (RF-64).
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    // Sucursal del almacén; nula si es del negocio completo.
+    branchId: uuid("branch_id").references(() => branches.id),
+    warehouseId: uuid("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    kind: varchar("kind", { length: 14 }).$type<MovementKind>().notNull(),
+    reason: varchar("reason", { length: 10 }),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    reference: varchar("reference", { length: 40 }),
+    note: varchar("note", { length: 200 }),
+    transferId: uuid("transfer_id").references(() => inventoryTransfers.id),
+    countId: uuid("count_id").references(() => inventoryCounts.id),
+    reversesId: uuid("reverses_id").references((): AnyPgColumn => inventoryMovements.id),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("inventory_movements_reverses_unique").on(t.reversesId),
+    index("inventory_movements_warehouse_idx").on(t.warehouseId, t.createdAt),
+    index("inventory_movements_business_idx").on(t.businessId, t.createdAt),
+    check("inventory_movements_kind_check", sql`${t.kind} in ('entry', 'exit', 'adjustment', 'transfer_out', 'transfer_in', 'count', 'reversal')`),
+    check("inventory_movements_reason_check", sql`${t.reason} is null or ${t.reason} in ('waste', 'expired', 'staff', 'courtesy', 'other')`),
+  ],
+);
+
+export const inventoryMovementLines = pgTable(
+  "inventory_movement_lines",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    movementId: uuid("movement_id")
+      .notNull()
+      .references(() => inventoryMovements.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    // Cambio con signo y existencia que dejó (RF-61).
+    deltaBase: numeric("delta_base", { precision: 20, scale: 6 }).notNull(),
+    balanceAfter: numeric("balance_after", { precision: 20, scale: 6 }).notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [index("inventory_movement_lines_movement_idx").on(t.movementId), index("inventory_movement_lines_product_idx").on(t.productId, t.id)],
+);
+
+// Lista de productos que se cuentan en un área, en orden (RF-40). RF-41 lo comprueba el servicio.
+export const areaProducts = pgTable(
+  "area_products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    areaId: uuid("area_id")
+      .notNull()
+      .references(() => areas.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+    position: integer("position").notNull(),
+  },
+  (t) => [uniqueIndex("area_products_area_product_unique").on(t.areaId, t.productId), index("area_products_product_idx").on(t.productId)],
+);
+
+// Correspondencia recordada al recibir un traspaso entre negocios (RF-33).
+export const productLinks = pgTable(
+  "product_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fromProductId: uuid("from_product_id")
+      .notNull()
+      .references(() => products.id),
+    toBusinessId: uuid("to_business_id")
+      .notNull()
+      .references(() => businesses.id),
+    toProductId: uuid("to_product_id")
+      .notNull()
+      .references(() => products.id),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [uniqueIndex("product_links_from_business_unique").on(t.fromProductId, t.toBusinessId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -446,3 +664,12 @@ export type SupplyCalculationItem = typeof supplyCalculationItems.$inferSelect;
 export type SupplyCalculationLine = typeof supplyCalculationLines.$inferSelect;
 export type RecipeTemplate = typeof recipeTemplates.$inferSelect;
 export type RecipeTemplateItem = typeof recipeTemplateItems.$inferSelect;
+export type Stock = typeof stock.$inferSelect;
+export type InventoryMovement = typeof inventoryMovements.$inferSelect;
+export type InventoryMovementLine = typeof inventoryMovementLines.$inferSelect;
+export type InventoryTransfer = typeof inventoryTransfers.$inferSelect;
+export type InventoryTransferLine = typeof inventoryTransferLines.$inferSelect;
+export type InventoryCount = typeof inventoryCounts.$inferSelect;
+export type InventoryCountLine = typeof inventoryCountLines.$inferSelect;
+export type AreaProduct = typeof areaProducts.$inferSelect;
+export type ProductLink = typeof productLinks.$inferSelect;

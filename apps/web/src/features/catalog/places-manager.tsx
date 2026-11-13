@@ -1,6 +1,7 @@
 "use client";
 
 // Spec 003 RF-3, RF-5, RF-18 a RF-21, RF-33, RF-34: almacenes de la sucursal y del negocio, y áreas con responsable.
+import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { es } from "@/i18n";
 import type { AreaView, WarehouseView } from "@/server/services/catalog/views";
@@ -131,9 +132,14 @@ export function PlacesManager({
                 detail={<span className="text-sm text-ink-muted">{tl.responsibleOf(a.responsible.name)}</span>}
               >
                 {!a.archived ? (
-                  <Button variant="ghost" aria-label={t.actionFor(t.edit, a.name)} onClick={() => setMode({ kind: "editArea", area: a })}>
-                    {t.edit}
-                  </Button>
+                  <>
+                    <Link href={`/almacenes/areas/${a.id}`} className="inline-flex min-h-11 items-center px-3 font-semibold text-primary" aria-label={es.inventory.countListOf(a.name)}>
+                      {es.inventory.countList}
+                    </Link>
+                    <Button variant="ghost" aria-label={t.actionFor(t.edit, a.name)} onClick={() => setMode({ kind: "editArea", area: a })}>
+                      {t.edit}
+                    </Button>
+                  </>
                 ) : null}
                 {toggle("areas", a)}
               </Row>

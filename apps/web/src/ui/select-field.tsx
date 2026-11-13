@@ -2,12 +2,12 @@ import { useId, type SelectHTMLAttributes } from "react";
 import { Icon } from "./icons";
 
 /** Selector nativo con etiqueta visible: en el teléfono abre la lista del sistema. */
-export function SelectField({ label, options, error, className = "", ...rest }: Omit<SelectHTMLAttributes<HTMLSelectElement>, "id"> & { label: string; options: { value: string; label: string }[]; error?: string }) {
+export function SelectField({ label, options, error, hideLabel = false, className = "", ...rest }: Omit<SelectHTMLAttributes<HTMLSelectElement>, "id"> & { label: string; options: { value: string; label: string }[]; error?: string; hideLabel?: boolean }) {
   const id = useId();
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={id} className="text-sm font-semibold text-ink">
+      <label htmlFor={id} className={hideLabel ? "sr-only" : "text-sm font-semibold text-ink"}>
         {label}
       </label>
       <div className={`relative flex min-h-12 items-center rounded-md border bg-surface ${error ? "border-2 border-danger" : "border-line-strong"}`}>

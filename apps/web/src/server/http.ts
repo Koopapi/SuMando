@@ -9,10 +9,10 @@ export function errorResponse(error: AppError) {
   return Response.json(error.toJSON(), { status: error.status });
 }
 
-/** Lee el cuerpo JSON (máximo 16 KB) y lo valida; cualquier fallo es `validation` (422). */
-export async function readJson<T>(request: Request, schema: ZodType<T>): Promise<T> {
+/** Lee el cuerpo JSON (máximo 16 KB, o el límite indicado) y lo valida; cualquier fallo es `validation` (422). */
+export async function readJson<T>(request: Request, schema: ZodType<T>, maxBytes = MAX_BODY_BYTES): Promise<T> {
   const text = await request.text();
-  if (text.length > MAX_BODY_BYTES) throw new AppError("validation");
+  if (text.length > maxBytes) throw new AppError("validation");
   let raw: unknown = {};
   if (text.trim()) {
     try {

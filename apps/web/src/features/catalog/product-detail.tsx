@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { es } from "@/i18n";
 import type { PresentationView, ProductView, SupplierView, WarehouseView } from "@/server/services/catalog/views";
-import { Alert, Button, Dialog, Icon, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, TextField } from "@/ui";
+import type { ProductStockView } from "@/server/services/inventory/views";
+import { Alert, Button, Dialog, Icon, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, TextField, formatQuantity } from "@/ui";
 import { formValues } from "../api";
 import { countLabel, presentationLabel, unitShort } from "./labels";
 import { useAction } from "./use-action";
@@ -18,7 +19,7 @@ const BASE = "base";
 
 type Mode = { kind: "data" } | { kind: "addPresentation" } | { kind: "editPresentation"; presentation: PresentationView } | { kind: "level"; warehouse: WarehouseView } | null;
 
-export function ProductDetail({ product, suppliers, warehouses, recipes = [] }: { product: ProductView; suppliers: SupplierView[]; warehouses: WarehouseView[]; recipes?: { id: string; name: string }[] }) {
+export function ProductDetail({ product, suppliers, warehouses, recipes = [], stock = [] }: { product: ProductView; suppliers: SupplierView[]; warehouses: WarehouseView[]; recipes?: { id: string; name: string }[]; stock?: ProductStockView[] }) {
   const { run, error, setError, busy } = useAction();
   const [mode, setMode] = useState<Mode>(null);
   const unit = unitShort(product.baseUnit);
@@ -179,6 +180,25 @@ export function ProductDetail({ product, suppliers, warehouses, recipes = [] }: 
                 </li>
               );
             })}
+          </ul>
+        )}
+      </section>
+
+      <section aria-label={es.inventory.productStock} className="flex flex-col gap-2">
+        <SectionLabel as="h2">{es.inventory.productStock}</SectionLabel>
+        {stock.length === 0 ? (
+          <p className="text-sm text-ink-muted">{es.inventory.productStockNone}</p>
+        ) : (
+          <ul className="flex flex-col lg:max-w-3xl" data-testid="product-stock">
+            {stock.map((s) => (
+              <li key={s.warehouseId} className="flex min-h-12 items-center gap-3 border-b border-line">
+                <Link href={`/inventario/historial?almacen=${s.warehouseId}&producto=${product.id}`} className="min-w-0 flex-1 font-semibold text-primary hover:underline">
+                  {s.warehouseName}
+                </Link>
+                {s.status === "negative" ? <StatusBadge tone="danger">{es.inventory.negative}</StatusBadge> : s.status === "below_min" ? <StatusBadge tone="warning">{es.inventory.belowMin}</StatusBadge> : null}
+                <span className={`tabular-nums ${s.status === "negative" ? "font-semibold text-danger" : ""}`}>{es.inventory.quantityWith(formatQuantity(s.quantity), countLabel(product))}</span>
+              </li>
+            ))}
           </ul>
         )}
       </section>

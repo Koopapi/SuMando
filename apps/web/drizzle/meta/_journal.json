@@ -29,6 +29,13 @@
       "when": 1794517382034,
       "tag": "0003_recetario",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794551335291,
+      "tag": "0004_inventarios",
+      "breakpoints": true
     }
   ]
 }
