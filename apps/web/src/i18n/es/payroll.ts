@@ -1,9 +1,9 @@
 // Textos de la nómina (spec 009).
 export const payroll = {
   title: "Nómina",
+  homeDetail: "Asistencia, retardos y pago de la semana",
   intro: "La semana de lunes a domingo de esta sucursal: quién trabajó, quién llegó tarde y cuánto se paga.",
   introAdmin: "La semana de lunes a domingo de esta sucursal: marca quién trabajó y quién llegó tarde.",
-  weekLabel: (from: string, to: string) => `Semana del ${from} al ${to}`,
   weekShort: (from: string, to: string) => `${from} – ${to}`,
   prevWeek: "Semana anterior",
   nextWeek: "Semana siguiente",
@@ -31,6 +31,7 @@ export const payroll = {
   dayButton: (name: string, day: string, state: string, late: boolean) => `${name}, ${day}: ${state}${late ? ", con retardo" : ""}`,
   lateButton: (name: string, day: string, late: boolean) => `${name}, ${day}: ${late ? "quitar retardo" : "marcar retardo"}`,
   lateShort: "Retardo",
+  lateMark: "R",
   dayHint: "Toca un día: trabajó → media jornada → sin marcar. Debajo, el retardo.",
   counts: (days: number, half: number, late: number) => `${days} ${days === 1 ? "día" : "días"} · ${half} ${half === 1 ? "media" : "medias"} · ${late} ${late === 1 ? "retardo" : "retardos"}`,
   noPay: "Sin sueldo",

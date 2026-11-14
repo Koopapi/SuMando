@@ -96,3 +96,14 @@ Ninguna nueva.
 ## 8. Entregas
 
 1. **Dominio y esquema**. 2. **Servicios y API**. 3. **Pantallas**. 4. **Cierre** (E2E, barrido, validación).
+
+## Ajustes al construir
+
+- El día de nómina es un componente nuevo del sistema de diseño (`ui/day-mark.tsx`); la media jornada se marca con
+  una barra bajo la letra del día (el texto «½» rompía la regla de axe de nombre accesible).
+- Nómina está en «Más» y en el menú lateral después de Personal (icono `cash`); el inicio suma la fila «Nómina» en
+  la sección de Personal y la quita de «Próximamente».
+- Los préstamos se registran y se consultan en el expediente del empleado (vista del dueño).
+- Al cerrar, los renglones de todos los que aparecen se crean aunque no tengan días, para congelar la semana
+  completa; quien cambió de sucursal sigue en la semana donde ya tenía renglón.
+
