@@ -39,6 +39,7 @@ export interface ChecklistsRepo {
     listBySheets(ids: string[]): Promise<ChecklistSheetSection[]>;
     insert(data: Pick<ChecklistSheetSection, "sheetId" | "sectionId" | "name" | "positionId" | "sort">): Promise<ChecklistSheetSection>;
     update(id: string, patch: Partial<SectionReady>): Promise<ChecklistSheetSection>;
+    findSheetOf(sheetSectionId: string): Promise<ChecklistSheet | null>;
   };
   sheetItems: {
     listBySections(ids: string[]): Promise<ChecklistSheetItem[]>;

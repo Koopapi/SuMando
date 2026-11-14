@@ -53,6 +53,17 @@ export function checklistsRepo(db: DbOrTx): ChecklistsRepo {
       listBySheets: (ids) => (ids.length ? db.select().from(checklistSheetSections).where(inArray(checklistSheetSections.sheetId, ids)).orderBy(asc(checklistSheetSections.sort)) : none()),
       insert: async (data) => (await db.insert(checklistSheetSections).values(data).returning())[0],
       update: async (id, patch) => (await db.update(checklistSheetSections).set(patch).where(eq(checklistSheetSections.id, id)).returning())[0],
+      findSheetOf: async (sheetSectionId) =>
+        first(
+          (
+            await db
+              .select({ sheet: checklistSheets })
+              .from(checklistSheetSections)
+              .innerJoin(checklistSheets, eq(checklistSheets.id, checklistSheetSections.sheetId))
+              .where(eq(checklistSheetSections.id, sheetSectionId))
+              .limit(1)
+          ).map((r) => r.sheet),
+        ),
     },
     sheetItems: {
       listBySections: (ids) => (ids.length ? db.select().from(checklistSheetItems).where(inArray(checklistSheetItems.sheetSectionId, ids)).orderBy(asc(checklistSheetItems.sort)) : none()),
