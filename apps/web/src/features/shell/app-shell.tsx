@@ -38,6 +38,7 @@ function destinations(user: PublicUser) {
     ["/requisiciones", t.requisitions, "cart"],
     ["/personal", t.personnel, "idcard"],
     ["/nomina", t.payroll, "cash"],
+    ["/checklists", t.checklists, "clipboard"],
     ["/recetas", t.recipes, "recipe"],
     ["/insumos", t.supplies, "calculator"],
     ...(user.role === "owner"

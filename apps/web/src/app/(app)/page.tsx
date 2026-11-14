@@ -9,6 +9,7 @@ import { listPeople } from "@/server/services/people";
 import { stockAlerts } from "@/server/services/inventory/stock";
 import { pendingIncoming } from "@/server/services/inventory/transfers";
 import { requisitionCounts } from "@/server/services/requisitions/requisitions";
+import { todayChecklists } from "@/server/services/checklists/sheets";
 import { personnelCounts } from "@/server/services/personnel/employees";
 import { listCalculations } from "@/server/services/recipes/calculations";
 import { listRecipes } from "@/server/services/recipes/recipes";
@@ -36,7 +37,7 @@ export default async function HomePage() {
   const activePeople = people.filter((p) => p.isActive);
   const scope = { actor: user, active };
   const [catalog, recipes, calculations, alerts, pending] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope), stockAlerts(ctx, scope), pendingIncoming(ctx, scope)]);
-  const [reqCounts, staff] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope)]);
+  const [reqCounts, staff, todayLists] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope), todayChecklists(ctx, { kind: "user", scope })]);
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -82,6 +83,12 @@ export default async function HomePage() {
         <div className="grid lg:grid-cols-3 lg:gap-x-8">
           <ListRow href="/personal" icon="idcard" title={es.personnel.title} detail={es.personnel.homeDetail(staff.active, staff.incomplete)} />
           <ListRow href="/nomina" icon="cash" title={es.payroll.title} detail={es.payroll.homeDetail} />
+        </div>
+      </section>
+      <section className="flex flex-col gap-1">
+        <SectionLabel>{es.checklists.homeLabel}</SectionLabel>
+        <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/checklists" icon="clipboard" title={es.checklists.title} detail={es.checklists.homeDetail(todayLists.length)} />
         </div>
       </section>
       <section className="flex flex-col gap-1">
