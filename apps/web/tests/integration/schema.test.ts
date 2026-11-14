@@ -143,3 +143,21 @@ describe("spec 009 — esquema", () => {
   });
 });
 
+describe("spec 010 — esquema", () => {
+  it("test_s010_rf1_rf15_las_tablas_de_checklists_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["checklist_templates", "checklist_template_branches", "checklist_sections", "checklist_items", "checklist_sheets", "checklist_sheet_sections", "checklist_sheet_items", "floor_devices"]));
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('checklist_templates_active_name_unique', 'checklist_sheets_day_unique', 'checklist_sheet_items_unique', 'floor_devices_token_hash_unique')`;
+    expect(idx).toHaveLength(4);
+  });
+
+  it("test_s010_rf37_el_telefono_de_piso_guarda_solo_el_hash_de_su_token", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'floor_devices'`;
+    const names = cols.map((c) => c.column_name);
+    expect(names).toContain("token_hash");
+    expect(names).not.toContain("token");
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('checklist_templates_days', 'checklist_items_kind_check', 'checklist_items_key_kind')`;
+    expect(checks).toHaveLength(3);
+  });
+});
+

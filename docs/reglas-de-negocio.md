@@ -190,6 +190,23 @@ Origen: spec 009 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 8. Checklists
 
+Origen: spec 010 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+
+- Plantillas por negocio, las que se quieran, cada una con sus sucursales y días de la semana; secciones con puesto
+  responsable opcional y puntos de palomita, palomita con foto o comentario; las palomitas pueden ser clave (RF-6 a
+  RF-11). Lo que se quita se archiva y los cambios solo afectan hojas nuevas (RF-13, RF-14).
+- Una hoja por plantilla, sucursal y fecha de la Ciudad de México; se abre con la primera marca y copia la plantilla
+  (RF-15 a RF-18).
+- Cada marca guarda quién y la hora del servidor. «Todo en orden» no toca puntos clave ni de foto; «Sección lista»
+  exige todos los clave y bloquea la sección hasta que un administrador la reabra (RF-20 a RF-30).
+- La hoja se cierra sola con la última sección lista; un administrador puede cerrarla con pendientes, que quedan a
+  la vista. La hoja de un día anterior solo se puede cerrar (RF-31 a RF-36).
+- **Teléfono de piso**: un administrador lo habilita en la sucursal y queda así hasta que lo deshabiliten; solo
+  abre las hojas de hoy de su sucursal; el empleado elige su nombre de Personal, sin contraseña, y se guardan su
+  nombre y el del teléfono (RF-37 a RF-45).
+- Las fotos solo las ven el dueño, los administradores de la sucursal y el teléfono de piso mientras la hoja está
+  abierta (RF-48).
+
 ## 9. Corte de caja
 
 ## 10. Reportes

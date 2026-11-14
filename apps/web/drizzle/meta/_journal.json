@@ -57,6 +57,13 @@
       "when": 1794614149463,
       "tag": "0007_nomina",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794619768008,
+      "tag": "0008_checklists",
+      "breakpoints": true
     }
   ]
 }

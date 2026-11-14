@@ -38,6 +38,8 @@ semana, tolerancia del corte, quién puede qué) van dentro de la spec que las u
 ## Decisiones tomadas (11 de noviembre de 2026)
 
 - **Acceso**: solo administrativos, con correo y contraseña. Sin PIN ni checador; se descartó la spec de asistencia.
+  Cambio aprobado en la spec 010 (13 de noviembre de 2026): un **teléfono de piso** habilitado por un administrador
+  deja al personal llenar los checklists de hoy de su sucursal eligiendo su nombre, sin cuenta ni contraseña.
 - **Roles**: dueño (entra a todos los negocios, crea negocios, invita y asigna roles, ve todo) y administrador
   (solo en los negocios donde se le asignó; opera inventario, requisiciones, personal, nómina y checklists).
   El detalle de qué puede cada rol en cada módulo se fija en la spec de ese módulo.
