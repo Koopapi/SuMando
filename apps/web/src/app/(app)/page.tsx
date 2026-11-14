@@ -9,6 +9,7 @@ import { listPeople } from "@/server/services/people";
 import { stockAlerts } from "@/server/services/inventory/stock";
 import { pendingIncoming } from "@/server/services/inventory/transfers";
 import { requisitionCounts } from "@/server/services/requisitions/requisitions";
+import { currentCut } from "@/server/services/cash/cuts";
 import { todayChecklists } from "@/server/services/checklists/sheets";
 import { personnelCounts } from "@/server/services/personnel/employees";
 import { listCalculations } from "@/server/services/recipes/calculations";
@@ -37,7 +38,7 @@ export default async function HomePage() {
   const activePeople = people.filter((p) => p.isActive);
   const scope = { actor: user, active };
   const [catalog, recipes, calculations, alerts, pending] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope), stockAlerts(ctx, scope), pendingIncoming(ctx, scope)]);
-  const [reqCounts, staff, todayLists] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope), todayChecklists(ctx, { kind: "user", scope })]);
+  const [reqCounts, staff, todayLists, openCut] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope), todayChecklists(ctx, { kind: "user", scope }), currentCut(ctx, { kind: "user", scope })]);
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -89,6 +90,7 @@ export default async function HomePage() {
         <SectionLabel>{es.checklists.homeLabel}</SectionLabel>
         <div className="grid lg:grid-cols-3 lg:gap-x-8">
           <ListRow href="/checklists" icon="clipboard" title={es.checklists.title} detail={es.checklists.homeDetail(todayLists.length)} />
+          <ListRow href="/caja" icon="cash" title={es.cash.title} detail={es.cash.homeDetail(openCut !== null)} />
         </div>
       </section>
       <section className="flex flex-col gap-1">
@@ -98,16 +100,18 @@ export default async function HomePage() {
           <ListRow href="/insumos" icon="calculator" title={es.shell.supplies} detail={calculations[0] ? t.lastCalculation(formatDateTime(new Date(calculations[0].createdAt))) : t.noCalculations} />
         </div>
       </section>
-      <section className="flex flex-col gap-3">
-        <SectionLabel>{t.soon}</SectionLabel>
-        <ul className="flex flex-wrap gap-2">
-          {t.modules.map((m) => (
-            <li key={m} className="rounded-md border border-line-strong px-2.5 py-1 text-sm text-ink-muted">
-              {m}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {t.modules.length ? (
+        <section className="flex flex-col gap-3">
+          <SectionLabel>{t.soon}</SectionLabel>
+          <ul className="flex flex-wrap gap-2">
+            {t.modules.map((m) => (
+              <li key={m} className="rounded-md border border-line-strong px-2.5 py-1 text-sm text-ink-muted">
+                {m}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </PageShell>
   );
 }
