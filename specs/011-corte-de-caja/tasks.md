@@ -4,48 +4,48 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y esquema
 
-- [ ] **T1 — Cálculo del corte**
+- [x] **T1 — Cálculo del corte**
   - RF: RF-18, RF-19, RF-21, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29
   - Depende de: —
   - Hecho cuando: `calc.test.ts` en verde, con la hoja de referencia.
-- [ ] **T2 — Migración y repositorios**
+- [x] **T2 — Migración y repositorios**
   - RF: RF-1, RF-7, RF-11, RF-12, RF-15
   - Depende de: —
   - Hecho cuando: `0009_corte_de_caja` aplica y el test de esquema comprueba tablas, únicos y checks.
 
 ## Entrega 2 — Servicios y API
 
-- [ ] **T3 — Configuración y formas de pago**
+- [x] **T3 — Configuración y formas de pago**
   - RF: RF-4, RF-6, RF-7, RF-8, RF-9, RF-10, RF-42
   - Depende de: T2
   - Hecho cuando: tests de integración de configuración y formas de pago en verde.
-- [ ] **T4 — Abrir, movimientos y conteo**
+- [x] **T4 — Abrir, movimientos y conteo**
   - RF: RF-1, RF-2, RF-3, RF-5, RF-11, RF-12, RF-13, RF-14, RF-15, RF-16, RF-17, RF-18, RF-19, RF-20, RF-21, RF-22, RF-42
   - Depende de: T1, T3
   - Hecho cuando: tests de integración de apertura, movimientos, cancelación y conteo en verde.
-- [ ] **T5 — Reporte, cierre, reapertura e historial**
+- [x] **T5 — Reporte, cierre, reapertura e historial**
   - RF: RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-34, RF-35, RF-36, RF-37, RF-38, RF-39, RF-40, RF-41, RF-42
   - Depende de: T4
   - Hecho cuando: tests de integración del reporte, el cierre, la reapertura y el historial en verde.
-- [ ] **T6 — Teléfono de piso a ciegas y rutas**
+- [x] **T6 — Teléfono de piso a ciegas y rutas**
   - RF: RF-30, RF-31, RF-32, RF-33
   - Depende de: T5
   - Hecho cuando: tests de integración y de API del teléfono (habilitado o no, sin datos del punto de venta) en verde.
 
 ## Entrega 3 — Pantallas
 
-- [ ] **T7 — Corte actual y conteo en pantalla**
+- [x] **T7 — Corte actual y conteo en pantalla**
   - RF: RF-11, RF-15, RF-17, RF-18, RF-20, RF-22, RF-31
   - Depende de: T6
   - Hecho cuando: se abre, se registran movimientos y se cuenta con el asistente, también en `/piso/caja`.
-- [ ] **T8 — Reporte, diferencias, historial y configuración**
+- [x] **T8 — Reporte, diferencias, historial y configuración**
   - RF: RF-6, RF-8, RF-10, RF-23, RF-26, RF-29, RF-34, RF-38, RF-40, RF-41
   - Depende de: T7
   - Hecho cuando: el administrador captura el reporte, ve las diferencias y cierra; el dueño configura y reabre; Corte de caja en «Más», menú lateral e inicio.
 
 ## Entrega 4 — Cierre
 
-- [ ] **T9 — E2E, barrido y validación**
+- [x] **T9 — E2E, barrido y validación**
   - RF: RF-1 a RF-42
   - Depende de: T8
   - Hecho cuando: `e2e/corte.spec.ts` y `qa-sweep` en verde en escritorio, `validation.md` 42 de 42 y `docs/reglas-de-negocio.md` en «Vigente».

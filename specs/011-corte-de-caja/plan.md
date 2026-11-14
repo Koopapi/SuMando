@@ -76,3 +76,13 @@ Ninguna nueva.
 ## 8. Entregas
 
 1. **Dominio y esquema**. 2. **Servicios y API**. 3. **Pantallas**. 4. **Cierre**.
+
+## Ajustes al construir
+
+- El asistente de conteo entrega al terminar («Terminar»); el borrador del conteo queda disponible por la API
+  (`count`) aunque la pantalla entrega de una vez.
+- Reabrir se rechaza si ya hay otro corte abierto en la sucursal (un solo corte no cerrado).
+- Corte de caja está en «Más» y en el menú lateral después de Checklists; el inicio lo suma en «Operación diaria»
+  y, sin módulos pendientes, deja de mostrar «Próximamente». En el teléfono de piso aparece si la sucursal lo
+  permite.
+

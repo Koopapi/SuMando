@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF) y 010 (49 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF) y 011 (42 RF) vigentes, con test en verde.
 
 ---
 
@@ -209,7 +209,7 @@ Origen: spec 010 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 9. Corte de caja
 
-Origen: spec 011 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 011 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Por sucursal, el dueño decide si hay un corte por día o varios, qué formas de pago tiene (Efectivo siempre, más
   terminales, transferencias y otras) y si el teléfono de piso hace cortes (RF-6 a RF-10).

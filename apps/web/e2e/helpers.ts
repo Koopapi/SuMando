@@ -182,3 +182,17 @@ export async function seedChecklist(branchId: string) {
   return { templateId: template.id as string, today };
 }
 
+/** Spec 011: formas de pago y un corte cerrado con su reporte, más uno abierto. */
+export async function seedCashCut(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  await call("/api/cash/settings", { mode: "multiple", floorEnabled: true, methods: [{ name: "BBVA 1" }, { name: "Transferencias" }] }, "PUT");
+  const { cut } = await call("/api/cash/cuts", { fund: "500" });
+  await call(`/api/cash/cuts/${cut.id}/movement`, { kind: "expense", concept: "Hielo", amount: "100" });
+  const amounts = Object.fromEntries(cut.methods.filter((m: { isCash: boolean }) => !m.isCash).map((m: { id: string }) => [m.id, "1000"]));
+  await call(`/api/cash/cuts/${cut.id}/deliver`, { pieces: { "100000": 1 }, amounts });
+  await call(`/api/cash/cuts/${cut.id}/pos`, { amounts: Object.fromEntries(cut.methods.map((m: { id: string }) => [m.id, "900"])) });
+  await call(`/api/cash/cuts/${cut.id}/close`, { note: "" });
+  await call("/api/cash/cuts", { fund: "300" });
+  return cut.id as string;
+}
+
