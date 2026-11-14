@@ -28,7 +28,7 @@ Botón (con estado ocupado), enlace con aspecto de botón (`LinkButton`), botón
 (`TextArea`), archivo (`FileField`), número, dinero, selector (con etiqueta oculta para lectores de pantalla cuando el renglón ya la muestra), casilla, selector de color,
 avisos en línea y flotantes (4 s el de guardado; el de error hasta cerrarlo), diálogo y panel lateral con foco
 atrapado, estados de cargando, vacío y error, insignias de estado y de negocio, rótulo, perilla, cabecera de página,
-fila de lista, bloque de negocio, barra inferior del teléfono (`BottomNav`, reserva `--nav-space`), tabla de datos (tarjetas bajo 1024 px), captura por renglones y asistente por pasos.
+fila de lista, bloque de negocio, barra inferior del teléfono (`BottomNav`, reserva `--nav-space`), tabla de datos (tarjetas bajo 1024 px), captura por renglones, asistente por pasos y día de nómina (`DayMark`: estado y retardo, 44 × 44 px cada uno).
 
 ## Reglas
 - Ninguna pantalla define colores, tamaños ni espacios propios: solo componentes y tokens (`styles.test.ts`).

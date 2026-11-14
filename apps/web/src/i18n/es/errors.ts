@@ -65,4 +65,13 @@ export const errors = {
   file_type: "El archivo debe ser una foto (JPG, PNG, HEIC o WEBP) o un PDF.",
   file_size: "El archivo no puede pasar de 10 MB.",
   owner_only: "Solo el dueño puede ver esto.",
+  invalid_week: "La semana de nómina empieza en lunes. Elige otra fecha.",
+  week_closed: "Esta semana ya está cerrada. Para cambiarla, el dueño tiene que reabrirla.",
+  week_not_closed: "Esta semana está abierta: no hay nada que reabrir.",
+  future_day: "Ese día todavía no pasa: no se puede marcar.",
+  outside_period: "Ese día el empleado no estaba trabajando (antes de su ingreso o después de su baja).",
+  weekly_over_amount: "El abono semanal no puede ser mayor que el monto del préstamo.",
+  close_negative: (p: { names: string }) => `No se puede cerrar: quedan con neto negativo ${p.names}. Ajusta comida o abonos.`,
+  close_missing_pay: (p: { names: string }) => `No se puede cerrar: ${p.names} tiene días marcados y no tiene sueldo por día.`,
+  close_loan_over: (p: { names: string }) => `No se puede cerrar: el abono es mayor que lo que debe ${p.names}.`,
 } as const;

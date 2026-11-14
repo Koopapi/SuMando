@@ -28,7 +28,7 @@ function Mark({ icon, current }: { icon: IconName; current: boolean }) {
  */
 export function BottomNav({ label, items, more }: { label: string; items: BottomNavItem[]; more: { label: string; current: boolean; expanded: boolean; onOpen: () => void } }) {
   return (
-    <nav data-bottom-nav aria-label={label} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom,0px)] lg:hidden">
+    <nav data-bottom-nav aria-label={label} className="fixed inset-x-0 bottom-0 z-30 print:hidden border-t border-line bg-surface pb-[env(safe-area-inset-bottom,0px)] lg:hidden">
       <ul className="mx-auto flex h-16 max-w-xl px-1">
         {items.map((item) => (
           <li key={item.href} className="flex min-w-0 flex-1 py-1">

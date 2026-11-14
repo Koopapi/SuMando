@@ -81,6 +81,7 @@ export default async function HomePage() {
         <SectionLabel>{es.personnel.homeLabel}</SectionLabel>
         <div className="grid lg:grid-cols-3 lg:gap-x-8">
           <ListRow href="/personal" icon="idcard" title={es.personnel.title} detail={es.personnel.homeDetail(staff.active, staff.incomplete)} />
+          <ListRow href="/nomina" icon="cash" title={es.payroll.title} detail={es.payroll.homeDetail} />
         </div>
       </section>
       <section className="flex flex-col gap-1">

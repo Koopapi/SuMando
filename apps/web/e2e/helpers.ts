@@ -148,3 +148,23 @@ export async function seedEmployee(branchId: string) {
   const { employee } = await call("/api/employees", { name: "Empleado de prueba", positionId: position.id, hiredOn: "2026-11-01", dailyPay: "400" });
   return employee.id as string;
 }
+
+/** Lunes de la semana pasada en la Ciudad de México (UTC−6), con el reloj real del E2E (spec 009). */
+export function lastMonday(): string {
+  const today = new Date(Date.now() - 6 * 3_600_000);
+  const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) - 7);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Spec 009: la semana pasada con días marcados, montos y un préstamo, para recorrer la nómina. */
+export async function seedPayroll(branchId: string, employeeId: string) {
+  const call = await ownerApiAt(branchId);
+  const week = lastMonday();
+  for (const day of [0, 1, 2]) await call(`/api/payroll/weeks/${week}/days`, { employeeId, day, state: "worked", late: day === 2 }, "PUT");
+  await call(`/api/payroll/weeks/${week}/days`, { employeeId, day: 3, state: "half" }, "PUT");
+  await call(`/api/payroll/weeks/${week}/lines/${employeeId}`, { extras: "200", bonus: "150", bonusConcept: "Bono de ventas", meal: "50" }, "PATCH");
+  await call(`/api/employees/${employeeId}/loans`, { lentOn: "2026-11-01", amount: "1000", weekly: "300" });
+  return week;
+}
+

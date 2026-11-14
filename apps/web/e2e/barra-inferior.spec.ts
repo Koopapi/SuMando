@@ -48,8 +48,8 @@ test("barra inferior en el teléfono", async ({ page }) => {
   await test.step("RF-46 «Más» abre el resto de la navegación (con Negocios y Personas para el dueño) y Cerrar sesión", async () => {
     await bar(page).getByRole("button", { name: "Más" }).click();
     const sheet = page.getByRole("dialog", { name: "Más" });
-    // Spec 004 suma Recetas e Insumos a «Más»; la 005, Inventario; la 007, Requisiciones; la 008, Personal.
-    await expect(sheet.getByRole("link")).toHaveText(["Inventario", "Requisiciones", "Personal", "Recetas", "Insumos", "Negocios", "Personas", "Cambiar contraseña"]);
+    // Spec 004 suma Recetas e Insumos a «Más»; la 005, Inventario; la 007, Requisiciones; la 008, Personal; la 009, Nómina.
+    await expect(sheet.getByRole("link")).toHaveText(["Inventario", "Requisiciones", "Personal", "Nómina", "Recetas", "Insumos", "Negocios", "Personas", "Cambiar contraseña"]);
     await expect(sheet.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
     await sheet.getByRole("link", { name: "Personas" }).click();
     await expect(page).toHaveURL(/\/personas$/);
@@ -67,7 +67,7 @@ test("barra inferior en el teléfono", async ({ page }) => {
     await page.goto("/");
     await bar(page).getByRole("button", { name: "Más" }).click();
     const sheet = page.getByRole("dialog", { name: "Más" });
-    await expect(sheet.getByRole("link")).toHaveText(["Inventario", "Requisiciones", "Personal", "Recetas", "Insumos", "Cambiar contraseña"]);
+    await expect(sheet.getByRole("link")).toHaveText(["Inventario", "Requisiciones", "Personal", "Nómina", "Recetas", "Insumos", "Cambiar contraseña"]);
     await expect(sheet.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
   });
 

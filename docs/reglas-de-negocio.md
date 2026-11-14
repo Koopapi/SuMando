@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF) y 008 (42 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF) y 009 (48 RF) vigentes, con test en verde.
 
 ---
 
@@ -169,6 +169,24 @@ Origen: spec 008 (aprobada el 13 de noviembre de 2026; construida y validada el 
   RF-27).
 - Baja con fecha y motivo (renuncia, despido, abandono, fin de temporada, otro con nota); el reingreso reactiva el
   mismo expediente con un periodo nuevo; el cambio de sucursal queda en el historial (RF-28 a RF-35).
+
+### Nómina
+
+Origen: spec 009 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- Una nómina por semana y sucursal, de lunes a domingo para todos los negocios (RF-1, RF-2).
+- El administrador marca días trabajados, medias jornadas y retardos; **solo el dueño** ve montos en pesos, captura
+  extras, bonos, comida y préstamos, cierra, reabre y obtiene la hoja de pago y el Excel (RF-4 a RF-7).
+- Pago de días = sueldo por día × días trabajados + media jornada × medias jornadas; **cada retardo descuenta media
+  jornada** del sueldo de la persona; neto = pago de días + extras + bonos − retardos − comida − abonos. Montos al
+  centavo, el medio centavo hacia arriba (RF-18 a RF-23).
+- No se marcan días futuros ni fuera del periodo de trabajo del empleado (RF-10, RF-16).
+- Préstamos con monto y abono semanal: el abono se propone solo cada semana (abono o saldo, el menor), el dueño lo
+  puede cambiar o poner en cero; al cerrar baja el saldo y al reabrir se devuelve exacto (RF-27 a RF-33, RF-39).
+- No se cierra con netos negativos, con alguien que tiene días y no tiene sueldo, o con un abono mayor que el saldo.
+  Cerrar congela todo; reabrir pide motivo (RF-35 a RF-40).
+- Hoja de pago con billetes de 1000 a 20 y monedas de 10 a 50 centavos por persona, totales por denominación, para
+  imprimir; Excel con una fila por persona y totales (RF-41 a RF-45).
 
 ## 8. Checklists
 
