@@ -85,6 +85,12 @@ const STATUS: Record<ErrorCode, number> = {
   not_today: 422,
   employee_required: 422,
   device_disabled: 401,
+  cut_open: 409,
+  cut_today: 409,
+  cut_state: 409,
+  cut_incomplete: 409,
+  floor_not_allowed: 403,
+  invalid_cash_pieces: 422,
 };
 
 export class AppError extends Error {

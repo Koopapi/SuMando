@@ -83,4 +83,10 @@ export const errors = {
   not_today: "Solo se llena la hoja de hoy.",
   employee_required: "Elige tu nombre antes de palomear.",
   device_disabled: "Este teléfono de piso ya no está habilitado. Pide a un administrador que lo vuelva a habilitar.",
+  cut_open: (p: { date: string }) => `Ya hay un corte abierto en esta sucursal (del ${p.date}). Ciérralo antes de abrir otro.`,
+  cut_today: "Esta sucursal hace un corte por día y el de hoy ya existe.",
+  cut_state: (p: { state: string }) => `No se puede: el corte está ${p.state}.`,
+  cut_incomplete: (p: { missing: string }) => `Para cerrar falta ${p.missing}.`,
+  floor_not_allowed: "En esta sucursal el corte de caja no se hace en el teléfono de piso.",
+  invalid_cash_pieces: "Las piezas de cada billete o moneda deben ser números enteros, de cero o más.",
 } as const;
