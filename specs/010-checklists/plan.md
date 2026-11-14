@@ -98,3 +98,14 @@ Ninguna nueva.
 ## 8. Entregas
 
 1. **Dominio y esquema**. 2. **Servicios y API**. 3. **Pantallas** (incluido `/piso`). 4. **Cierre**.
+
+## Ajustes al construir
+
+- Subir la foto de un punto lo deja palomeado; quitar la palomita conserva la foto (se cambia mientras la sección
+  no esté lista).
+- La elección del empleado en el teléfono de piso se recuerda en ese teléfono (`localStorage`) y viaja en cada
+  petición; el servidor comprueba que sea un empleado activo de la sucursal.
+- Checklists está en «Más» y en el menú lateral después de Nómina; el inicio suma la sección «Operación diaria» y
+  quita Checklists de «Próximamente».
+- El barrido de calidad no recorre `/piso` (pide la cookie del teléfono); lo cubre la E2E de la spec.
+

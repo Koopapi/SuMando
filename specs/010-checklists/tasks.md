@@ -4,30 +4,30 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Dominio y esquema
 
-- [ ] **T1 — Plantilla y días**
+- [x] **T1 — Plantilla y días**
   - RF: RF-6, RF-7, RF-10, RF-11, RF-16, RF-18
   - Depende de: —
   - Hecho cuando: `template.test.ts` en verde.
-- [ ] **T2 — Reglas de la hoja**
+- [x] **T2 — Reglas de la hoja**
   - RF: RF-19, RF-25, RF-26, RF-27, RF-28, RF-31, RF-33
   - Depende de: —
   - Hecho cuando: `sheet.test.ts` en verde.
-- [ ] **T3 — Migración y repositorios**
+- [x] **T3 — Migración y repositorios**
   - RF: RF-1, RF-15, RF-37
   - Depende de: —
   - Hecho cuando: `0008_checklists` aplica y el test de esquema comprueba tablas, únicos y checks.
 
 ## Entrega 2 — Servicios y API
 
-- [ ] **T4 — Plantillas**
+- [x] **T4 — Plantillas**
   - RF: RF-1, RF-2, RF-5, RF-6, RF-7, RF-8, RF-9, RF-10, RF-11, RF-12, RF-13, RF-14, RF-49
   - Depende de: T1, T3
   - Hecho cuando: tests de integración de alta, guardado completo, duplicados, archivados y permisos en verde.
-- [ ] **T5 — Hojas: abrir, palomear, foto, lista y cerrar**
+- [x] **T5 — Hojas: abrir, palomear, foto, lista y cerrar**
   - RF: RF-3, RF-4, RF-5, RF-15, RF-16, RF-17, RF-18, RF-19, RF-20, RF-21, RF-22, RF-23, RF-24, RF-25, RF-26, RF-27, RF-28, RF-29, RF-30, RF-31, RF-32, RF-33, RF-34, RF-35, RF-36, RF-46, RF-47, RF-48, RF-49
   - Depende de: T2, T4
   - Hecho cuando: tests de integración de la hoja completa, sus rechazos, el historial y las fotos en verde.
-- [ ] **T6 — Teléfono de piso**
+- [x] **T6 — Teléfono de piso**
   - RF: RF-37, RF-38, RF-39, RF-40, RF-41, RF-42, RF-43, RF-44, RF-45, RF-48, RF-49
   - Depende de: T5
   - Hecho cuando: tests de integración y de API del teléfono (solo checklists de hoy de su sucursal, empleado
@@ -35,15 +35,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Pantallas
 
-- [ ] **T7 — Plantillas en pantalla**
+- [x] **T7 — Plantillas en pantalla**
   - RF: RF-6, RF-9, RF-10, RF-11, RF-12, RF-13
   - Depende de: T4
   - Hecho cuando: el dueño arma y edita una plantilla con secciones, puntos clave y de foto.
-- [ ] **T8 — Hoy, hoja e historial**
+- [x] **T8 — Hoy, hoja e historial**
   - RF: RF-16, RF-19, RF-20, RF-22, RF-24, RF-25, RF-27, RF-28, RF-30, RF-32, RF-46, RF-47
   - Depende de: T5
   - Hecho cuando: un administrador llena, da por lista, reabre y cierra con pendientes; el historial lo muestra.
-- [ ] **T9 — Teléfono de piso en pantalla y navegación**
+- [x] **T9 — Teléfono de piso en pantalla y navegación**
   - RF: RF-37, RF-40, RF-43, RF-44, RF-45
   - Depende de: T6, T8
   - Hecho cuando: se habilita el teléfono, el empleado elige su nombre y llena en `/piso`; Checklists en «Más»,
@@ -51,7 +51,7 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 4 — Cierre
 
-- [ ] **T10 — E2E, volumen, barrido y validación**
+- [x] **T10 — E2E, volumen, barrido y validación**
   - RF: RF-1 a RF-49
   - Depende de: T9
   - Hecho cuando: `e2e/checklists.spec.ts` y `qa-sweep` en verde en escritorio, `validation.md` 49 de 49 y

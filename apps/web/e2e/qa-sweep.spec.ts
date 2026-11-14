@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedEmployee, seedInventory, seedPayroll, seedRecipes, seedRequisition } from "./helpers";
+import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedChecklist, seedEmployee, seedInventory, seedPayroll, seedRecipes, seedRequisition } from "./helpers";
 
 const VIEWPORTS = [
   { name: "escritorio", width: 1360, height: 950 },
@@ -100,6 +100,8 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   const employeeId = await seedEmployee(pastatti.branches[0].id);
   // Spec 009: la semana pasada con días, montos y un préstamo.
   const week = await seedPayroll(pastatti.branches[0].id, employeeId);
+  // Spec 010: una plantilla con su hoja de hoy empezada.
+  const sheet = await seedChecklist(pastatti.branches[0].id);
   const catalog = [
     "/productos",
     `/productos/${productId}`,
@@ -139,6 +141,13 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/nomina",
     `/nomina/${week}`,
     "/nomina/semanas",
+    "/checklists",
+    `/checklists/${sheet.templateId}/${sheet.today}`,
+    "/checklists/historial",
+    "/checklists/plantillas",
+    "/checklists/plantillas/nueva",
+    `/checklists/plantillas/${sheet.templateId}`,
+    "/checklists/telefonos",
   ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog, `/nomina/${week}/hoja-de-pago`], problems, async (page) => {

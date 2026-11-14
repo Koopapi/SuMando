@@ -168,3 +168,17 @@ export async function seedPayroll(branchId: string, employeeId: string) {
   return week;
 }
 
+/** Spec 010: una plantilla de todos los días con su hoja de hoy empezada. */
+export async function seedChecklist(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  const { template } = await call("/api/checklist-templates", {
+    name: "Apertura",
+    days: [0, 1, 2, 3, 4, 5, 6],
+    branchIds: [branchId],
+    sections: [{ name: "Barra", items: [{ text: "Hielo listo", kind: "check", isKey: true }, { text: "Refrigerador", kind: "photo" }, { text: "Observaciones", kind: "comment" }] }],
+  });
+  const today = new Date(Date.now() - 6 * 3_600_000).toISOString().slice(0, 10);
+  await call(`/api/checklists/${template.id}/${today}/check`, { itemId: template.sections[0].items[0].id });
+  return { templateId: template.id as string, today };
+}
+

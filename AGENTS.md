@@ -46,6 +46,8 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
 - CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `main`.
 - Nómina (spec 009): `domain/payroll` (semana, cálculo, préstamos, billetes) y `server/services/payroll`; la vista del
   administrador nunca lleva montos. Excel de salida con `server/adapters/xlsx-writer.ts`.
+- Checklists (spec 010): el teléfono de piso es una sesión aparte (`mando_floor`) que solo acepta
+  `server/auth/checklist-actor.ts`; sus pantallas viven en `/piso`, fuera de `(app)`.
 - Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones
