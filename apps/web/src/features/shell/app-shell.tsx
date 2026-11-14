@@ -37,6 +37,8 @@ function destinations(user: PublicUser) {
     ["/inventario", t.inventory, "layers"],
     ["/requisiciones", t.requisitions, "cart"],
     ["/personal", t.personnel, "idcard"],
+    ["/nomina", t.payroll, "cash"],
+    ["/checklists", t.checklists, "clipboard"],
     ["/recetas", t.recipes, "recipe"],
     ["/insumos", t.supplies, "calculator"],
     ...(user.role === "owner"
@@ -82,8 +84,8 @@ export function AppShell({ user, active, children }: { user: PublicUser; active:
   const shortLabel = (href: string, label: string) => (href === "/almacenes" ? t.placesShort : label);
   const label = active ? t.activeBranch(active.business, active.branch) : t.noBranch;
   return (
-    <div className="pb-(--nav-space) lg:pl-64">
-      <aside className="bg-band text-on-band lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto lg:px-3.5 lg:py-5">
+    <div className="pb-(--nav-space) lg:pl-64 print:p-0">
+      <aside className="bg-band text-on-band print:hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto lg:px-3.5 lg:py-5">
         <div className="flex items-center gap-3 px-5 pt-3 lg:px-2 lg:pt-0 lg:pb-5">
           <Link href="/" className="flex min-h-11 items-center gap-2.5">
             <LogoMark size={30} bare />

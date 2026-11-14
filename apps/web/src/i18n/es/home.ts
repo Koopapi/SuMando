@@ -11,7 +11,7 @@ export const home = {
   businessesDetail: (b: number, br: number) => `${b} ${b === 1 ? "negocio" : "negocios"} · ${br} ${br === 1 ? "sucursal" : "sucursales"}`,
   peopleDetail: (n: number, pending: number) => `${n} ${n === 1 ? "persona" : "personas"}${pending ? ` · ${pending} ${pending === 1 ? "pendiente" : "pendientes"} de contraseña` : ""}`,
   soon: "Próximamente",
-  modules: ["Nómina", "Checklists", "Corte de caja"],
+  modules: ["Corte de caja"],
   catalogLabel: "Catálogo",
   recipesLabel: "Recetario",
   recipesDetail: (n: number) => `${n} ${n === 1 ? "receta activa" : "recetas activas"}`,

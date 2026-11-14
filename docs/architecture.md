@@ -92,6 +92,28 @@ Lo construido en la spec 008:
   claves aleatorias sin datos de la persona) y en memoria en las pruebas (`tests/fakes/files.ts`). El tipo se decide
   por la firma del contenido. Se sirven solo al dueño con `Cache-Control: private, no-store`.
 
+Lo construido en la spec 009:
+
+- **Nómina**: `server/services/payroll`; una semana por sucursal y lunes (`payroll_weeks`), un renglón por empleado
+  (`payroll_lines`) y un día marcado por fila (`payroll_days`, así dos personas no se pisan). El cálculo es puro en
+  `domain/payroll/calc.ts` (centavos, media jornada con el medio centavo hacia arriba) y cada cambio devuelve la
+  semana recalculada. El administrador recibe la vista sin ningún monto; montos, préstamos, cierre, hoja de pago y
+  Excel responden `owner_only`. Cerrar congela lo calculado en el renglón y aplica los abonos (`loan_payments`,
+  `applied`); reabrir los devuelve al saldo. Cambios con cerrojo de aviso por sucursal y semana.
+- **Excel de salida**: `server/adapters/xlsx-writer.ts` escribe una hoja sin dependencias (zip con `node:zlib`).
+- **Hoja de pago**: página imprimible; el menú lateral y la barra inferior llevan `print:hidden`.
+
+Lo construido en la spec 010:
+
+- **Checklists**: `server/services/checklists`; plantillas del negocio guardadas completas (lo que no llega se
+  archiva) y hojas que copian la plantilla al abrirse (`checklist_sheet_sections`, `checklist_sheet_items`), así
+  editar no cambia hojas abiertas ni el historial. Abrir y cada marca van con cerrojo de aviso por plantilla,
+  sucursal y fecha. Fotos con el puerto `FileStore` (claves «negocio/uuid»).
+- **Teléfono de piso**: cookie `mando_floor` con token aleatorio (en BD solo su hash, `floor_devices`), no es una
+  cuenta. `server/auth/checklist-actor.ts` decide si una ruta de checklists la llama una persona o un teléfono;
+  ninguna otra ruta acepta la cookie, y el proxy manda al teléfono a `/piso` (fuera de `(app)`, sin menú). Al
+  habilitarlo se cierra la sesión de la persona en ese teléfono.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

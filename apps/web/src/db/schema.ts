@@ -896,6 +896,305 @@ export const employeeFiles = pgTable(
   (t) => [index("employee_files_employee_idx").on(t.employeeId, t.documentTypeId), uniqueIndex("employee_files_storage_key_unique").on(t.storageKey)],
 );
 
+// Nómina semanal (spec 009): una por sucursal y lunes; al cerrar se congela el total (RF-1, RF-2, RF-35).
+export const PAYROLL_WEEK_STATUS = ["open", "closed"] as const;
+export const payrollWeeks = pgTable(
+  "payroll_weeks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    weekStart: date("week_start", { mode: "string" }).notNull(),
+    status: varchar("status", { length: 6 }).$type<(typeof PAYROLL_WEEK_STATUS)[number]>().notNull(),
+    totalCents: bigint("total_cents", { mode: "bigint" }),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("payroll_weeks_branch_start_unique").on(t.branchId, t.weekStart),
+    check("payroll_weeks_status_check", sql`${t.status} in ('open', 'closed')`),
+    check("payroll_weeks_monday", sql`extract(isodow from ${t.weekStart}) = 1`),
+  ],
+);
+
+// Un renglón por empleado y semana; los montos capturados y, al cerrar, lo calculado congelado (RF-20, RF-35).
+export const payrollLines = pgTable(
+  "payroll_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => payrollWeeks.id),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id),
+    extrasCents: bigint("extras_cents", { mode: "bigint" }).notNull().default(sql`0`),
+    bonusCents: bigint("bonus_cents", { mode: "bigint" }).notNull().default(sql`0`),
+    bonusConcept: varchar("bonus_concept", { length: 80 }),
+    mealCents: bigint("meal_cents", { mode: "bigint" }).notNull().default(sql`0`),
+    dailyPayCents: bigint("daily_pay_cents", { mode: "bigint" }),
+    positionName: varchar("position_name", { length: 80 }),
+    daysCount: smallint("days_count"),
+    halfCount: smallint("half_count"),
+    lateCount: smallint("late_count"),
+    daysCents: bigint("days_cents", { mode: "bigint" }),
+    lateCents: bigint("late_cents", { mode: "bigint" }),
+    loanCents: bigint("loan_cents", { mode: "bigint" }),
+    netCents: bigint("net_cents", { mode: "bigint" }),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("payroll_lines_week_employee_unique").on(t.weekId, t.employeeId),
+    index("payroll_lines_employee_idx").on(t.employeeId),
+    check("payroll_lines_amounts", sql`${t.extrasCents} >= 0 and ${t.bonusCents} >= 0 and ${t.mealCents} >= 0`),
+  ],
+);
+
+// Un día marcado (RF-13, RF-14): 0 = lunes … 6 = domingo; un día vacío no tiene fila.
+export const payrollDays = pgTable(
+  "payroll_days",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    lineId: uuid("line_id")
+      .notNull()
+      .references(() => payrollLines.id),
+    day: smallint("day").notNull(),
+    state: varchar("state", { length: 6 }).$type<"worked" | "half">().notNull(),
+    late: boolean("late").notNull().default(false),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("payroll_days_line_day_unique").on(t.lineId, t.day),
+    check("payroll_days_day_range", sql`${t.day} between 0 and 6`),
+    check("payroll_days_state_check", sql`${t.state} in ('worked', 'half')`),
+  ],
+);
+
+// Préstamos con abono semanal (RF-27 a RF-33).
+export const loans = pgTable(
+  "loans",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id),
+    lentOn: date("lent_on", { mode: "string" }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "bigint" }).notNull(),
+    weeklyCents: bigint("weekly_cents", { mode: "bigint" }).notNull(),
+    balanceCents: bigint("balance_cents", { mode: "bigint" }).notNull(),
+    settledAt: timestamp("settled_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    index("loans_employee_idx").on(t.employeeId),
+    check("loans_amounts", sql`${t.amountCents} > 0 and ${t.weeklyCents} > 0 and ${t.weeklyCents} <= ${t.amountCents} and ${t.balanceCents} >= 0 and ${t.balanceCents} <= ${t.amountCents}`),
+  ],
+);
+
+// Abono de un préstamo en una semana: fijado por el dueño o escrito al cerrar (`applied`) (RF-30 a RF-32, RF-39).
+export const loanPayments = pgTable(
+  "loan_payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    loanId: uuid("loan_id")
+      .notNull()
+      .references(() => loans.id),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => payrollWeeks.id),
+    amountCents: bigint("amount_cents", { mode: "bigint" }).notNull(),
+    applied: boolean("applied").notNull().default(false),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("loan_payments_loan_week_unique").on(t.loanId, t.weekId), index("loan_payments_week_idx").on(t.weekId), check("loan_payments_amount", sql`${t.amountCents} >= 0`)],
+);
+
+// Checklists (spec 010): plantillas del negocio, con sus sucursales y días (máscara, 0 = lunes) (RF-1, RF-6 a RF-8).
+export const checklistTemplates = pgTable(
+  "checklist_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    nameKey: varchar("name_key", { length: 80 }).notNull(),
+    daysMask: smallint("days_mask").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("checklist_templates_active_name_unique").on(t.businessId, t.nameKey).where(sql`archived_at is null`),
+    check("checklist_templates_days", sql`${t.daysMask} between 1 and 127`),
+  ],
+);
+
+export const checklistTemplateBranches = pgTable(
+  "checklist_template_branches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => checklistTemplates.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+  },
+  (t) => [uniqueIndex("checklist_template_branches_unique").on(t.templateId, t.branchId), index("checklist_template_branches_branch_idx").on(t.branchId)],
+);
+
+export const checklistSections = pgTable(
+  "checklist_sections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => checklistTemplates.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    positionId: uuid("position_id").references(() => positions.id),
+    sort: integer("sort").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+  },
+  (t) => [index("checklist_sections_template_idx").on(t.templateId)],
+);
+
+export const CHECKLIST_ITEM_KINDS = ["check", "photo", "comment"] as const;
+export const checklistItems = pgTable(
+  "checklist_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sectionId: uuid("section_id")
+      .notNull()
+      .references(() => checklistSections.id),
+    text: varchar("text", { length: 200 }).notNull(),
+    kind: varchar("kind", { length: 8 }).$type<(typeof CHECKLIST_ITEM_KINDS)[number]>().notNull(),
+    isKey: boolean("is_key").notNull().default(false),
+    sort: integer("sort").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("checklist_items_section_idx").on(t.sectionId),
+    check("checklist_items_kind_check", sql`${t.kind} in ('check', 'photo', 'comment')`),
+    check("checklist_items_key_kind", sql`not ${t.isKey} or ${t.kind} <> 'comment'`),
+  ],
+);
+
+// Teléfono de piso (RF-37 a RF-44): sesión de una sucursal, sin cuenta; en BD solo el hash de su token.
+export const floorDevices = pgTable(
+  "floor_devices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 40 }).notNull(),
+    tokenHash: text("token_hash").notNull(),
+    enabledBy: uuid("enabled_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    disabledAt: timestamp("disabled_at", { withTimezone: true }),
+    disabledBy: uuid("disabled_by").references(() => users.id),
+  },
+  (t) => [uniqueIndex("floor_devices_token_hash_unique").on(t.tokenHash), index("floor_devices_branch_idx").on(t.branchId)],
+);
+
+// La hoja de un día (RF-15): una por plantilla, sucursal y fecha; al cerrar con pendientes guarda qué faltó (RF-33).
+export const checklistSheets = pgTable(
+  "checklist_sheets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => checklistTemplates.id),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    date: date("date", { mode: "string" }).notNull(),
+    templateName: varchar("template_name", { length: 80 }).notNull(),
+    status: varchar("status", { length: 6 }).$type<"open" | "closed">().notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+    pending: jsonb("pending"),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("checklist_sheets_day_unique").on(t.templateId, t.branchId, t.date),
+    index("checklist_sheets_branch_idx").on(t.branchId, t.date),
+    check("checklist_sheets_status_check", sql`${t.status} in ('open', 'closed')`),
+  ],
+);
+
+// Copia de las secciones al abrir la hoja y quién la dio por lista (RF-15, RF-27, RF-41).
+export const checklistSheetSections = pgTable(
+  "checklist_sheet_sections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sheetId: uuid("sheet_id")
+      .notNull()
+      .references(() => checklistSheets.id),
+    sectionId: uuid("section_id")
+      .notNull()
+      .references(() => checklistSections.id),
+    name: varchar("name", { length: 80 }).notNull(),
+    positionId: uuid("position_id").references(() => positions.id),
+    sort: integer("sort").notNull(),
+    readyAt: timestamp("ready_at", { withTimezone: true }),
+    readyBy: varchar("ready_by", { length: 160 }),
+    readyUserId: uuid("ready_user_id").references(() => users.id),
+    readyEmployeeId: uuid("ready_employee_id").references(() => employees.id),
+    readyDeviceId: uuid("ready_device_id").references(() => floorDevices.id),
+  },
+  (t) => [uniqueIndex("checklist_sheet_sections_unique").on(t.sheetId, t.sectionId)],
+);
+
+// Copia de los puntos al abrir y lo que se marcó en cada uno (RF-15, RF-20 a RF-24, RF-41).
+export const checklistSheetItems = pgTable(
+  "checklist_sheet_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sheetSectionId: uuid("sheet_section_id")
+      .notNull()
+      .references(() => checklistSheetSections.id),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => checklistItems.id),
+    text: varchar("text", { length: 200 }).notNull(),
+    kind: varchar("kind", { length: 8 }).$type<(typeof CHECKLIST_ITEM_KINDS)[number]>().notNull(),
+    isKey: boolean("is_key").notNull(),
+    sort: integer("sort").notNull(),
+    done: boolean("done").notNull().default(false),
+    comment: varchar("comment", { length: 500 }),
+    photoKey: varchar("photo_key", { length: 80 }),
+    photoType: varchar("photo_type", { length: 40 }),
+    markedAt: timestamp("marked_at", { withTimezone: true }),
+    markedBy: varchar("marked_by", { length: 160 }),
+    markedUserId: uuid("marked_user_id").references(() => users.id),
+    markedEmployeeId: uuid("marked_employee_id").references(() => employees.id),
+    markedDeviceId: uuid("marked_device_id").references(() => floorDevices.id),
+  },
+  (t) => [uniqueIndex("checklist_sheet_items_unique").on(t.sheetSectionId, t.itemId), uniqueIndex("checklist_sheet_items_photo_unique").on(t.photoKey)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -935,3 +1234,16 @@ export type Employee = typeof employees.$inferSelect;
 export type EmployeePeriod = typeof employeePeriods.$inferSelect;
 export type DocumentType = typeof documentTypes.$inferSelect;
 export type EmployeeFile = typeof employeeFiles.$inferSelect;
+export type PayrollWeek = typeof payrollWeeks.$inferSelect;
+export type PayrollLine = typeof payrollLines.$inferSelect;
+export type PayrollDay = typeof payrollDays.$inferSelect;
+export type Loan = typeof loans.$inferSelect;
+export type LoanPayment = typeof loanPayments.$inferSelect;
+export type ChecklistTemplate = typeof checklistTemplates.$inferSelect;
+export type ChecklistTemplateBranch = typeof checklistTemplateBranches.$inferSelect;
+export type ChecklistSection = typeof checklistSections.$inferSelect;
+export type ChecklistItem = typeof checklistItems.$inferSelect;
+export type FloorDevice = typeof floorDevices.$inferSelect;
+export type ChecklistSheet = typeof checklistSheets.$inferSelect;
+export type ChecklistSheetSection = typeof checklistSheetSections.$inferSelect;
+export type ChecklistSheetItem = typeof checklistSheetItems.$inferSelect;

@@ -122,3 +122,42 @@ describe("spec 008 — esquema", () => {
     expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["replaced_at", "retired_at", "retire_reason", "storage_key"]));
   });
 });
+
+describe("spec 009 — esquema", () => {
+  it("test_s009_rf1_una_semana_por_sucursal_y_lunes", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["payroll_weeks", "payroll_lines", "payroll_days", "loans", "loan_payments"]));
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('payroll_weeks_branch_start_unique', 'payroll_lines_week_employee_unique', 'payroll_days_line_day_unique', 'loan_payments_loan_week_unique')`;
+    expect(idx).toHaveLength(4);
+  });
+
+  it("test_s009_rf20_la_base_rechaza_montos_negativos_y_semanas_que_no_empiezan_en_lunes", async () => {
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('payroll_weeks_monday', 'payroll_lines_amounts', 'payroll_days_day_range', 'loans_amounts', 'loan_payments_amount')`;
+    expect(checks).toHaveLength(5);
+  });
+
+  it("test_s009_rf27_el_saldo_del_prestamo_no_pasa_del_monto_ni_baja_de_cero", async () => {
+    const [c] = await sql<{ def: string }[]>`select pg_get_constraintdef(oid) as def from pg_constraint where conname = 'loans_amounts'`;
+    expect(c.def).toMatch(/balance_cents >= 0/);
+    expect(c.def).toMatch(/balance_cents <= amount_cents/);
+  });
+});
+
+describe("spec 010 — esquema", () => {
+  it("test_s010_rf1_rf15_las_tablas_de_checklists_existen", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["checklist_templates", "checklist_template_branches", "checklist_sections", "checklist_items", "checklist_sheets", "checklist_sheet_sections", "checklist_sheet_items", "floor_devices"]));
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('checklist_templates_active_name_unique', 'checklist_sheets_day_unique', 'checklist_sheet_items_unique', 'floor_devices_token_hash_unique')`;
+    expect(idx).toHaveLength(4);
+  });
+
+  it("test_s010_rf37_el_telefono_de_piso_guarda_solo_el_hash_de_su_token", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'floor_devices'`;
+    const names = cols.map((c) => c.column_name);
+    expect(names).toContain("token_hash");
+    expect(names).not.toContain("token");
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('checklist_templates_days', 'checklist_items_kind_check', 'checklist_items_key_kind')`;
+    expect(checks).toHaveLength(3);
+  });
+});
+

@@ -21,6 +21,8 @@ export const shell = {
   inventory: "Inventario",
   requisitions: "Requisiciones",
   personnel: "Personal",
+  payroll: "Nómina",
+  checklists: "Checklists",
   password: "Cambiar contraseña",
   chooseTitle: "Elegir sucursal",
   chooseIntro: "¿En qué sucursal vas a trabajar?",

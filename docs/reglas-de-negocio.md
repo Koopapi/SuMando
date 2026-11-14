@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF) y 008 (42 RF) vigentes, con test en verde.
+Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF) y 010 (49 RF) vigentes, con test en verde.
 
 ---
 
@@ -170,7 +170,42 @@ Origen: spec 008 (aprobada el 13 de noviembre de 2026; construida y validada el 
 - Baja con fecha y motivo (renuncia, despido, abandono, fin de temporada, otro con nota); el reingreso reactiva el
   mismo expediente con un periodo nuevo; el cambio de sucursal queda en el historial (RF-28 a RF-35).
 
+### Nómina
+
+Origen: spec 009 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- Una nómina por semana y sucursal, de lunes a domingo para todos los negocios (RF-1, RF-2).
+- El administrador marca días trabajados, medias jornadas y retardos; **solo el dueño** ve montos en pesos, captura
+  extras, bonos, comida y préstamos, cierra, reabre y obtiene la hoja de pago y el Excel (RF-4 a RF-7).
+- Pago de días = sueldo por día × días trabajados + media jornada × medias jornadas; **cada retardo descuenta media
+  jornada** del sueldo de la persona; neto = pago de días + extras + bonos − retardos − comida − abonos. Montos al
+  centavo, el medio centavo hacia arriba (RF-18 a RF-23).
+- No se marcan días futuros ni fuera del periodo de trabajo del empleado (RF-10, RF-16).
+- Préstamos con monto y abono semanal: el abono se propone solo cada semana (abono o saldo, el menor), el dueño lo
+  puede cambiar o poner en cero; al cerrar baja el saldo y al reabrir se devuelve exacto (RF-27 a RF-33, RF-39).
+- No se cierra con netos negativos, con alguien que tiene días y no tiene sueldo, o con un abono mayor que el saldo.
+  Cerrar congela todo; reabrir pide motivo (RF-35 a RF-40).
+- Hoja de pago con billetes de 1000 a 20 y monedas de 10 a 50 centavos por persona, totales por denominación, para
+  imprimir; Excel con una fila por persona y totales (RF-41 a RF-45).
+
 ## 8. Checklists
+
+Origen: spec 010 (aprobada el 13 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- Plantillas por negocio, las que se quieran, cada una con sus sucursales y días de la semana; secciones con puesto
+  responsable opcional y puntos de palomita, palomita con foto o comentario; las palomitas pueden ser clave (RF-6 a
+  RF-11). Lo que se quita se archiva y los cambios solo afectan hojas nuevas (RF-13, RF-14).
+- Una hoja por plantilla, sucursal y fecha de la Ciudad de México; se abre con la primera marca y copia la plantilla
+  (RF-15 a RF-18).
+- Cada marca guarda quién y la hora del servidor. «Todo en orden» no toca puntos clave ni de foto; «Sección lista»
+  exige todos los clave y bloquea la sección hasta que un administrador la reabra (RF-20 a RF-30).
+- La hoja se cierra sola con la última sección lista; un administrador puede cerrarla con pendientes, que quedan a
+  la vista. La hoja de un día anterior solo se puede cerrar (RF-31 a RF-36).
+- **Teléfono de piso**: un administrador lo habilita en la sucursal y queda así hasta que lo deshabiliten; solo
+  abre las hojas de hoy de su sucursal; el empleado elige su nombre de Personal, sin contraseña, y se guardan su
+  nombre y el del teléfono (RF-37 a RF-45).
+- Las fotos solo las ven el dueño, los administradores de la sucursal y el teléfono de piso mientras la hoja está
+  abierta (RF-48).
 
 ## 9. Corte de caja
 

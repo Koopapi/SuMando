@@ -2,6 +2,8 @@
 // datos, que la persona debe cambiar su contraseña temporal, para que el proxy pueda redirigir sin consultar la BD.
 export const SESSION_COOKIE = "mando_session";
 export const PASSWORD_CHANGE_COOKIE = "mando_pwchange";
+// Spec 010: el teléfono de piso lleva su propia cookie (token opaco); no es una sesión de persona.
+export const FLOOR_COOKIE = "mando_floor";
 
 // Secure fuera de desarrollo; el E2E corre compilado sobre http://localhost y lo apaga con COOKIE_SECURE=0.
 const secure = () => (process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === "1" : process.env.NODE_ENV === "production");
@@ -17,6 +19,15 @@ export function clearSessionCookie(): string {
 
 export function passwordChangeCookie(on: boolean): string {
   return on ? `${PASSWORD_CHANGE_COOKIE}=1; ${base()}; Max-Age=${30 * 86_400}` : `${PASSWORD_CHANGE_COOKIE}=; ${base()}; Max-Age=0`;
+}
+
+/** Teléfono de piso (RF-42): vale hasta que lo deshabiliten; la cookie dura diez años. */
+export function floorCookie(token: string): string {
+  return `${FLOOR_COOKIE}=${token}; ${base()}; Max-Age=${10 * 365 * 86_400}`;
+}
+
+export function clearFloorCookie(): string {
+  return `${FLOOR_COOKIE}=; ${base()}; Max-Age=0`;
 }
 
 export function parseCookies(header: string | null): Record<string, string> {
