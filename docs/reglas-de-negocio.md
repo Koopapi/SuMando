@@ -209,4 +209,19 @@ Origen: spec 010 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 9. Corte de caja
 
+Origen: spec 011 (aprobada el 13 de noviembre de 2026). Estado: **Aprobada**.
+
+- Por sucursal, el dueño decide si hay un corte por día o varios, qué formas de pago tiene (Efectivo siempre, más
+  terminales, transferencias y otras) y si el teléfono de piso hace cortes (RF-6 a RF-10).
+- Un solo corte abierto a la vez por sucursal; abre con fondo inicial; durante el turno, gastos, retiros e ingresos
+  (dinero que entra sin ser venta) con concepto libre; se cancelan con motivo, sin borrar (RF-11 a RF-17).
+- Conteo del efectivo por piezas de $1,000 a 50 centavos y de cada forma de pago; al entregarlo se congela. En el
+  teléfono de piso se cuenta **a ciegas**: nunca ve el reporte del punto de venta, lo esperado ni las diferencias
+  (RF-18 a RF-22, RF-30 a RF-33).
+- Efectivo esperado = efectivo del punto de venta + fondo + ingresos − gastos − retiros. Diferencia por forma de
+  pago = contado − reportado (efectivo: contado − esperado); se marcan en rojo, sin tolerancia ni motivo. Venta antes
+  de gastos = efectivo contado − fondo − ingresos + gastos + retiros + demás formas; después = antes − gastos −
+  retiros (RF-23 a RF-29).
+- Cerrar exige el conteo entregado y el reporte capturado; solo el dueño reabre, con motivo (RF-34 a RF-39).
+
 ## 10. Reportes
