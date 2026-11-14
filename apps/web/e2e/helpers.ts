@@ -148,3 +148,51 @@ export async function seedEmployee(branchId: string) {
   const { employee } = await call("/api/employees", { name: "Empleado de prueba", positionId: position.id, hiredOn: "2026-11-01", dailyPay: "400" });
   return employee.id as string;
 }
+
+/** Lunes de la semana pasada en la Ciudad de México (UTC−6), con el reloj real del E2E (spec 009). */
+export function lastMonday(): string {
+  const today = new Date(Date.now() - 6 * 3_600_000);
+  const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) - 7);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Spec 009: la semana pasada con días marcados, montos y un préstamo, para recorrer la nómina. */
+export async function seedPayroll(branchId: string, employeeId: string) {
+  const call = await ownerApiAt(branchId);
+  const week = lastMonday();
+  for (const day of [0, 1, 2]) await call(`/api/payroll/weeks/${week}/days`, { employeeId, day, state: "worked", late: day === 2 }, "PUT");
+  await call(`/api/payroll/weeks/${week}/days`, { employeeId, day: 3, state: "half" }, "PUT");
+  await call(`/api/payroll/weeks/${week}/lines/${employeeId}`, { extras: "200", bonus: "150", bonusConcept: "Bono de ventas", meal: "50" }, "PATCH");
+  await call(`/api/employees/${employeeId}/loans`, { lentOn: "2026-11-01", amount: "1000", weekly: "300" });
+  return week;
+}
+
+/** Spec 010: una plantilla de todos los días con su hoja de hoy empezada. */
+export async function seedChecklist(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  const { template } = await call("/api/checklist-templates", {
+    name: "Apertura",
+    days: [0, 1, 2, 3, 4, 5, 6],
+    branchIds: [branchId],
+    sections: [{ name: "Barra", items: [{ text: "Hielo listo", kind: "check", isKey: true }, { text: "Refrigerador", kind: "photo" }, { text: "Observaciones", kind: "comment" }] }],
+  });
+  const today = new Date(Date.now() - 6 * 3_600_000).toISOString().slice(0, 10);
+  await call(`/api/checklists/${template.id}/${today}/check`, { itemId: template.sections[0].items[0].id });
+  return { templateId: template.id as string, today };
+}
+
+/** Spec 011: formas de pago y un corte cerrado con su reporte, más uno abierto. */
+export async function seedCashCut(branchId: string) {
+  const call = await ownerApiAt(branchId);
+  await call("/api/cash/settings", { mode: "multiple", floorEnabled: true, methods: [{ name: "BBVA 1" }, { name: "Transferencias" }] }, "PUT");
+  const { cut } = await call("/api/cash/cuts", { fund: "500" });
+  await call(`/api/cash/cuts/${cut.id}/movement`, { kind: "expense", concept: "Hielo", amount: "100" });
+  const amounts = Object.fromEntries(cut.methods.filter((m: { isCash: boolean }) => !m.isCash).map((m: { id: string }) => [m.id, "1000"]));
+  await call(`/api/cash/cuts/${cut.id}/deliver`, { pieces: { "100000": 1 }, amounts });
+  await call(`/api/cash/cuts/${cut.id}/pos`, { amounts: Object.fromEntries(cut.methods.map((m: { id: string }) => [m.id, "900"])) });
+  await call(`/api/cash/cuts/${cut.id}/close`, { note: "" });
+  await call("/api/cash/cuts", { fund: "300" });
+  return cut.id as string;
+}
+

@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Browser, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedEmployee, seedInventory, seedRecipes, seedRequisition } from "./helpers";
+import { OWNER, login, seedAdmin, seedBusiness, seedCatalog, seedOwner, seedCashCut, seedChecklist, seedEmployee, seedInventory, seedPayroll, seedRecipes, seedRequisition } from "./helpers";
 
 const VIEWPORTS = [
   { name: "escritorio", width: 1360, height: 950 },
@@ -98,6 +98,12 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   const requisitionId = await seedRequisition(pastatti.branches[0].id, productId, inv.warehouseId);
   // Spec 008: un empleado con su expediente.
   const employeeId = await seedEmployee(pastatti.branches[0].id);
+  // Spec 009: la semana pasada con días, montos y un préstamo.
+  const week = await seedPayroll(pastatti.branches[0].id, employeeId);
+  // Spec 010: una plantilla con su hoja de hoy empezada.
+  const sheet = await seedChecklist(pastatti.branches[0].id);
+  // Spec 011: un corte cerrado y uno abierto.
+  const cutId = await seedCashCut(pastatti.branches[0].id);
   const catalog = [
     "/productos",
     `/productos/${productId}`,
@@ -134,9 +140,23 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     `/personal/${employeeId}`,
     "/personal/documentos",
     "/personal/puestos",
+    "/nomina",
+    `/nomina/${week}`,
+    "/nomina/semanas",
+    "/checklists",
+    `/checklists/${sheet.templateId}/${sheet.today}`,
+    "/checklists/historial",
+    "/checklists/plantillas",
+    "/checklists/plantillas/nueva",
+    `/checklists/plantillas/${sheet.templateId}`,
+    "/checklists/telefonos",
+    "/caja",
+    "/caja/historial",
+    `/caja/${cutId}`,
+    "/caja/configuracion",
   ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
-  await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog], problems, async (page) => {
+  await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog, `/nomina/${week}/hoja-de-pago`], problems, async (page) => {
     await login(page, OWNER.email, OWNER.password);
     await page.goto("/elegir-sucursal");
     await page.getByRole("button", { name: "Trabajar en Pastatti · Sendero" }).click();
