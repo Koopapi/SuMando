@@ -1268,6 +1268,9 @@ export const cashCuts = pgTable(
     closedBy: uuid("closed_by").references(() => users.id),
     note: varchar("note", { length: 300 }),
     snapshot: jsonb("snapshot"),
+    // Spec 012, RF-47 a RF-49: el dueño marca revisado un corte con diferencia; la marca se quita al reabrir.
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedBy: uuid("reviewed_by").references(() => users.id),
     ...timestamps,
   },
   (t) => [

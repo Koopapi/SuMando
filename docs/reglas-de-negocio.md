@@ -224,4 +224,20 @@ Origen: spec 011 (aprobada el 13 de noviembre de 2026; construida y validada el 
   retiros (RF-23 a RF-29).
 - Cerrar exige el conteo entregado y el reporte capturado; solo el dueño reabre, con motivo (RF-34 a RF-39).
 
-## 10. Reportes
+## 10. Tablero y reportes
+
+Origen: spec 012 (aprobada el 15 de noviembre de 2026). Estado: **Aprobada**.
+
+- El dueño ve el tablero de todos sus negocios y sucursales; el administrador, solo Alertas y Ventas de sus
+  sucursales, sin gastos de caja, nómina ni lo que queda (RF-2 a RF-5). Es la única pantalla que junta negocios.
+- Secciones Alertas, Ventas, Gastos de caja, Nómina y Lo que queda; el detalle se abre en la misma pantalla con el
+  total general arriba y una fila por negocio, que se desglosa por sucursal (RF-7 a RF-10, RF-21 a RF-24).
+- Periodos Hoy, Esta semana, Este mes y rango libre de hasta 366 días que no pase de hoy; se comparan con el
+  periodo anterior de la misma duración (semana y mes, con los mismos días transcurridos) (RF-11 a RF-20).
+- Venta = venta antes de gastos de los cortes cerrados por su fecha; gastos de caja = gastos no cancelados, sin
+  retiros ni ingresos; nómina = total de las semanas cerradas, cada una en el periodo de su domingo; lo que queda =
+  ventas − gastos − nómina (RF-25 a RF-36).
+- Alertas al momento: existencia bajo el mínimo, requisiciones solicitadas o aprobadas por recibir, semanas
+  terminadas sin cerrar y cortes cerrados con cualquier diferencia; esta última solo se quita cuando el dueño marca
+  el corte como revisado, y la marca se pierde si el corte se reabre (RF-37 a RF-50).
+- Exportar a Excel la sección abierta, solo con lo que puede ver quien exporta (RF-51 a RF-54).
