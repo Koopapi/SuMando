@@ -10,6 +10,8 @@ import { stockAlerts } from "@/server/services/inventory/stock";
 import { pendingIncoming } from "@/server/services/inventory/transfers";
 import { requisitionCounts } from "@/server/services/requisitions/requisitions";
 import { currentCut } from "@/server/services/cash/cuts";
+import { dashboardAlerts } from "@/server/services/reports/alerts";
+import { dashboardScope } from "@/server/services/reports/scope";
 import { todayChecklists } from "@/server/services/checklists/sheets";
 import { personnelCounts } from "@/server/services/personnel/employees";
 import { listCalculations } from "@/server/services/recipes/calculations";
@@ -39,6 +41,7 @@ export default async function HomePage() {
   const scope = { actor: user, active };
   const [catalog, recipes, calculations, alerts, pending] = await Promise.all([catalogView(ctx, scope), listRecipes(ctx, scope), listCalculations(ctx, scope), stockAlerts(ctx, scope), pendingIncoming(ctx, scope)]);
   const [reqCounts, staff, todayLists, openCut] = await Promise.all([requisitionCounts(ctx, scope), personnelCounts(ctx, scope), todayChecklists(ctx, { kind: "user", scope }), currentCut(ctx, { kind: "user", scope })]);
+  const dashboard = await dashboardAlerts(ctx, await dashboardScope(ctx, user));
   const activeCount = (list: { archived: boolean }[]) => list.filter((x) => !x.archived).length;
   return (
     <PageShell title={t.title} subtitle={t.greeting(user.name)}>
@@ -89,6 +92,7 @@ export default async function HomePage() {
       <section className="flex flex-col gap-1">
         <SectionLabel>{es.checklists.homeLabel}</SectionLabel>
         <div className="grid lg:grid-cols-3 lg:gap-x-8">
+          <ListRow href="/tablero" icon="chart" title={es.dashboard.title} detail={es.dashboard.homeDetail(dashboard.total)} />
           <ListRow href="/checklists" icon="clipboard" title={es.checklists.title} detail={es.checklists.homeDetail(todayLists.length)} />
           <ListRow href="/caja" icon="cash" title={es.cash.title} detail={es.cash.homeDetail(openCut !== null)} />
         </div>

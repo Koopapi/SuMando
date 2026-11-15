@@ -26,6 +26,7 @@ const PATHS = {
   more: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
   recipe: "M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4",
   calculator: "M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01",
+  chart: "M4 20h16M7 16v-5M12 16V6M17 16v-8",
   history: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2",
   upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
   clipboard: "M9 4h6v3H9zM7 5H5v16h14V5h-2M8.5 12l2 2 4-4M8 18h8",
