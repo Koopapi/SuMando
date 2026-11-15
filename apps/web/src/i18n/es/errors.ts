@@ -89,4 +89,7 @@ export const errors = {
   cut_incomplete: (p: { missing: string }) => `Para cerrar falta ${p.missing}.`,
   floor_not_allowed: "En esta sucursal el corte de caja no se hace en el teléfono de piso.",
   invalid_cash_pieces: "Las piezas de cada billete o moneda deben ser números enteros, de cero o más.",
+  range_order: "La fecha final debe ser igual o posterior a la inicial.",
+  range_too_long: (p: { max: number }) => `El rango puede abarcar como máximo ${p.max} días.`,
+  range_future: "El rango no puede pasar de hoy.",
 } as const;

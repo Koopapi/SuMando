@@ -91,6 +91,9 @@ const STATUS: Record<ErrorCode, number> = {
   cut_incomplete: 409,
   floor_not_allowed: 403,
   invalid_cash_pieces: 422,
+  range_order: 422,
+  range_too_long: 422,
+  range_future: 422,
 };
 
 export class AppError extends Error {
