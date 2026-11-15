@@ -95,3 +95,14 @@ Ninguna nueva.
 
 1. **Dominio y esquema**: periodos, alertas puras, migración. 2. **Servicios y API**. 3. **Pantallas**. 4. **Cierre**:
 E2E, barrido, volumen, validación.
+
+## Ajustes al construir
+
+- El tablero está en «Más» y en el menú lateral como primer destino, con el ícono nuevo `chart`; el inicio suma la
+  fila «Tablero» con el número de alertas en «Operación diaria».
+- Tocar la sección abierta la cierra; tocar otra cambia el detalle (RF-9). Un rango inválido en la dirección se
+  explica con un aviso y el tablero vuelve a Hoy.
+- La marca de revisado se pide con `POST /api/cash/cuts/[id]/review` (la ruta de acciones del corte) desde el
+  detalle del corte; marcarla dos veces deja una sola.
+- Las cifras por forma de pago se agrupan por nombre entre sucursales; la venta en efectivo descuenta fondo e
+  ingresos y devuelve gastos y retiros, así la suma de las formas es la venta antes de gastos.

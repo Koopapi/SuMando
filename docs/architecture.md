@@ -122,6 +122,16 @@ Lo construido en la spec 011:
   `requireChecklistActor` y la configuración de la sucursal decide si puede; su vista llega ciega del servidor (sin
   reporte, esperado, diferencias ni ventas). Al cerrar se guarda en `snapshot` lo que mostraba el corte.
 
+Lo construido en la spec 012:
+
+- **Tablero**: `server/services/reports` es la única capa que junta negocios (constitución, principio 6). Su alcance
+  sale de `accessibleFor` (sucursales activas de negocios activos que la persona ve) y el administrador solo recibe
+  alertas y ventas; las demás secciones responden 403. Las cifras se calculan al momento desde los cortes cerrados
+  (`cutFigures`) y las semanas cerradas (cada una en el periodo de su domingo); los periodos y la comparación son
+  puros en `domain/reports`. La página `/tablero` es un Server Component con el periodo y la sección en la dirección;
+  una alerta cambia la sucursal activa con `PUT /api/session/branch` antes de abrir su módulo. El corte guarda la
+  marca de revisado del dueño (`reviewed_at`, `reviewed_by`), que se borra al reabrir.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

@@ -226,7 +226,7 @@ Origen: spec 011 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ## 10. Tablero y reportes
 
-Origen: spec 012 (aprobada el 15 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 012 (aprobada el 15 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - El dueño ve el tablero de todos sus negocios y sucursales; el administrador, solo Alertas y Ventas de sus
   sucursales, sin gastos de caja, nómina ni lo que queda (RF-2 a RF-5). Es la única pantalla que junta negocios.
