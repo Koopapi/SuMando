@@ -74,4 +74,13 @@ export const errors = {
   close_negative: (p: { names: string }) => `No se puede cerrar: quedan con neto negativo ${p.names}. Ajusta comida o abonos.`,
   close_missing_pay: (p: { names: string }) => `No se puede cerrar: ${p.names} tiene días marcados y no tiene sueldo por día.`,
   close_loan_over: (p: { names: string }) => `No se puede cerrar: el abono es mayor que lo que debe ${p.names}.`,
+  template_scope: "Elige al menos una sucursal y un día de la semana.",
+  key_pending: (p: { count: number }) => (p.count === 1 ? "Falta 1 punto clave por palomear." : `Faltan ${p.count} puntos clave por palomear.`),
+  photo_required: "Este punto pide una foto: tómala para palomearlo.",
+  section_ready: "Esta sección ya está lista. Para cambiarla, un administrador tiene que reabrirla.",
+  sheet_closed: "Esta hoja ya está cerrada.",
+  sheet_past: "Esta hoja es de un día anterior: ya no se llena, solo se puede cerrar.",
+  not_today: "Solo se llena la hoja de hoy.",
+  employee_required: "Elige tu nombre antes de palomear.",
+  device_disabled: "Este teléfono de piso ya no está habilitado. Pide a un administrador que lo vuelva a habilitar.",
 } as const;

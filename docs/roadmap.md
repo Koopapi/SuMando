@@ -24,7 +24,7 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 | 007 | Requisiciones | Solicitud → aprobación → compra → recepción que entra al inventario; historial y estados; crear una requisición desde un cálculo del recetario **Hecha** |
 | 008 | Personal | Expediente de empleados por negocio, los 13 documentos del expediente, puestos, altas y bajas con motivo **Hecha** |
 | 009 | Nómina | Semana de nómina: días y medias jornadas por pago diario capturados por el administrador, retardos con descuento, extras, bonos, comida, préstamos con abono semanal, hoja de pago con billetes, cerrar y reabrir, historial **Hecha** |
-| 010 | Checklists | Plantillas de apertura y cierre por sección con responsable, puntos clave, hoja del día, cierre y reapertura, historial |
+| 010 | Checklists | Plantillas de apertura y cierre por sección con responsable, puntos clave, hoja del día, cierre y reapertura, historial **Hecha** |
 | 011 | Corte de caja | El corte asistido de Pirrus adaptado a Mando: apertura con fondo inicial, lo que reporta el punto de venta en efectivo y tarjeta, conteo de efectivo por denominación, tarjetas por terminal, transferencias y otros, movimientos de caja (gastos, retiros, ingresos), diferencias con tolerancia, motivo cuando no cuadra, firma e historial por sucursal |
 | 012 | Tablero y reportes | Vista por negocio y consolidada, alertas (existencias bajas, requisiciones pendientes, nómina por cerrar, cortes con diferencia), exportar |
 | 013 | Operación | Respaldos cifrados y restauración, monitoreo de errores, aviso de despliegue, lista de lanzamiento |
@@ -38,6 +38,8 @@ semana, tolerancia del corte, quién puede qué) van dentro de la spec que las u
 ## Decisiones tomadas (11 de noviembre de 2026)
 
 - **Acceso**: solo administrativos, con correo y contraseña. Sin PIN ni checador; se descartó la spec de asistencia.
+  Cambio aprobado en la spec 010 (13 de noviembre de 2026): un **teléfono de piso** habilitado por un administrador
+  deja al personal llenar los checklists de hoy de su sucursal eligiendo su nombre, sin cuenta ni contraseña.
 - **Roles**: dueño (entra a todos los negocios, crea negocios, invita y asigna roles, ve todo) y administrador
   (solo en los negocios donde se le asignó; opera inventario, requisiciones, personal, nómina y checklists).
   El detalle de qué puede cada rol en cada módulo se fija en la spec de ese módulo.

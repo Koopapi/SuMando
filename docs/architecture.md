@@ -103,6 +103,17 @@ Lo construido en la spec 009:
 - **Excel de salida**: `server/adapters/xlsx-writer.ts` escribe una hoja sin dependencias (zip con `node:zlib`).
 - **Hoja de pago**: página imprimible; el menú lateral y la barra inferior llevan `print:hidden`.
 
+Lo construido en la spec 010:
+
+- **Checklists**: `server/services/checklists`; plantillas del negocio guardadas completas (lo que no llega se
+  archiva) y hojas que copian la plantilla al abrirse (`checklist_sheet_sections`, `checklist_sheet_items`), así
+  editar no cambia hojas abiertas ni el historial. Abrir y cada marca van con cerrojo de aviso por plantilla,
+  sucursal y fecha. Fotos con el puerto `FileStore` (claves «negocio/uuid»).
+- **Teléfono de piso**: cookie `mando_floor` con token aleatorio (en BD solo su hash, `floor_devices`), no es una
+  cuenta. `server/auth/checklist-actor.ts` decide si una ruta de checklists la llama una persona o un teléfono;
+  ninguna otra ruta acepta la cookie, y el proxy manda al teléfono a `/piso` (fuera de `(app)`, sin menú). Al
+  habilitarlo se cierra la sesión de la persona en ese teléfono.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

@@ -76,6 +76,15 @@ const STATUS: Record<ErrorCode, number> = {
   close_negative: 409,
   close_missing_pay: 409,
   close_loan_over: 409,
+  template_scope: 422,
+  key_pending: 409,
+  photo_required: 422,
+  section_ready: 409,
+  sheet_closed: 409,
+  sheet_past: 409,
+  not_today: 422,
+  employee_required: 422,
+  device_disabled: 401,
 };
 
 export class AppError extends Error {

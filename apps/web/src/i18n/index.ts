@@ -3,6 +3,7 @@
 import { auth } from "./es/auth";
 import { businesses } from "./es/businesses";
 import { catalog } from "./es/catalog";
+import { checklists } from "./es/checklists";
 import { recipes } from "./es/recipes";
 import { requisitions } from "./es/requisitions";
 import { common } from "./es/common";
@@ -16,7 +17,7 @@ import { personnel } from "./es/personnel";
 import { shell } from "./es/shell";
 import { system } from "./es/system";
 
-export const es = { auth, businesses, catalog, common, errors, home, inventory, offline, payroll, people, personnel, recipes, requisitions, shell, system } as const;
+export const es = { auth, businesses, catalog, checklists, common, errors, home, inventory, offline, payroll, people, personnel, recipes, requisitions, shell, system } as const;
 export type Dictionary = typeof es;
 export type ErrorCode = keyof typeof errors;
 
