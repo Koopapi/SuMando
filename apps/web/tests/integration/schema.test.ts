@@ -161,3 +161,19 @@ describe("spec 010 — esquema", () => {
   });
 });
 
+describe("spec 011 — esquema", () => {
+  it("test_s011_rf1_rf12_un_solo_corte_abierto_por_sucursal", async () => {
+    const rows = await sql<{ tablename: string }[]>`select tablename from pg_tables where schemaname = 'public'`;
+    expect(rows.map((r) => r.tablename)).toEqual(expect.arrayContaining(["cash_settings", "payment_methods", "cash_cuts", "cash_cut_methods", "cash_movements"]));
+    const [idx] = await sql<{ indexdef: string }[]>`select indexdef from pg_indexes where indexname = 'cash_cuts_one_open_unique'`;
+    expect(idx.indexdef).toMatch(/status\)::text <> 'closed'/);
+  });
+
+  it("test_s011_rf7_rf15_efectivo_unico_y_montos_positivos", async () => {
+    const idx = await sql<{ indexname: string }[]>`select indexname from pg_indexes where indexname in ('payment_methods_cash_unique', 'payment_methods_active_name_unique')`;
+    expect(idx).toHaveLength(2);
+    const checks = await sql<{ conname: string }[]>`select conname from pg_constraint where conname in ('cash_movements_amount', 'cash_cuts_fund', 'cash_cut_methods_amounts')`;
+    expect(checks).toHaveLength(3);
+  });
+});
+

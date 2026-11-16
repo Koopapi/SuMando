@@ -1195,6 +1195,136 @@ export const checklistSheetItems = pgTable(
   (t) => [uniqueIndex("checklist_sheet_items_unique").on(t.sheetSectionId, t.itemId), uniqueIndex("checklist_sheet_items_photo_unique").on(t.photoKey)],
 );
 
+// Corte de caja (spec 011): configuración por sucursal (RF-6, RF-10).
+export const cashSettings = pgTable(
+  "cash_settings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    mode: varchar("mode", { length: 8 }).$type<"daily" | "multiple">().notNull(),
+    floorEnabled: boolean("floor_enabled").notNull().default(false),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("cash_settings_branch_unique").on(t.branchId), check("cash_settings_mode_check", sql`${t.mode} in ('daily', 'multiple')`)],
+);
+
+// Formas de pago de la sucursal; Efectivo (`is_cash`) siempre existe (RF-7 a RF-9).
+export const paymentMethods = pgTable(
+  "payment_methods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    name: varchar("name", { length: 40 }).notNull(),
+    nameKey: varchar("name_key", { length: 40 }).notNull(),
+    isCash: boolean("is_cash").notNull().default(false),
+    sort: integer("sort").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("payment_methods_active_name_unique").on(t.branchId, t.nameKey).where(sql`archived_at is null`),
+    uniqueIndex("payment_methods_cash_unique").on(t.branchId).where(sql`is_cash`),
+  ],
+);
+
+// Un corte: abierto → contado → cerrado; uno no cerrado por sucursal (RF-11 a RF-14, RF-22, RF-34 a RF-39).
+export const cashCuts = pgTable(
+  "cash_cuts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    date: date("date", { mode: "string" }).notNull(),
+    status: varchar("status", { length: 8 }).$type<"open" | "counted" | "closed">().notNull(),
+    openingFundCents: bigint("opening_fund_cents", { mode: "bigint" }).notNull(),
+    cashPieces: jsonb("cash_pieces").$type<Record<string, number>>(),
+    openedAt: timestamp("opened_at", { withTimezone: true }).notNull(),
+    openedBy: varchar("opened_by", { length: 160 }).notNull(),
+    openedUserId: uuid("opened_user_id").references(() => users.id),
+    openedEmployeeId: uuid("opened_employee_id").references(() => employees.id),
+    openedDeviceId: uuid("opened_device_id").references(() => floorDevices.id),
+    countedAt: timestamp("counted_at", { withTimezone: true }),
+    countedBy: varchar("counted_by", { length: 160 }),
+    countedUserId: uuid("counted_user_id").references(() => users.id),
+    countedEmployeeId: uuid("counted_employee_id").references(() => employees.id),
+    countedDeviceId: uuid("counted_device_id").references(() => floorDevices.id),
+    posAt: timestamp("pos_at", { withTimezone: true }),
+    posBy: uuid("pos_by").references(() => users.id),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+    note: varchar("note", { length: 300 }),
+    snapshot: jsonb("snapshot"),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("cash_cuts_one_open_unique").on(t.branchId).where(sql`status <> 'closed'`),
+    index("cash_cuts_branch_idx").on(t.branchId, t.date),
+    check("cash_cuts_status_check", sql`${t.status} in ('open', 'counted', 'closed')`),
+    check("cash_cuts_fund", sql`${t.openingFundCents} >= 0`),
+  ],
+);
+
+// Formas de pago del corte, copiadas al abrir, con lo contado y lo que reporta el punto de venta (RF-20, RF-23).
+export const cashCutMethods = pgTable(
+  "cash_cut_methods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cutId: uuid("cut_id")
+      .notNull()
+      .references(() => cashCuts.id),
+    methodId: uuid("method_id")
+      .notNull()
+      .references(() => paymentMethods.id),
+    name: varchar("name", { length: 40 }).notNull(),
+    isCash: boolean("is_cash").notNull(),
+    sort: integer("sort").notNull(),
+    countedCents: bigint("counted_cents", { mode: "bigint" }),
+    posCents: bigint("pos_cents", { mode: "bigint" }),
+  },
+  (t) => [uniqueIndex("cash_cut_methods_unique").on(t.cutId, t.methodId), check("cash_cut_methods_amounts", sql`(${t.countedCents} is null or ${t.countedCents} >= 0) and (${t.posCents} is null or ${t.posCents} >= 0)`)],
+);
+
+// Gastos, retiros e ingresos de caja; se cancelan con motivo, sin borrarse (RF-15 a RF-17).
+export const cashMovements = pgTable(
+  "cash_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cutId: uuid("cut_id")
+      .notNull()
+      .references(() => cashCuts.id),
+    kind: varchar("kind", { length: 10 }).$type<"expense" | "withdrawal" | "income">().notNull(),
+    concept: varchar("concept", { length: 80 }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "bigint" }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    createdBy: varchar("created_by", { length: 160 }).notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    employeeId: uuid("employee_id").references(() => employees.id),
+    deviceId: uuid("device_id").references(() => floorDevices.id),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    cancelledBy: varchar("cancelled_by", { length: 160 }),
+    cancelReason: varchar("cancel_reason", { length: 200 }),
+  },
+  (t) => [
+    index("cash_movements_cut_idx").on(t.cutId),
+    check("cash_movements_kind_check", sql`${t.kind} in ('expense', 'withdrawal', 'income')`),
+    check("cash_movements_amount", sql`${t.amountCents} > 0`),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -1247,3 +1377,8 @@ export type FloorDevice = typeof floorDevices.$inferSelect;
 export type ChecklistSheet = typeof checklistSheets.$inferSelect;
 export type ChecklistSheetSection = typeof checklistSheetSections.$inferSelect;
 export type ChecklistSheetItem = typeof checklistSheetItems.$inferSelect;
+export type CashSettings = typeof cashSettings.$inferSelect;
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type CashCut = typeof cashCuts.$inferSelect;
+export type CashCutMethod = typeof cashCutMethods.$inferSelect;
+export type CashMovement = typeof cashMovements.$inferSelect;

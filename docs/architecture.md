@@ -114,6 +114,14 @@ Lo construido en la spec 010:
   ninguna otra ruta acepta la cookie, y el proxy manda al teléfono a `/piso` (fuera de `(app)`, sin menú). Al
   habilitarlo se cierra la sesión de la persona en ese teléfono.
 
+Lo construido en la spec 011:
+
+- **Corte de caja**: `server/services/cash`; configuración y formas de pago por sucursal (Efectivo se crea con la
+  primera lectura), un corte no cerrado por sucursal (índice único parcial) que copia las formas de pago al abrir.
+  El cálculo es puro en `domain/cash/calc.ts` con las denominaciones de la nómina. El teléfono de piso entra por
+  `requireChecklistActor` y la configuración de la sucursal decide si puede; su vista llega ciega del servidor (sin
+  reporte, esperado, diferencias ni ventas). Al cerrar se guarda en `snapshot` lo que mostraba el corte.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

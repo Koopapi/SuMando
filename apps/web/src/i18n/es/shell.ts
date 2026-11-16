@@ -23,6 +23,7 @@ export const shell = {
   personnel: "Personal",
   payroll: "Nómina",
   checklists: "Checklists",
+  cash: "Corte de caja",
   password: "Cambiar contraseña",
   chooseTitle: "Elegir sucursal",
   chooseIntro: "¿En qué sucursal vas a trabajar?",

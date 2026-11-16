@@ -64,6 +64,13 @@
       "when": 1794619768008,
       "tag": "0008_checklists",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794621999252,
+      "tag": "0009_corte_de_caja",
+      "breakpoints": true
     }
   ]
 }

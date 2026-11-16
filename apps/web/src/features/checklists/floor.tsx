@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { es } from "@/i18n";
 import type { FloorEmployeeView } from "@/server/services/checklists/floor";
 import type { SheetView, TodayView } from "@/server/services/checklists/sheets";
-import { Alert, Button, EmptyState, LoadingState, PageHeader } from "@/ui";
+import { Alert, Button, EmptyState, ListRow, LoadingState, PageHeader } from "@/ui";
 import { api } from "../api";
 import { TodayList } from "./lists";
 import { SheetBoard } from "./sheet-board";
@@ -16,7 +16,7 @@ import { SheetBoard } from "./sheet-board";
 const t = es.checklists;
 const KEY = "mando.piso.empleado";
 
-function readChosen(): string | null {
+export function readFloorEmployee(): string | null {
   try {
     return localStorage.getItem(KEY);
   } catch {
@@ -33,11 +33,11 @@ function writeChosen(id: string | null) {
   }
 }
 
-export function FloorHome({ device, employees, today, items }: { device: string; employees: FloorEmployeeView[]; today: string; items: TodayView[] }) {
+export function FloorHome({ device, employees, today, items, cash = false }: { device: string; employees: FloorEmployeeView[]; today: string; items: TodayView[]; cash?: boolean }) {
   const [chosen, setChosen] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    const id = readChosen();
+    const id = readFloorEmployee();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- la elección vive en este teléfono y solo se lee al montar.
     setChosen(id && employees.some((e) => e.id === id) ? id : null);
     setReady(true);
@@ -82,6 +82,7 @@ export function FloorHome({ device, employees, today, items }: { device: string;
         {t.floorChange}
       </Button>
       <TodayList items={items} today={today} hrefOf={(id) => `/piso/${id}`} />
+      {cash ? <ListRow href="/piso/caja" icon="cash" title={es.cash.floorLink} detail={es.cash.introFloor} /> : null}
     </>
   );
 }
@@ -92,7 +93,7 @@ export function FloorSheet({ templateId, today }: { templateId: string; today: s
   const [employee, setEmployee] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const id = readChosen();
+    const id = readFloorEmployee();
     if (!id) {
       router.replace("/piso");
       return;
