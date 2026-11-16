@@ -183,6 +183,19 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
         <div className="flex flex-col gap-2">
           {cut.closedAt && cut.closedBy ? <p className="text-sm text-ink-muted">{t.closedLine(at(cut.closedAt), cut.closedBy)}</p> : null}
           {cut.note ? <p className="whitespace-pre-line">{cut.note}</p> : null}
+          {cut.reviewedAt && cut.reviewedBy ? (
+            <p className="text-sm font-semibold text-success" data-testid="cut-reviewed">
+              {es.dashboard.reviewed(cut.reviewedBy, at(cut.reviewedAt))}
+            </p>
+          ) : null}
+          {cut.canReview ? (
+            <div className="flex flex-col gap-1">
+              <Button variant="secondary" className="self-start" loading={busy} onClick={() => void act("review", {})}>
+                {es.dashboard.review}
+              </Button>
+              <p className="text-sm text-ink-muted">{es.dashboard.reviewHint}</p>
+            </div>
+          ) : null}
           {cut.canReopen ? (
             <Button variant="secondary" className="self-start" onClick={() => (setError(null), setModal({ kind: "reopen" }))}>
               {t.reopen}

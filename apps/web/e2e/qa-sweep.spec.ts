@@ -154,6 +154,10 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/caja/historial",
     `/caja/${cutId}`,
     "/caja/configuracion",
+    "/tablero",
+    "/tablero?seccion=alerts",
+    "/tablero?seccion=sales",
+    "/tablero?seccion=remaining&periodo=month",
   ];
   await sweep(browser, ["/login", "/offline", "/sistema", "/sistema/tabla", "/sistema/captura", "/sistema/asistente", "/no-existe"], problems);
   await sweep(browser, ["/elegir-sucursal", "/", "/negocios", "/personas", "/cambiar-contrasena", ...catalog, `/nomina/${week}/hoja-de-pago`], problems, async (page) => {

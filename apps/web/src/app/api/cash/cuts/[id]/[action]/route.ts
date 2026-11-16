@@ -4,7 +4,7 @@ import { appCtx } from "@/server/app-context";
 import { requireChecklistActor } from "@/server/auth/checklist-actor";
 import { AppError } from "@/server/errors";
 import { handler, readJson } from "@/server/http";
-import { addMovement, cancelMovement, capturePos, closeCut, deliverCount, reopenCut, saveCount } from "@/server/services/cash/cuts";
+import { addMovement, cancelMovement, capturePos, closeCut, deliverCount, reopenCut, reviewCut, saveCount } from "@/server/services/cash/cuts";
 
 const body = z.object({
   employeeId: z.string().nullish(),
@@ -40,6 +40,8 @@ export const POST = handler(async (request: Request, { params }: { params: Promi
         return closeCut(ctx, actor, id, input.note);
       case "reopen":
         return reopenCut(ctx, actor, id, input.reason);
+      case "review":
+        return reviewCut(ctx, actor, id);
       default:
         throw new AppError("not_found");
     }

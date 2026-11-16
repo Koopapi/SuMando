@@ -2,6 +2,7 @@
 // ciega: nunca lleva el reporte del punto de venta, lo esperado, las diferencias ni las ventas (RF-32).
 import type { CashCut, CashCutMethod, CashMovement } from "@/db/schema";
 import { isOwner } from "@/domain/access/owner";
+import { cutHasDifference } from "@/domain/reports/alerts";
 import { cleanPieces, CONCEPT_MAX, cutFigures, MOVEMENT_KINDS, NOTE_MAX, piecesTotal, sumMovements, type MovementKind } from "@/domain/cash/calc";
 import { writtenReason } from "@/domain/inventory/movement";
 import { todayInMexico } from "@/domain/personnel/documents";
@@ -63,6 +64,10 @@ export interface CutView {
   note: string | null;
   blind: boolean;
   canReopen: boolean;
+  /** Spec 012, RF-47, RF-48: marca de revisado del dueño (solo personas). */
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+  canReview?: boolean;
 }
 
 export interface CutSummaryView {
@@ -117,7 +122,7 @@ function figuresOf(l: Loaded) {
 
 async function viewOf(ctx: Ctx, actor: ChecklistActor, l: Loaded): Promise<CutView> {
   const blind = actor.kind === "device";
-  const users = l.cut.closedBy ? await ctx.store.users.list() : [];
+  const users = l.cut.closedBy || l.cut.reviewedBy ? await ctx.store.users.list() : [];
   const { m, f, cashCounted } = figuresOf(l);
   const posCaptured = l.cut.posAt !== null;
   const showFigures = !blind && posCaptured;
@@ -151,6 +156,13 @@ async function viewOf(ctx: Ctx, actor: ChecklistActor, l: Loaded): Promise<CutVi
     note: blind ? null : l.cut.note,
     blind,
     canReopen: actor.kind === "user" && isOwner(actor.scope.actor) && l.cut.status === "closed",
+    ...(blind
+      ? {}
+      : {
+          reviewedAt: l.cut.reviewedAt?.toISOString() ?? null,
+          reviewedBy: l.cut.reviewedBy ? (users.find((u) => u.id === l.cut.reviewedBy)?.name ?? null) : null,
+          canReview: actor.kind === "user" && isOwner(actor.scope.actor) && l.cut.status === "closed" && !l.cut.reviewedAt && cutHasDifference(f.differences),
+        }),
   };
 }
 
@@ -314,8 +326,20 @@ export async function reopenCut(ctx: Ctx, actor: ChecklistActor, cutId: unknown,
   return change(ctx, actor, cutId, ["closed"], async (repos, l, now) => {
     const open = await repos.cash.cuts.findOpen(l.cut.branchId);
     if (open) throw new AppError("cut_open", { date: open.date });
-    await repos.cash.cuts.update(l.cut.id, { status: "counted", closedAt: null, closedBy: null, snapshot: null, updatedAt: now });
+    // Spec 012, RF-49: la marca de revisado no sobrevive a la reapertura.
+    await repos.cash.cuts.update(l.cut.id, { status: "counted", closedAt: null, closedBy: null, snapshot: null, reviewedAt: null, reviewedBy: null, updatedAt: now });
     await audit(repos, now, actor, l.cut, "cash_cut.reopened", { reason }, { status: "closed" });
+  });
+}
+
+/** Spec 012, RF-47, RF-48, RF-55: solo el dueño marca como revisado un corte cerrado; marcarlo otra vez no cambia nada. */
+export async function reviewCut(ctx: Ctx, actor: ChecklistActor, cutId: unknown): Promise<CutView> {
+  const a = userOnly(actor);
+  if (!isOwner(a.scope.actor)) throw new AppError("owner_only");
+  return change(ctx, actor, cutId, ["closed"], async (repos, l, now) => {
+    if (l.cut.reviewedAt) return;
+    await repos.cash.cuts.update(l.cut.id, { reviewedAt: now, reviewedBy: a.scope.actor.id, updatedAt: now });
+    await audit(repos, now, actor, l.cut, "cash_cut.reviewed", { reviewedBy: a.scope.actor.name }, { reviewedAt: null });
   });
 }
 
