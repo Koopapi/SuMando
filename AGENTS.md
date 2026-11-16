@@ -44,6 +44,8 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
 - Imagen de producción: `docker build -t mando .` desde la raíz; migra sola al arrancar (`MIGRATE_ON_START=1`, ver
   `src/instrumentation.ts`). Pasos de Coolify en `docs/despliegue.md`.
 - CI: `.github/workflows/ci.yml` corre lint, tipos, Vitest y el E2E de escritorio en cada pull request y en `main`.
+- Nómina (spec 009): `domain/payroll` (semana, cálculo, préstamos, billetes) y `server/services/payroll`; la vista del
+  administrador nunca lleva montos. Excel de salida con `server/adapters/xlsx-writer.ts`.
 - Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones

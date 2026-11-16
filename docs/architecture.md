@@ -92,6 +92,17 @@ Lo construido en la spec 008:
   claves aleatorias sin datos de la persona) y en memoria en las pruebas (`tests/fakes/files.ts`). El tipo se decide
   por la firma del contenido. Se sirven solo al dueño con `Cache-Control: private, no-store`.
 
+Lo construido en la spec 009:
+
+- **Nómina**: `server/services/payroll`; una semana por sucursal y lunes (`payroll_weeks`), un renglón por empleado
+  (`payroll_lines`) y un día marcado por fila (`payroll_days`, así dos personas no se pisan). El cálculo es puro en
+  `domain/payroll/calc.ts` (centavos, media jornada con el medio centavo hacia arriba) y cada cambio devuelve la
+  semana recalculada. El administrador recibe la vista sin ningún monto; montos, préstamos, cierre, hoja de pago y
+  Excel responden `owner_only`. Cerrar congela lo calculado en el renglón y aplica los abonos (`loan_payments`,
+  `applied`); reabrir los devuelve al saldo. Cambios con cerrojo de aviso por sucursal y semana.
+- **Excel de salida**: `server/adapters/xlsx-writer.ts` escribe una hoja sin dependencias (zip con `node:zlib`).
+- **Hoja de pago**: página imprimible; el menú lateral y la barra inferior llevan `print:hidden`.
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea
