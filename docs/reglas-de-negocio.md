@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 13 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF) y 011 (42 RF) vigentes, con test en verde.
+Última actualización: 17 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF), 011 (42 RF) y 013 (33 RF) vigentes, con test en verde.
 
 ---
 
@@ -148,7 +148,7 @@ Origen: spec 007 (aprobada el 13 de noviembre de 2026; construida y validada el 
   (RF-10, RF-13 a RF-20).
 - **Aprueba solo el dueño**, y puede ajustar antes de aprobar; lo que él solicita queda aprobado. Se rechaza o
   cancela con motivo (RF-5, RF-22 a RF-28).
-- **Compra por proveedor**: se anota quién compra (nombre) y se marca comprado; el monto es opcional, total del
+- **Compra por proveedor**: quién compra se elige de Personal (spec 013) y se marca comprado; el monto es opcional, total del
   proveedor o importe por renglón (RF-27, RF-29 a RF-33).
 - **Recepción parcial**: lo que llega entra como entrada de inventario con el folio; lo pendiente se recibe después
   o se cierra con motivo; un excedente entra y se marca. Todo recibido o cerrado = requisición cerrada (RF-34 a
@@ -156,7 +156,7 @@ Origen: spec 007 (aprobada el 13 de noviembre de 2026; construida y validada el 
 
 ### Requisiciones en el día a día
 
-Origen: spec 013 (aprobada el 17 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 013 (aprobada el 17 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - Cada proveedor tiene, por sucursal, un **comprador habitual** de Personal; al aprobar una requisición cada
   proveedor toma su comprador, que se puede cambiar mientras no se reciba nada (RF-1 a RF-7).

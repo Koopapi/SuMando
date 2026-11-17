@@ -235,6 +235,15 @@ describe("spec 013 — datos de compra", () => {
     expect(await rowOf(w, w.harina.id)).toMatchObject({ min: "2", max: "6" });
   });
 
+  it("test_s013_rf19_al_cambiar_la_presentacion_el_minimo_se_toma_en_la_que_se_mostro", async () => {
+    const w = await world();
+    await stocked(w);
+    const caja = await addPresentation(w.ctx, w.ownerSendero, w.vasos.id, { name: "Caja", factor: "50" });
+    // La tabla mostraba piezas: 200 pz de mínimo con la caja nueva son 4 cajas.
+    await save(w, [{ productId: w.vasos.id, purchasePresentationId: caja.id, min: "200", levelsIn: null }]);
+    expect(await rowOf(w, w.vasos.id)).toMatchObject({ purchasePresentationId: caja.id, min: "4" });
+  });
+
   it("test_s013_rf19_sin_presentacion_de_compra_se_captura_en_unidad_base", async () => {
     const w = await world();
     await stocked(w);

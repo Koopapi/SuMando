@@ -11,9 +11,18 @@ const VARIANT: Record<Variant, string> = {
 };
 
 /** Enlace con aspecto de botón (spec 004: «Nueva receta», «Usar como base»): navega, no ejecuta acciones. */
-export function LinkButton({ href, variant = "primary", icon, children, label }: { href: string; variant?: Variant; icon?: IconName; children: ReactNode; label?: string }) {
+export function LinkButton({ href, variant = "primary", icon, children, label, external = false }: { href: string; variant?: Variant; icon?: IconName; children: ReactNode; label?: string; external?: boolean }) {
+  const className = `inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 font-brand text-base font-bold transition ${VARIANT[variant]}`;
+  // Spec 013, RF-12: un enlace a otra aplicación (WhatsApp) se abre fuera de SuMando.
+  if (external)
+    return (
+      <a href={href} aria-label={label} target="_blank" rel="noopener noreferrer" className={className}>
+        {icon ? <Icon name={icon} size={18} /> : null}
+        {children}
+      </a>
+    );
   return (
-    <Link href={href} aria-label={label} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 font-brand text-base font-bold transition ${VARIANT[variant]}`}>
+    <Link href={href} aria-label={label} className={className}>
       {icon ? <Icon name={icon} size={18} /> : null}
       {children}
     </Link>

@@ -16,6 +16,7 @@ const change = z.object({
   purchasePresentationId: z.string().nullable().optional(),
   min: z.string().nullable().optional(),
   max: z.string().nullable().optional(),
+  levelsIn: z.string().nullable().optional(),
 });
 
 export const POST = handler(async (request: Request) => {

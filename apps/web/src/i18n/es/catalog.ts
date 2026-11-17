@@ -83,7 +83,12 @@ export const catalog = {
   },
   suppliers: {
     title: "Proveedores",
-    intro: "A quién se le compra cada producto.",
+    intro: "A quién se le compra cada producto y quién va a comprarle en esta sucursal.",
+    buyerIn: (branch: string) => `Comprador en ${branch}`,
+    buyerOf: (supplier: string, branch: string) => `Comprador de ${supplier} en ${branch}`,
+    noBuyer: "Sin comprador",
+    noStaffHint: "Para elegir comprador, da de alta a tu personal en Personal.",
+    buyerSaved: (supplier: string) => `Comprador de ${supplier} guardado.`,
     figureLabel: "activos",
     create: "Nuevo proveedor",
     createTitle: "Nuevo proveedor",

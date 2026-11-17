@@ -39,11 +39,12 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregó 1 producto.")).toBeVisible();
     const first = page.getByRole("group", { name: "Producto 1" });
-    await expect(first.getByLabel("Producto", { exact: true })).toHaveValue(/.+/);
+    await expect(first.getByRole("combobox", { name: "Producto" })).toHaveValue("Cerveza");
     await expect(first.getByLabel("Cantidad")).toHaveValue("5");
     await page.getByRole("button", { name: "Agregar producto" }).click();
     const second = page.getByRole("group", { name: "Producto 2" });
-    await second.getByLabel("Producto", { exact: true }).selectOption({ label: "Leche" });
+    await second.getByRole("combobox", { name: "Producto" }).fill("lech");
+    await page.getByRole("option", { name: /Leche/ }).click();
     await second.getByLabel("Cantidad").fill("2000");
   });
 
@@ -67,11 +68,8 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
     await expect(page.getByTestId("req-history")).toContainText("Editada");
   });
 
-  await test.step("RF-27 RF-29 RF-30 se anota quién compra y se marca comprado con total", async () => {
-    const hk = group(page, "Heineken");
-    await hk.getByLabel("Quién compra en Heineken").fill("Encargado de compras");
-    await hk.getByRole("button", { name: "Guardar" }).click();
-    await expect(page.getByTestId("req-history")).toContainText("Comprador anotado");
+  // RF-27 (quién compra) lo sustituye la spec 013: se elige de Personal y lo recorre su propio E2E.
+  await test.step("RF-29 RF-30 se marca comprado con total", async () => {
     await group(page, "Heineken").getByRole("button", { name: "Marcar comprado" }).click();
     await page.getByLabel("Total pagado ($)").fill("1,200");
     await page.getByRole("dialog").getByRole("button", { name: "Marcar comprado" }).click();

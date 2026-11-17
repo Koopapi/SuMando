@@ -99,6 +99,8 @@ export interface PurchaseChange {
   purchasePresentationId?: unknown;
   min?: unknown;
   max?: unknown;
+  /** Presentación en que vienen `min` y `max` (la que se mostró); si falta, la de compra que queda en la fila. */
+  levelsIn?: unknown;
 }
 
 export interface SaveResult {
@@ -177,9 +179,11 @@ function planChange(change: PurchaseChange, product: Product | undefined, suppli
     if (presentationId !== null && !presentations.some((x) => x.id === presentationId && x.productId === product.id)) throw new AppError("not_found");
     productPatch.purchasePresentationId = presentationId;
   }
-  // RF-19: mínimo y máximo en la presentación de compra que queda en la fila.
-  const finalPresentation = presentationId !== undefined ? presentationId : product.purchasePresentationId;
-  const factor = finalPresentation ? dbToMilli(presentations.find((x) => x.id === finalPresentation)!.factor) : 1000n;
+  // RF-19: mínimo y máximo en la presentación en que se mostraron o, si no se dice, en la de compra que queda.
+  const levelsIn = optionalId(change.levelsIn);
+  if (levelsIn && !presentations.some((x) => x.id === levelsIn && x.productId === product.id)) throw new AppError("not_found");
+  const shownIn = levelsIn !== undefined ? levelsIn : presentationId !== undefined ? presentationId : product.purchasePresentationId;
+  const factor = shownIn ? dbToMilli(presentations.find((x) => x.id === shownIn)!.factor) : 1000n;
   const toDb = (v: bigint | null) => (v === null ? null : microToDb(toBaseMicro(v, factor)));
   let minBase = level?.minBase ?? null;
   let maxBase = level?.maxBase ?? null;

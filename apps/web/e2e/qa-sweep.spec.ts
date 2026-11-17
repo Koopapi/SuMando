@@ -131,6 +131,7 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     `/inventario/movimientos/${inv.movementId}`,
     `/inventario/historial?almacen=${inv.warehouseId}&producto=${productId}`,
     "/inventario/importar",
+    "/inventario/datos-de-compra",
     "/requisiciones",
     "/requisiciones/nueva",
     `/requisiciones/${requisitionId}`,

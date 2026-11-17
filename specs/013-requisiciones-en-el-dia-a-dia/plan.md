@@ -98,3 +98,13 @@ Ninguna nueva.
 2. **Servicios y API**: comprador habitual, requisición por comprador, datos de compra, armado.
 3. **Pantallas**: `ComboField`, proveedores, detalle por comprador, armado, datos de compra.
 4. **Cierre**: E2E, barrido, volumen, validación y documentos.
+
+## Ajustes al construir
+
+- «Datos de compra» manda con cada cambio de mínimo o máximo la presentación en que se mostró (`levelsIn`): si en la
+  misma fila cambia la presentación de compra, el número escrito no se reinterpreta en la nueva.
+- Un mismo producto puede venir dos veces en un envío; la segunda fila parte de lo ya guardado.
+- El importador tampoco guarda un mínimo nuevo por encima de un máximo existente (antes podía chocar con la base).
+- En el teléfono, «Datos de compra» abre cada renglón para editarlo (tabla de la spec 002); está pensada para
+  escritorio.
+- `LinkButton` acepta `external` para abrir WhatsApp fuera de SuMando; icono nuevo `message`.

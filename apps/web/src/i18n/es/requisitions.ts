@@ -35,6 +35,12 @@ export const requisitions = {
   repeatedHint: "Si un producto queda repetido, al enviar se suman sus cantidades.",
   lines: "Productos",
   lineN: (n: number) => `Producto ${n}`,
+  searchProduct: "Escribe para buscar",
+  newLines: "Productos por elegir",
+  groupCount: (n: number) => plural(n, "producto", "productos"),
+  levelLine: (stock: string, min: string | null, max: string | null, unit: string) =>
+    [`Hay ${stock} ${unit}`, min ? `mínimo ${min}` : "sin mínimo", max ? `máximo ${max}` : "sin máximo"].join(" · "),
+  withoutMax: (n: number) => (n === 1 ? "1 producto no tiene máximo: se pidió solo hasta su mínimo." : `${n} productos no tienen máximo: se pidieron solo hasta su mínimo.`),
   product: "Producto",
   chooseProduct: "Elige un producto",
   quantity: "Cantidad",

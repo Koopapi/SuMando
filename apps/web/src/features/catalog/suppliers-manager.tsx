@@ -1,11 +1,13 @@
 "use client";
 
-// Spec 003 RF-27, RF-29, RF-30, RF-33, RF-34: proveedores del negocio con sus productos.
+// Spec 003 RF-27, RF-29, RF-30, RF-33, RF-34: proveedores del negocio con sus productos; spec 013 RF-1 a RF-3: su
+// comprador habitual en la sucursal activa.
 import Link from "next/link";
 import { useState } from "react";
 import { es } from "@/i18n";
+import type { SupplierBuyersView } from "@/server/services/catalog/supplier-buyers";
 import type { SupplierView } from "@/server/services/catalog/views";
-import { Alert, Button, Dialog, EmptyState, PageHeader, SectionLabel, TextField } from "@/ui";
+import { Alert, Button, Dialog, EmptyState, PageHeader, SectionLabel, SelectField, TextField } from "@/ui";
 import { formValues } from "../api";
 import { useAction } from "./use-action";
 
@@ -14,7 +16,7 @@ const ts = es.catalog.suppliers;
 
 type Mode = { kind: "create" } | { kind: "edit"; supplier: SupplierView } | null;
 
-export function SuppliersManager({ suppliers }: { suppliers: SupplierView[] }) {
+export function SuppliersManager({ suppliers, buyers, branchName }: { suppliers: SupplierView[]; buyers: SupplierBuyersView | null; branchName: string }) {
   const { run, error, setError, busy } = useAction();
   const [mode, setMode] = useState<Mode>(null);
   const active = suppliers.filter((s) => !s.archived);
@@ -53,6 +55,7 @@ export function SuppliersManager({ suppliers }: { suppliers: SupplierView[] }) {
               </Button>
             </div>
             {s.phone ? <p className="text-ink-muted">{s.phone}</p> : null}
+            {buyers ? <BuyerSelect supplier={s} buyers={buyers} branchName={branchName} onPick={(employeeId) => run(`/api/supplier-buyers/${s.id}`, { method: "PUT", body: { employeeId } })} /> : null}
             {s.notes ? <p className="text-sm text-ink-muted">{s.notes}</p> : null}
             <SectionLabel as="h3" className="pt-1">
               {ts.productCount(s.products.length)}
@@ -114,5 +117,18 @@ export function SuppliersManager({ suppliers }: { suppliers: SupplierView[] }) {
         ) : null}
       </Dialog>
     </>
+  );
+}
+
+function BuyerSelect({ supplier, buyers, branchName, onPick }: { supplier: SupplierView; buyers: SupplierBuyersView; branchName: string; onPick: (employeeId: string | null) => Promise<unknown> }) {
+  const current = buyers.buyers.find((b) => b.supplierId === supplier.id);
+  const options = [{ value: "", label: ts.noBuyer }, ...buyers.employees.map((e) => ({ value: e.id, label: e.name }))];
+  // RF-6: una persona dada de baja sigue a la vista hasta que se cambie.
+  if (current && !current.active) options.push({ value: current.employeeId, label: es.requisitions.buyerInactive(current.name) });
+  return (
+    <div className="flex flex-col gap-1 py-1 lg:max-w-sm">
+      <SelectField label={ts.buyerIn(branchName)} aria-label={ts.buyerOf(supplier.name, branchName)} value={current?.employeeId ?? ""} onChange={(e) => void onPick(e.target.value || null)} options={options} />
+      {buyers.employees.length === 0 ? <p className="text-sm text-ink-muted">{ts.noStaffHint}</p> : null}
+    </div>
   );
 }
