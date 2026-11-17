@@ -59,6 +59,7 @@ const STATUS: Record<ErrorCode, number> = {
   invalid_amount: 422,
   not_purchased: 409,
   buyer_too_long: 422,
+  buyer_not_in_branch: 422,
   employee_exists: 409,
   invalid_pay: 422,
   invalid_date: 422,

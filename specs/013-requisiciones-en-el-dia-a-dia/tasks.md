@@ -23,23 +23,23 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 2 — Servicios y API
 
-- [ ] **T5 — Comprador habitual**
+- [x] **T5 — Comprador habitual**
   - RF: RF-1, RF-2, RF-3
   - Depende de: T1
   - Hecho cuando: tests de integración de asignar, quitar, persona de otra sucursal o dada de baja, permisos y aislamiento en verde, por servicio y API.
-- [ ] **T6 — Comprador en la requisición**
+- [x] **T6 — Comprador en la requisición**
   - RF: RF-4, RF-5, RF-6, RF-7, RF-10
   - Depende de: T5
   - Hecho cuando: tests de comprador al aprobar y en alta del dueño, cambio y quitar, baja, texto anterior y habitual mostrado en solicitada en verde.
-- [ ] **T7 — Vista por comprador y mensaje**
+- [x] **T7 — Vista por comprador y mensaje**
   - RF: RF-8, RF-9, RF-11, RF-12, RF-13, RF-14, RF-15
   - Depende de: T2, T3, T6
   - Hecho cuando: test de integración con dos compradores y un proveedor comprado comprueba grupos, cuentas, enlace y texto.
-- [ ] **T8 — Datos de compra**
+- [x] **T8 — Datos de compra**
   - RF: RF-17, RF-18, RF-19, RF-20, RF-21, RF-22, RF-23, RF-24
   - Depende de: —
   - Hecho cuando: tests de integración de filas, guardado con errores por fila, presentación nueva, permisos, auditoría y 300 cambios en menos de 2 s en verde.
-- [ ] **T9 — Armado: sugerencias y niveles**
+- [x] **T9 — Armado: sugerencias y niveles**
   - RF: RF-30, RF-32
   - Depende de: —
   - Hecho cuando: tests de `withoutMax` y de existencias por presentación en `builderData` en verde.
