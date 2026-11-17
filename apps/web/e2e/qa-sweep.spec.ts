@@ -81,7 +81,8 @@ async function sweep(browser: Browser, urls: string[], problems: Problem[], prep
 }
 
 test("barrido de todas las pantallas", async ({ browser }) => {
-  test.setTimeout(900_000);
+  // Más de 60 pantallas en claro y oscuro con axe: en la CI pasa de 15 minutos.
+  test.setTimeout(1_800_000);
   const problems: Problem[] = [];
   await sweep(browser, ["/setup"], problems);
   await seedOwner();
