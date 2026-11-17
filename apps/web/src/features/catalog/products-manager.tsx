@@ -44,10 +44,10 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
     { key: "max", header: tp.max, cell: (p) => amount(p, level(p)?.max) },
   ];
   const filters: Filter<ProductView>[] = [
-    { id: "active", label: tp.filterActive, test: (p) => !p.archived },
-    { id: "archived", label: tp.filterArchived, test: (p) => p.archived },
-    { id: "withMin", label: tp.filterWithMin, test: (p) => Boolean(level(p)?.min) },
-    { id: "withoutMin", label: tp.filterWithoutMin, test: (p) => !level(p)?.min },
+    { id: "active", group: "status", groupLabel: es.common.filterGroups.status, label: tp.filterActive, test: (p) => !p.archived },
+    { id: "archived", group: "status", groupLabel: es.common.filterGroups.status, label: tp.filterArchived, test: (p) => p.archived },
+    { id: "withMin", group: "minimum", groupLabel: es.common.filterGroups.minimum, label: tp.filterWithMin, test: (p) => Boolean(level(p)?.min) },
+    { id: "withoutMin", group: "minimum", groupLabel: es.common.filterGroups.minimum, label: tp.filterWithoutMin, test: (p) => !level(p)?.min },
   ];
 
   async function create(form: HTMLFormElement) {
@@ -93,6 +93,9 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
         searchLabel={tp.search}
         filters={filters}
         initialFilters={["active"]}
+        groupBy={(p) => p.supplier?.name ?? null}
+        groupNone={es.common.noSupplier}
+        storageKey="productos"
         emptyTitle={tp.emptyTitle}
         emptyDescription={tp.emptyDescription}
       />

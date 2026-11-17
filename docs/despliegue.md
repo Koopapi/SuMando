@@ -26,7 +26,7 @@ lo nuevo se prueba en local y con la CI, y al mergear a `main` se publica.
    no podría escribir), nombre `sumando-data`, destino `/app/data`; guardar y hacer *Redeploy* (reiniciar no monta
    el volumen). La imagen ya trae `FILES_DIR=/app/data/files`. Sin el volumen, los documentos se pierden en cada
    despliegue. Comprobar: subir un documento, volver a desplegar y abrirlo; o en *Terminal*, `ls -la /app/data/files`
-   (dueño `mando`). Los *Backups* de Coolify son solo de PostgreSQL: este volumen no se respalda hasta la spec 014.
+   (dueño `mando`). Los *Backups* de Coolify son solo de PostgreSQL: este volumen no se respalda hasta la spec 015.
 4. **Variables de entorno** (ninguna hace falta en compilación):
    - `DATABASE_URL`: la URL interna de la base de datos del paso 1.
    - `COOKIE_SECURE=1` (hay HTTPS). `MIGRATE_ON_START=1` ya viene en la imagen.

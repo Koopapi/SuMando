@@ -28,7 +28,8 @@ vendidas y los totales de caja los captura el administrador a partir del punto d
 | 011 | Corte de caja | El corte asistido de Pirrus adaptado a Mando: apertura con fondo inicial, lo que reporta el punto de venta en efectivo y tarjeta, conteo de efectivo por denominación, tarjetas por terminal, transferencias y otros, movimientos de caja (gastos, retiros, ingresos), diferencias con tolerancia, motivo cuando no cuadra, firma e historial por sucursal **Hecha** |
 | 012 | Tablero y reportes | Vista por negocio y consolidada, alertas (existencias bajas, requisiciones pendientes, nómina por cerrar, cortes con diferencia), exportar **Hecha** |
 | 013 | Requisiciones en el día a día | Comprador habitual por proveedor (de Personal), requisición dividida por comprador, lista por WhatsApp, «Datos de compra» para capturar proveedor, presentación, mínimo y máximo de muchos productos, máximo en el importador, buscador al armar |
-| 014 | Operación | Respaldos cifrados y restauración, monitoreo de errores, aviso de despliegue, lista de lanzamiento |
+| 014 | Pulido visual | Menú lateral por áreas de trabajo y menú de la cuenta, barra del teléfono con lo diario, filtros en selectores, listas largas agrupadas y plegables o por páginas, renglones de captura compactos, encabezados más bajos, logo de cada negocio en pantalla, hoja de pago y Excel |
+| 015 | Operación | Respaldos cifrados y restauración, monitoreo de errores, aviso de despliegue, lista de lanzamiento |
 
 El 13 de noviembre de 2026 entró la importación como spec 006 y las siguientes se recorrieron un número: en las
 specs ya cerradas, «spec 006» a «spec 012» se refieren a las que hoy son 007 a 013.

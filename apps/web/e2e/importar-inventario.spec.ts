@@ -52,11 +52,11 @@ test("importar inventario: revisar, ver problemas y confirmar", async ({ page })
   });
 
   await test.step("RF-20 RF-22 el problema dice qué pasa y en qué fila", async () => {
-    await page.getByRole("button", { name: "Con problema", exact: true }).click();
+    await page.getByLabel("Estado", { exact: true }).selectOption({ label: "Con problema" });
     const bohemia = page.getByRole("row").filter({ hasText: "BOHEMIA" });
     await expect(bohemia).toContainText("Ya existe en el catálogo con otra unidad base.");
     await expect(bohemia).toContainText("Hoja «Inventario por áreas», fila 4");
-    await page.getByRole("button", { name: "Con problema", exact: true }).click();
+    await page.getByRole("button", { name: "Quitar el filtro Con problema" }).click();
   });
 
   await test.step("RF-32 RF-36 al confirmar se importan y la existencia queda contada", async () => {

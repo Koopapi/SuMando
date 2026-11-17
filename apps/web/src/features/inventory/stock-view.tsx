@@ -50,9 +50,9 @@ export function StockView({ warehouses, warehouse, rows, pending }: { warehouses
   ];
   const areas = [...new Set(rows.map((r) => r.area).filter((a): a is string => a !== null))].sort((a, b) => a.localeCompare(b, "es"));
   const filters: Filter<StockRow>[] = [
-    { id: "below", label: t.filterBelowMin, test: (r) => r.status === "below_min" },
-    { id: "negative", label: t.filterNegative, test: (r) => r.status === "negative" },
-    ...areas.map((a) => ({ id: `area:${a}`, label: t.filterArea(a), test: (r: StockRow) => r.area === a })),
+    { id: "below", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterBelowMin, test: (r) => r.status === "below_min" },
+    { id: "negative", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterNegative, test: (r) => r.status === "negative" },
+    ...areas.map((a) => ({ id: `area:${a}`, group: "area", groupLabel: es.common.filterGroups.area, label: a, test: (r: StockRow) => r.area === a })),
   ];
   return (
     <>
@@ -107,7 +107,7 @@ export function StockView({ warehouses, warehouse, rows, pending }: { warehouses
           {rows.length === 0 ? (
             <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
           ) : (
-            <DataTable caption={t.caption(warehouse.name)} rows={rows} columns={columns} rowKey={(r) => r.productId} rowName={(r) => `${r.name} ${measureLabel(r)}`} searchFields={(r) => [r.name]} searchLabel={t.search} filters={filters} />
+            <DataTable caption={t.caption(warehouse.name)} rows={rows} columns={columns} rowKey={(r) => r.productId} rowName={(r) => `${r.name} ${measureLabel(r)}`} searchFields={(r) => [r.name]} searchLabel={t.search} filters={filters} groupBy={(r) => r.area} groupNone={es.common.noArea} storageKey={`existencias:${warehouse.id}`} />
           )}
         </>
       )}

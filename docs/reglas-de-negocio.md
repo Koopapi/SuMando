@@ -51,6 +51,20 @@ Origen: spec 002 (aprobada el 11 de noviembre de 2026; construida y validada el 
 - Pesos con formato de México y fechas como «11 nov 2026»; aviso de guardado de 4 segundos; un error se queda
   hasta cerrarlo y no se pierde lo capturado (RF-23 a RF-28).
 
+
+### Pulido visual
+
+Origen: spec 014 (aprobada el 17 de noviembre de 2026). Estado: **Aprobada**.
+
+- **Menú por áreas de trabajo**: Inicio y Tablero; Operación del día; Compras e inventario; Cocina; Equipo; y
+  Administración solo para el dueño. Contraseña y salida en el menú de la cuenta (RF-1 a RF-5).
+- **Barra del teléfono**: Inicio, Inventario, Requisiciones, Checklists y «Más» con las mismas categorías (RF-6, RF-7).
+- **Filtros** en un selector por tipo, con etiquetas quitables, «Limpiar» y «Mostrando N de M» (RF-8 a RF-12).
+- **Listas largas**: agrupadas y plegables (cerradas con más de 50 renglones); sin grupo natural, páginas de 25
+  (RF-13 a RF-19).
+- **Logo de cada negocio** (solo el dueño, PNG/JPG/WEBP hasta 2 MB) en pantalla, hoja de pago y Excel de un negocio;
+  sin logo, la inicial sobre su color (RF-25 a RF-34).
+
 ## 3. Catálogo
 
 Origen: spec 003 (aprobada el 12 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.

@@ -86,9 +86,9 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await expect(stockRow(page, "Queso manchego")).toContainText("2 Pieza");
     await expect(stockRow(page, "Queso manchego")).toContainText("Bajo mínimo");
     await expect(stockRow(page, "Queso manchego")).toContainText("Lácteos");
-    await page.getByRole("button", { name: "Bajo mínimo", exact: true }).click();
+    await page.getByLabel("Estado", { exact: true }).selectOption({ label: "Bajo mínimo" });
     await expect(stockRow(page, "Leche")).toHaveCount(0);
-    await page.getByRole("button", { name: "Bajo mínimo", exact: true }).click();
+    await page.getByRole("button", { name: "Limpiar", exact: true }).click();
   });
 
   await test.step("RF-20 RF-21 una salida mayor deja la existencia en negativo, marcada", async () => {
