@@ -35,7 +35,13 @@ export interface GroupView {
   supplierId: string | null;
   supplierName: string | null;
   supplierArchived: boolean;
+  /** Nombre de quien compra: la persona de Personal o, antes de la spec 013, el texto escrito (RF-7). */
   buyer: string | null;
+  buyerEmployeeId: string | null;
+  /** Spec 013, RF-6: la persona se dio de baja. */
+  buyerInactive: boolean;
+  /** Spec 013, RF-10: el comprador habitual que tomará al aprobarse (solo mientras está solicitada). */
+  habitualBuyer: string | null;
   status: GroupStatus;
   purchasedAt: string | null;
   purchasedBy: string | null;
@@ -44,6 +50,21 @@ export interface GroupView {
   totalFromLines: boolean;
   anyReceived: boolean;
   lineIds: string[];
+}
+
+/** Spec 013, RF-8 a RF-15: un comprador con sus proveedores, sus cuentas y su lista para WhatsApp. */
+export interface BuyerView {
+  /** Nulo = «Sin comprador». */
+  key: string | null;
+  name: string | null;
+  inactive: boolean;
+  groupIds: string[];
+  counts: { toBuy: number; purchased: number; received: number };
+  /** Solo mientras está aprobada y tiene algo por comprar (RF-11). */
+  message: string | null;
+  link: string | null;
+  /** RF-14: hay mensaje pero la persona no tiene un teléfono válido. */
+  missingPhone: boolean;
 }
 
 export interface EventItem {
@@ -69,6 +90,10 @@ export interface RequisitionView {
   total: string | null;
   lines: LineView[];
   groups: GroupView[];
+  /** Vacío mientras no hay grupos fijos (antes de aprobar). */
+  buyers: BuyerView[];
+  /** Personal activo de la sucursal, para elegir comprador (RF-5); vacío si no se puede operar. */
+  staff: { id: string; name: string }[];
   events: EventItem[];
 }
 

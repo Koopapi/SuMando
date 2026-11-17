@@ -6,7 +6,7 @@ import { normalizeName } from "../text";
 import { sheetNumber, sheetUnit, toBaseMilli, type SheetUnit } from "./sheet-units";
 
 export type RowProblem = "no_area" | "name_too_long" | "repeated" | "unit_mismatch" | "area_other_warehouse";
-export type RowWarning = "no_purchase" | "invalid_quantity" | "invalid_minimum" | "in_other_area";
+export type RowWarning = "no_purchase" | "invalid_quantity" | "invalid_minimum" | "invalid_maximum" | "in_other_area";
 
 export interface PlannedPresentation {
   name: string;
@@ -28,6 +28,8 @@ export interface AnalyzedRow {
   supplier: string | null;
   /** Mínimo en milésimas de la unidad base. */
   minMilli: bigint | null;
+  /** Spec 013, RF-25: máximo en milésimas de la unidad base. */
+  maxMilli: bigint | null;
   /** Cantidad contada en milésimas de la unidad base. */
   quantityMilli: bigint | null;
   status: "new" | "existing" | "problem";
@@ -65,7 +67,7 @@ export interface SheetInput {
 }
 
 const header = (raw: string) => raw.normalize("NFD").replace(/\p{Diacritic}/gu, "").trim().replace(/\s+/g, " ").toUpperCase();
-const COLUMNS = { area: "AREA", name: "ARTICULO", quantity: "CANT", unit: "UNIDAD", conversion: "CONVERSION", final: "PRESENTACION FINAL", supplier: "PROVEEDOR", min: "MINIMO" } as const;
+const COLUMNS = { area: "AREA", name: "ARTICULO", quantity: "CANT", unit: "UNIDAD", conversion: "CONVERSION", final: "PRESENTACION FINAL", supplier: "PROVEEDOR", min: "MINIMO", max: "MAXIMO" } as const;
 type Columns = Partial<Record<keyof typeof COLUMNS, number>>;
 
 /** RF-6: la fila de encabezado tiene al menos ÁREA, ARTÍCULO y UNIDAD. */
@@ -147,6 +149,10 @@ export function analyzeInventorySheets(sheets: SheetInput[], catalog: CatalogSna
       // RF-31: el mínimo va en la presentación final si se creó; si no, en la unidad de la hoja.
       const min = amount(cell(r, "min"), purchase ? purchase.factorMilli : unit.factorMilli);
       if (min.invalid) warnings.push("invalid_minimum");
+      // Spec 013, RF-25 y RF-26: el máximo, en la misma presentación que el mínimo; inválido o menor = aviso.
+      const max = amount(cell(r, "max"), purchase ? purchase.factorMilli : unit.factorMilli);
+      const maxBelow = max.value !== null && min.value !== null && max.value < min.value;
+      if (max.invalid || maxBelow) warnings.push("invalid_maximum");
       if (!area) problems.push("no_area");
       if (name.length > CATALOG_NAME_MAX) problems.push("name_too_long");
       if (seen.has(nameKey)) problems.push("repeated");
@@ -171,6 +177,7 @@ export function analyzeInventorySheets(sheets: SheetInput[], catalog: CatalogSna
         purchase,
         supplier: normalizeName(cell(r, "supplier")) || null,
         minMilli: min.value,
+        maxMilli: maxBelow ? null : max.value,
         quantityMilli: qty.value,
         status: problems.length ? "problem" : existing ? "existing" : "new",
         existingId: existing?.id ?? null,

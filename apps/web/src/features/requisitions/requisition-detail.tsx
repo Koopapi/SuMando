@@ -1,13 +1,14 @@
 "use client";
 
 // Spec 007 RF-24 a RF-41, RF-44, RF-45: una requisición con sus grupos por proveedor. El dueño aprueba, rechaza o
-// cancela; quien opera anota comprador, marca comprado con importes opcionales, recibe y cierra lo pendiente.
+// cancela; quien opera elige comprador, marca comprado con importes opcionales, recibe y cierra lo pendiente.
+// Spec 013 RF-5 a RF-15: aprobada, se divide por comprador y a cada uno se le manda su lista por WhatsApp.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { es } from "@/i18n";
-import type { GroupView, LineView, RequisitionView } from "@/server/services/requisitions/views";
-import { Alert, Button, Dialog, LinkButton, MoneyField, NumberField, PageHeader, SectionLabel, StatusBadge, TextArea, TextField, formatDateTime, formatMoney, formatQuantity } from "@/ui";
+import type { BuyerView, GroupView, LineView, RequisitionView } from "@/server/services/requisitions/views";
+import { Alert, Button, Dialog, LinkButton, MoneyField, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, TextArea, formatDateTime, formatMoney, formatQuantity, useToast } from "@/ui";
 import { api } from "../api";
 import { unitShort } from "../catalog/labels";
 
@@ -45,6 +46,88 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
     setModal(null);
     router.refresh();
     return true;
+  }
+
+  function renderGroup(g: GroupView) {
+    const lines = linesOf(g);
+    const name = groupName(g);
+    // Dentro de un comprador, el proveedor es un subtítulo.
+    const Heading = r.buyers.length ? "h3" : "h2";
+    return (
+      <section key={g.id ?? g.supplierId ?? "none"} aria-label={name} className="flex flex-col gap-3 border-t border-line pt-4" data-testid="req-group">
+        <div className="flex flex-wrap items-center gap-2">
+          <Heading className="text-lg font-semibold">{name}</Heading>
+          {r.status !== "requested" ? <StatusBadge tone={GROUP_TONE[g.status]}>{t.groupStatuses[g.status]}</StatusBadge> : null}
+          {g.total ? <span className="text-sm font-semibold">{money(g.total)}</span> : null}
+        </div>
+        {g.purchasedAt ? <p className="text-sm text-ink-muted">{t.purchasedLine(g.purchasedBy ?? "", formatDateTime(new Date(g.purchasedAt)))}</p> : null}
+        {g.habitualBuyer ? <p className="text-sm text-ink-muted">{t.habitualBuyer(g.habitualBuyer)}</p> : null}
+        {r.canOperate && g.id && !g.anyReceived ? (
+          <BuyerSelect group={g} name={name} staff={r.staff} onPick={(buyerEmployeeId) => call(`/api/requisitions/${r.id}/groups/${g.id}`, { buyerEmployeeId }, "PATCH")} />
+        ) : g.buyer ? (
+          <p className="text-sm">{`${t.buyer}: ${g.buyerInactive ? t.buyerInactive(g.buyer) : g.buyer}`}</p>
+        ) : null}
+        <ul className="flex flex-col lg:hidden">
+          {lines.map((l) => (
+            <li key={l.id} className="border-b border-line py-2 text-sm" data-testid="req-line-phone">
+              <span className="flex flex-wrap justify-between gap-x-3">
+                <span className="font-semibold">{l.name}</span>
+                <span className="tabular-nums">{`${t.colApproved}: ${qty(l.quantity, l)}`}</span>
+              </span>
+              <span className="block text-ink-muted tabular-nums">{`${t.colReceived}: ${qty(l.received, l)} · ${t.colPending}: ${l.closed ? "—" : qty(l.pending, l)}${l.amount ? ` · ${money(l.amount)}` : ""}`}</span>
+              {l.quantity !== l.requested ? <span className="block text-ink-muted">{`${t.colRequested}: ${qty(l.requested, l)}`}</span> : null}
+              {l.closed ? <span className="block text-ink-muted">{t.closedLine(l.closed.reason ?? "")}</span> : null}
+              {l.excess !== "0" ? <span className="block text-warning">{t.excess(qty(l.excess, l))}</span> : null}
+            </li>
+          ))}
+        </ul>
+        <div className="hidden lg:block">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs tracking-widest text-ink-muted uppercase">
+              <tr>
+                <th className="py-2 font-semibold">{t.colProduct}</th>
+                <th className="py-2 text-end font-semibold">{t.colRequested}</th>
+                <th className="py-2 text-end font-semibold">{t.colApproved}</th>
+                <th className="py-2 text-end font-semibold">{t.colReceived}</th>
+                <th className="py-2 text-end font-semibold">{t.colPending}</th>
+                <th className="py-2 text-end font-semibold">{t.colAmount}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lines.map((l) => (
+                <tr key={l.id} className="border-t border-line" data-testid="req-line">
+                  <td className="py-2">
+                    <span className="font-semibold">{l.name}</span>
+                    {l.closed ? <span className="block text-ink-muted">{t.closedLine(l.closed.reason ?? "")}</span> : null}
+                    {l.excess !== "0" ? <span className="block text-warning">{t.excess(qty(l.excess, l))}</span> : null}
+                  </td>
+                  <td className="py-2 text-end tabular-nums">{qty(l.requested, l)}</td>
+                  <td className="py-2 text-end tabular-nums">{qty(l.quantity, l)}</td>
+                  <td className="py-2 text-end tabular-nums">{qty(l.received, l)}</td>
+                  <td className="py-2 text-end tabular-nums">{l.closed ? "—" : qty(l.pending, l)}</td>
+                  <td className="py-2 text-end tabular-nums">{money(l.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {r.canOperate && g.id ? (
+          <div className="flex flex-wrap gap-2">
+            {!g.anyReceived ? (
+              <Button variant={g.purchasedAt ? "secondary" : "primary"} onClick={() => setModal({ kind: "purchase", group: g })}>
+                {g.purchasedAt ? t.editAmounts : t.markPurchased}
+              </Button>
+            ) : null}
+            {g.purchasedAt && g.status !== "received" ? <Button onClick={() => setModal({ kind: "receive", group: g })}>{t.receive}</Button> : null}
+            {g.status !== "received" ? (
+              <Button variant="ghost" onClick={() => setModal({ kind: "close", group: g })}>
+                {t.closePending}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+    );
   }
 
   return (
@@ -87,80 +170,13 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
       {r.note ? <p className="text-sm">{r.note}</p> : null}
       {error && !modal ? <Alert tone="error">{error}</Alert> : null}
 
-      {r.groups.map((g) => {
-        const lines = linesOf(g);
-        const name = groupName(g);
-        return (
-          <section key={g.id ?? g.supplierId ?? "none"} aria-label={name} className="flex flex-col gap-3 border-t border-line pt-4" data-testid="req-group">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg font-semibold">{name}</h2>
-              {r.status !== "requested" ? <StatusBadge tone={GROUP_TONE[g.status]}>{t.groupStatuses[g.status]}</StatusBadge> : null}
-              {g.total ? <span className="text-sm font-semibold">{money(g.total)}</span> : null}
-            </div>
-            {g.purchasedAt ? <p className="text-sm text-ink-muted">{t.purchasedLine(g.purchasedBy ?? "", formatDateTime(new Date(g.purchasedAt)))}</p> : null}
-            {r.canOperate && g.id && !g.anyReceived ? <BuyerForm key={g.buyer ?? ""} group={g} name={name} busy={busy} onSave={(buyer) => call(`/api/requisitions/${r.id}/groups/${g.id}`, { buyer }, "PATCH")} /> : g.buyer ? <p className="text-sm">{`${t.buyer}: ${g.buyer}`}</p> : null}
-            <ul className="flex flex-col lg:hidden">
-              {lines.map((l) => (
-                <li key={l.id} className="border-b border-line py-2 text-sm" data-testid="req-line-phone">
-                  <span className="flex flex-wrap justify-between gap-x-3">
-                    <span className="font-semibold">{l.name}</span>
-                    <span className="tabular-nums">{`${t.colApproved}: ${qty(l.quantity, l)}`}</span>
-                  </span>
-                  <span className="block text-ink-muted tabular-nums">{`${t.colReceived}: ${qty(l.received, l)} · ${t.colPending}: ${l.closed ? "—" : qty(l.pending, l)}${l.amount ? ` · ${money(l.amount)}` : ""}`}</span>
-                  {l.quantity !== l.requested ? <span className="block text-ink-muted">{`${t.colRequested}: ${qty(l.requested, l)}`}</span> : null}
-                  {l.closed ? <span className="block text-ink-muted">{t.closedLine(l.closed.reason ?? "")}</span> : null}
-                  {l.excess !== "0" ? <span className="block text-warning">{t.excess(qty(l.excess, l))}</span> : null}
-                </li>
-              ))}
-            </ul>
-            <div className="hidden lg:block">
-              <table className="w-full text-left text-sm">
-                <thead className="text-xs tracking-widest text-ink-muted uppercase">
-                  <tr>
-                    <th className="py-2 font-semibold">{t.colProduct}</th>
-                    <th className="py-2 text-end font-semibold">{t.colRequested}</th>
-                    <th className="py-2 text-end font-semibold">{t.colApproved}</th>
-                    <th className="py-2 text-end font-semibold">{t.colReceived}</th>
-                    <th className="py-2 text-end font-semibold">{t.colPending}</th>
-                    <th className="py-2 text-end font-semibold">{t.colAmount}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lines.map((l) => (
-                    <tr key={l.id} className="border-t border-line" data-testid="req-line">
-                      <td className="py-2">
-                        <span className="font-semibold">{l.name}</span>
-                        {l.closed ? <span className="block text-ink-muted">{t.closedLine(l.closed.reason ?? "")}</span> : null}
-                        {l.excess !== "0" ? <span className="block text-warning">{t.excess(qty(l.excess, l))}</span> : null}
-                      </td>
-                      <td className="py-2 text-end tabular-nums">{qty(l.requested, l)}</td>
-                      <td className="py-2 text-end tabular-nums">{qty(l.quantity, l)}</td>
-                      <td className="py-2 text-end tabular-nums">{qty(l.received, l)}</td>
-                      <td className="py-2 text-end tabular-nums">{l.closed ? "—" : qty(l.pending, l)}</td>
-                      <td className="py-2 text-end tabular-nums">{money(l.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {r.canOperate && g.id ? (
-              <div className="flex flex-wrap gap-2">
-                {!g.anyReceived ? (
-                  <Button variant={g.purchasedAt ? "secondary" : "primary"} onClick={() => setModal({ kind: "purchase", group: g })}>
-                    {g.purchasedAt ? t.editAmounts : t.markPurchased}
-                  </Button>
-                ) : null}
-                {g.purchasedAt && g.status !== "received" ? <Button onClick={() => setModal({ kind: "receive", group: g })}>{t.receive}</Button> : null}
-                {g.status !== "received" ? (
-                  <Button variant="ghost" onClick={() => setModal({ kind: "close", group: g })}>
-                    {t.closePending}
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
-          </section>
-        );
-      })}
+      {r.buyers.length
+        ? r.buyers.map((b) => (
+            <BuyerSection key={b.key ?? "none"} buyer={b}>
+              {r.groups.filter((g) => g.id && b.groupIds.includes(g.id)).map(renderGroup)}
+            </BuyerSection>
+          ))
+        : r.groups.map(renderGroup)}
 
       <section aria-label={t.history} className="flex flex-col gap-2 border-t border-line pt-4">
         <SectionLabel as="h2">{t.history}</SectionLabel>
@@ -187,21 +203,67 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
   );
 }
 
-function BuyerForm({ group, name, busy, onSave }: { group: GroupView; name: string; busy: boolean; onSave: (buyer: string) => Promise<boolean> }) {
-  const [buyer, setBuyer] = useState(group.buyer ?? "");
+function BuyerSelect({ group, name, staff, onPick }: { group: GroupView; name: string; staff: { id: string; name: string }[]; onPick: (employeeId: string | null) => Promise<boolean> }) {
+  const options = [{ value: "", label: t.chooseBuyer }, ...staff.map((e) => ({ value: e.id, label: e.name }))];
+  let value = group.buyerEmployeeId ?? "";
+  // RF-6 y RF-7: quien se dio de baja o el nombre escrito antes siguen a la vista hasta que se cambien.
+  if (group.buyerEmployeeId && !staff.some((e) => e.id === group.buyerEmployeeId)) options.push({ value: group.buyerEmployeeId, label: t.buyerInactive(group.buyer ?? "") });
+  if (!group.buyerEmployeeId && group.buyer) {
+    value = "legacy";
+    options.push({ value: "legacy", label: group.buyer });
+  }
   return (
-    <form
-      className="flex flex-wrap items-end gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        void onSave(buyer);
+    <SelectField
+      label={t.buyerOf(name)}
+      className="lg:max-w-sm"
+      value={value}
+      onChange={(e) => {
+        if (e.target.value !== "legacy") void onPick(e.target.value || null);
       }}
-    >
-      <TextField label={t.buyerOf(name)} className="min-w-0 flex-1 lg:max-w-sm" maxLength={60} value={buyer} onChange={(e) => setBuyer(e.target.value)} />
-      <Button type="submit" variant="secondary" loading={busy}>
-        {t.saveBuyer}
-      </Button>
-    </form>
+      options={options}
+    />
+  );
+}
+
+function BuyerSection({ buyer, children }: { buyer: BuyerView; children: React.ReactNode }) {
+  const toast = useToast();
+  const name = buyer.name === null ? t.noBuyer : buyer.inactive ? t.buyerInactive(buyer.name) : buyer.name;
+  async function copy() {
+    if (!buyer.message) return;
+    try {
+      await navigator.clipboard.writeText(buyer.message);
+      toast.success(t.copied);
+    } catch {
+      toast.error(t.copyFailed);
+    }
+  }
+  return (
+    <section aria-label={name} className="flex flex-col gap-4 rounded-lg border border-line-strong p-4" data-testid="req-buyer">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h2 className="font-brand text-xl font-bold tracking-tight">{name}</h2>
+          <p className="text-sm text-ink-muted">{[t.suppliersOf(buyer.groupIds.length), t.buyerCounts(buyer.counts.toBuy, buyer.counts.purchased, buyer.counts.received)].filter(Boolean).join(" · ")}</p>
+        </div>
+        {buyer.link ? (
+          <div className="flex flex-wrap gap-2">
+            <LinkButton href={buyer.link} external icon="message" label={buyer.name ? t.sendWhatsappTo(buyer.name) : t.sendWhatsapp}>
+              {t.sendWhatsapp}
+            </LinkButton>
+            <Button variant="secondary" onClick={() => void copy()}>
+              {t.copyMessage}
+            </Button>
+          </div>
+        ) : null}
+      </div>
+      {buyer.link && buyer.missingPhone && buyer.name ? <Alert tone="warning">{t.noPhone(buyer.name)}</Alert> : null}
+      {buyer.message ? (
+        <details className="text-sm">
+          <summary className="min-h-11 cursor-pointer content-center font-semibold text-primary">{t.messagePreview}</summary>
+          <pre className="font-sans whitespace-pre-wrap text-ink">{buyer.message}</pre>
+        </details>
+      ) : null}
+      {children}
+    </section>
   );
 }
 

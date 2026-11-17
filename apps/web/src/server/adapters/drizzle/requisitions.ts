@@ -1,6 +1,6 @@
 // Implementación con Drizzle de los repositorios de requisiciones (`server/ports/requisitions.ts`).
 import { and, asc, count, desc, eq, inArray, max } from "drizzle-orm";
-import { purchaseTemplateItems, purchaseTemplates, requisitionEvents, requisitionGroups, requisitionLines, requisitions, users } from "@/db/schema";
+import { purchaseTemplateItems, purchaseTemplates, requisitionEvents, requisitionGroups, requisitionLines, requisitions, supplierBuyers, users } from "@/db/schema";
 import type { DbOrTx } from "@/db/client";
 import type { RequisitionsRepo } from "@/server/ports/requisitions";
 
@@ -41,7 +41,7 @@ export function requisitionsRepo(db: DbOrTx): RequisitionsRepo {
     },
     groups: {
       listByRequisitions: (ids) => (ids.length ? db.select().from(requisitionGroups).where(inArray(requisitionGroups.requisitionId, ids)) : Promise.resolve([])),
-      insert: async (requisitionId, supplierIds) => (supplierIds.length ? db.insert(requisitionGroups).values(supplierIds.map((supplierId) => ({ requisitionId, supplierId }))).returning() : []),
+      insert: async (requisitionId, rows) => (rows.length ? db.insert(requisitionGroups).values(rows.map((r) => ({ requisitionId, supplierId: r.supplierId, buyerEmployeeId: r.buyerEmployeeId }))).returning() : []),
       update: async (id, patch) => (await db.update(requisitionGroups).set(patch).where(eq(requisitionGroups.id, id)).returning())[0],
     },
     events: {
@@ -53,6 +53,18 @@ export function requisitionsRepo(db: DbOrTx): RequisitionsRepo {
           ...x.e,
           actorName: x.actorName,
         })),
+    },
+    supplierBuyers: {
+      listByBranch: (branchId) => db.select().from(supplierBuyers).where(eq(supplierBuyers.branchId, branchId)),
+      set: async (v) => {
+        await db
+          .insert(supplierBuyers)
+          .values(v)
+          .onConflictDoUpdate({ target: [supplierBuyers.branchId, supplierBuyers.supplierId], set: { employeeId: v.employeeId, updatedBy: v.updatedBy, updatedAt: v.updatedAt } });
+      },
+      remove: async (branchId, supplierId) => {
+        await db.delete(supplierBuyers).where(and(eq(supplierBuyers.branchId, branchId), eq(supplierBuyers.supplierId, supplierId)));
+      },
     },
     templates: {
       listByBranch: (branchId) => db.select().from(purchaseTemplates).where(eq(purchaseTemplates.branchId, branchId)).orderBy(asc(purchaseTemplates.nameKey)),

@@ -177,3 +177,17 @@ describe("spec 011 — esquema", () => {
   });
 });
 
+
+describe("spec 013 — esquema", () => {
+  it("test_s013_rf1_un_comprador_habitual_por_proveedor_y_sucursal", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'supplier_buyers'`;
+    expect(cols.map((c) => c.column_name)).toEqual(expect.arrayContaining(["business_id", "branch_id", "supplier_id", "employee_id", "updated_by", "updated_at"]));
+    const [idx] = await sql<{ indexdef: string }[]>`select indexdef from pg_indexes where indexname = 'supplier_buyers_branch_supplier_unique'`;
+    expect(idx.indexdef).toMatch(/\(branch_id, supplier_id\)/);
+  });
+
+  it("test_s013_rf5_rf7_el_grupo_guarda_persona_y_conserva_el_texto_anterior", async () => {
+    const cols = await sql<{ column_name: string }[]>`select column_name from information_schema.columns where table_name = 'requisition_groups' and column_name in ('buyer', 'buyer_employee_id')`;
+    expect(cols.map((c) => c.column_name).sort()).toEqual(["buyer", "buyer_employee_id"]);
+  });
+});

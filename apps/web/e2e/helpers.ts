@@ -54,9 +54,10 @@ export async function expectNoHorizontalOverflow(page: Page) {
   if (wide) throw new Error("La página se desborda lateralmente");
 }
 
-/** El aviso de error de un formulario (el anunciador de rutas de Next también tiene role="alert", pero está vacío). */
+/** El aviso de error de un formulario. El anunciador de rutas de Next también tiene role="alert" y, tras navegar,
+ * anuncia el título de la página: se excluye por su id. */
 export function alertBox(page: Page) {
-  return page.getByRole("alert").filter({ hasText: /\S/ });
+  return page.locator('[role="alert"]:not(#__next-route-announcer__)').filter({ hasText: /\S/ });
 }
 
 /** Peticiones a la API con la sesión del dueño (para sembrar datos sin recorrer pantallas). */

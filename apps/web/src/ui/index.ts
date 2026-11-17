@@ -13,6 +13,7 @@ export { AuthShell, PageShell } from "./page-shell";
 export { BusinessBlock, ListRow } from "./list-row";
 export { PasswordField } from "./password-field";
 export { SelectField } from "./select-field";
+export { ComboField, type ComboOption } from "./combo-field";
 export { EmptyState, ErrorState, LoadingState } from "./states";
 export { TextField } from "./text-field";
 export { ToastProvider, useToast } from "./toast";

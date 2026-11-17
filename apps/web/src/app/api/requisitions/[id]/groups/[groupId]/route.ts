@@ -1,4 +1,4 @@
-// Spec 007 RF-27, RF-29 a RF-32: comprador, comprado e importes de un grupo de proveedor.
+// Spec 007 RF-27, RF-29 a RF-32 y spec 013 RF-5: comprador, comprado e importes de un grupo de proveedor.
 import { z } from "zod";
 import { appCtx } from "@/server/app-context";
 import { requireCatalogScope } from "@/server/auth/catalog-scope";
@@ -8,6 +8,7 @@ import { REQUISITION_BODY_BYTES } from "../../../schema";
 
 const body = z.object({
   buyer: z.string().nullish(),
+  buyerEmployeeId: z.string().nullable().optional(),
   purchased: z.boolean().optional(),
   total: z.string().nullish(),
   amounts: z.array(z.object({ lineId: z.string(), amount: z.string().nullable() })).optional(),

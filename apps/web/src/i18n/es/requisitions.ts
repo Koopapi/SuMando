@@ -1,4 +1,4 @@
-// Textos de requisiciones (spec 007).
+// Textos de requisiciones (spec 007 y spec 013).
 const plural = (n: number, one: string, many: string) => `${(n ?? 0).toLocaleString("es-MX")} ${n === 1 ? one : many}`;
 
 export const requisitions = {
@@ -35,6 +35,12 @@ export const requisitions = {
   repeatedHint: "Si un producto queda repetido, al enviar se suman sus cantidades.",
   lines: "Productos",
   lineN: (n: number) => `Producto ${n}`,
+  searchProduct: "Escribe para buscar",
+  newLines: "Productos por elegir",
+  groupCount: (n: number) => plural(n, "producto", "productos"),
+  levelLine: (stock: string, min: string | null, max: string | null, unit: string) =>
+    [`Hay ${stock} ${unit}`, min ? `mínimo ${min}` : "sin mínimo", max ? `máximo ${max}` : "sin máximo"].join(" · "),
+  withoutMax: (n: number) => (n === 1 ? "1 producto no tiene máximo: se pidió solo hasta su mínimo." : `${n} productos no tienen máximo: se pidieron solo hasta su mínimo.`),
   product: "Producto",
   chooseProduct: "Elige un producto",
   quantity: "Cantidad",
@@ -135,6 +141,29 @@ export const requisitions = {
   reactivate: "Reactivar",
   archivedBadge: "Archivada",
   actionFor: (action: string, name: string) => `${action} ${name}`,
+
+  // Spec 013: comprador de Personal, requisición por comprador y lista por WhatsApp.
+  whatsapp: {
+    header: (business: string, branch: string, folio: number) => `Compra de ${business} · ${branch} · REQ-${folio}`,
+    supplier: (name: string) => `*${name}*`,
+    noSupplier: "*Sin proveedor*",
+    line: (product: string, quantity: string) => `• ${product}: ${quantity}`,
+    note: (note: string) => `Nota: ${note}`,
+  },
+  noBuyer: "Sin comprador",
+  buyerInactive: (name: string) => `${name} (dado de baja)`,
+  habitualBuyer: (name: string) => `Lo compra ${name}`,
+  chooseBuyer: "Sin comprador",
+  buyerCounts: (toBuy: number, purchased: number, received: number) =>
+    [toBuy ? `${toBuy} por comprar` : null, purchased ? (purchased === 1 ? "1 comprado" : `${purchased} comprados`) : null, received ? (received === 1 ? "1 recibido" : `${received} recibidos`) : null].filter(Boolean).join(" · "),
+  sendWhatsapp: "Enviar por WhatsApp",
+  sendWhatsappTo: (name: string) => `Enviar por WhatsApp a ${name}`,
+  copyMessage: "Copiar mensaje",
+  copied: "Mensaje copiado.",
+  copyFailed: "No se pudo copiar: selecciona el texto y cópialo.",
+  noPhone: (name: string) => `${name} no tiene teléfono de 10 dígitos en Personal: WhatsApp te pedirá elegir a quién mandarlo.`,
+  messagePreview: "Mensaje",
+  suppliersOf: (n: number) => (n === 1 ? "1 proveedor" : `${n} proveedores`),
 
   homeLabel: "Compras",
   homeDetail: (toApprove: number | null, toReceive: number) =>

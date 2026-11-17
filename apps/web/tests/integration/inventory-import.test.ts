@@ -158,3 +158,37 @@ describe("spec 006 — importar inventario por áreas", () => {
     expect(await code(reviewInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, Buffer.alloc(41 * 1024 * 1024)))).toBe("file_too_large");
   });
 });
+
+describe("spec 013 — máximo al importar", () => {
+  const HEAD = ["ÁREA", "ARTÍCULO", "UNIDAD", "CONVERSIÓN", "PRESENTACIÓN FINAL", "MÍNIMO", "MÁXIMO"];
+  const withMax = (rows: Cell[][]) => xlsx([{ name: "Inventario por áreas", rows: [HEAD, ...rows] }]);
+  const levelOf = async (w: World, name: string) => {
+    const p = (await catalogView(w.ctx, w.ownerSendero)).products.find((x) => x.name === name)!;
+    return w.ctx.store.catalog.levels.find(p.id, w.bodegaSendero.id);
+  };
+
+  it("test_s013_rf28_la_revision_muestra_el_maximo", async () => {
+    const w = await inventoryWorld();
+    const review = await reviewInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AMSTEL", "PIEZA", 24, "CARTON", 2, 6]]));
+    expect(review.rows[0]).toMatchObject({ min: "48", max: "144", warnings: [] });
+  });
+
+  it("test_s013_rf27_se_guarda_el_maximo_si_falta_y_no_pisa_uno_existente", async () => {
+    const w = await inventoryWorld();
+    await confirmInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AMSTEL", "PIEZA", 24, "CARTON", 2, null]]), "a.xlsx");
+    expect(await levelOf(w, "AMSTEL")).toMatchObject({ minBase: expect.stringMatching(/^48(\.0+)?$/), maxBase: null });
+    // Reimportar con máximo lo completa.
+    await confirmInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AMSTEL", "PIEZA", 24, "CARTON", 1, 6]]), "b.xlsx");
+    expect(await levelOf(w, "AMSTEL")).toMatchObject({ minBase: expect.stringMatching(/^48(\.0+)?$/), maxBase: expect.stringMatching(/^144(\.0+)?$/) });
+    // Un tercer archivo no lo pisa.
+    await confirmInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AMSTEL", "PIEZA", 24, "CARTON", 1, 10]]), "c.xlsx");
+    expect((await levelOf(w, "AMSTEL"))?.maxBase).toMatch(/^144(\.0+)?$/);
+  });
+
+  it("test_s013_rf27_un_maximo_menor_que_el_minimo_vigente_no_se_guarda", async () => {
+    const w = await inventoryWorld();
+    await confirmInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AGUA", "PIEZA", null, null, 10, null]]), "a.xlsx");
+    await confirmInventoryImport(w.ctx, w.ownerSendero, w.bodegaSendero.id, withMax([["BEBIDAS", "AGUA", "PIEZA", null, null, 1, 5]]), "b.xlsx");
+    expect(await levelOf(w, "AGUA")).toMatchObject({ minBase: expect.stringMatching(/^10(\.0+)?$/), maxBase: null });
+  });
+});

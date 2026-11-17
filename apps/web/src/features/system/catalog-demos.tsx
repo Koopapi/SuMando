@@ -4,7 +4,7 @@
 import { useState, type FormEvent } from "react";
 import { BUSINESS_COLORS } from "@/domain/business-color";
 import { es } from "@/i18n";
-import { Alert, BottomNav, BusinessBadge, Button, Checkbox, Dialog, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextField, useToast } from "@/ui";
+import { Alert, BottomNav, BusinessBadge, Button, Checkbox, ComboField, Dialog, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextField, useToast } from "@/ui";
 
 const t = es.system;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -72,10 +72,16 @@ export function FormsDemo() {
         <NumberField label={t.pieces} defaultValue="12" />
         <MoneyField label={t.cash} defaultValue="1,500.00" />
         <SelectField label={t.branch} options={t.branches.map((b) => ({ value: b, label: b }))} />
+        <ComboDemo />
         <Checkbox label={t.owner} defaultChecked />
       </div>
     </Section>
   );
+}
+
+function ComboDemo() {
+  const [product, setProduct] = useState("");
+  return <ComboField label={t.productSearch} placeholder={t.productSearchHint} options={t.sampleProducts.map((p) => ({ value: p, label: p }))} value={product} onChange={setProduct} />;
 }
 
 export function AlertsDemo() {

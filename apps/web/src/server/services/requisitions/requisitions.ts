@@ -8,16 +8,20 @@ import { NOTE_MAX, writtenReason } from "@/domain/inventory/movement";
 import { dbToSignedMicro, lineToBase, parseCountQuantity, parseLineQuantity } from "@/domain/inventory/quantities";
 import { centsToText, groupTotal, parseMoney } from "@/domain/requisitions/money";
 import { allDone, canCancel, canDecide, canEdit, canOperate, excessOf, groupStatus, lineDone, pendingOf, type LineState, type RequisitionStatus } from "@/domain/requisitions/state";
+import { byBuyer } from "@/domain/requisitions/buyers";
 import { fromCalculation, mergeLines, roundUp, shortfall } from "@/domain/requisitions/suggest";
+import { buyerMessage, whatsappLink, whatsappPhone } from "@/domain/requisitions/whatsapp";
+import { es } from "@/i18n";
 import { dbToCentiMicro } from "@/domain/recipes/supplies";
 import { AppError } from "../../errors";
 import type { Repos } from "../../ports";
+import type { NewGroup } from "../../ports/requisitions";
 import { businessLock, type CatalogScope } from "../catalog/shared";
 import type { Ctx } from "../context";
 import { applyMovement } from "../inventory/movements";
 import { productOption, warehouseOption } from "../inventory/stock";
 import { activeProduct, inventoryAccess, loadBook, movableWarehouse, optionalText, presentationFactor, uuidOrNotFound, visibleWarehouse, type Book, type InventoryAccess } from "../inventory/shared";
-import type { DraftLine, EventItem, GroupView, LineView, RequisitionSummaryView, RequisitionView } from "./views";
+import type { BuyerView, DraftLine, EventItem, GroupView, LineView, RequisitionSummaryView, RequisitionView } from "./views";
 
 const STATE_TEXT: Record<RequisitionStatus, string> = { requested: "solicitada", approved: "aprobada", rejected: "rechazada", cancelled: "cancelada", closed: "cerrada" };
 const stateError = (s: RequisitionStatus) => new AppError("requisition_state", { state: STATE_TEXT[s] });
@@ -70,6 +74,16 @@ async function parseLines(repos: Repos, book: Book, businessId: string, raw: unk
 const toRows = (lines: ParsedLine[], requested: Map<string, string> = new Map()) =>
   lines.map((l) => ({ productId: l.productId, presentationId: l.presentationId, supplierId: l.supplierId, quantityBase: microToDb(l.quantityMicro), requestedBase: requested.get(l.productId) ?? microToDb(l.quantityMicro) }));
 
+/** Spec 013, RF-4: al fijar los grupos, cada proveedor toma su comprador habitual en la sucursal, si sigue activo. */
+async function newGroups(repos: Repos, branchId: string, supplierIds: (string | null)[]): Promise<NewGroup[]> {
+  const [habitual, staff] = await Promise.all([repos.requisitions.supplierBuyers.listByBranch(branchId), repos.personnel.employees.listByBranch(branchId)]);
+  const active = new Set(staff.filter((e) => e.active).map((e) => e.id));
+  return [...new Set(supplierIds)].map((supplierId) => {
+    const employeeId = supplierId ? habitual.find((h) => h.supplierId === supplierId)?.employeeId : undefined;
+    return { supplierId, buyerEmployeeId: employeeId && active.has(employeeId) ? employeeId : null };
+  });
+}
+
 const event = (repos: Repos, requisitionId: string, kind: string, actorId: string, at: Date, detail: Record<string, unknown> | null = null) => repos.requisitions.events.insert({ requisitionId, kind, actorId, at, detail });
 
 /** Una requisición de la sucursal activa; de otra, no existe (RF-6). */
@@ -103,7 +117,7 @@ export async function createRequisition(ctx: Ctx, scope: CatalogScope, input: { 
       await repos.requisitions.lines.replace(r.id, toRows(lines));
       await event(repos, r.id, "requested", scope.actor.id, now, { lines: lines.length });
       if (owner) {
-        await repos.requisitions.groups.insert(r.id, [...new Set(lines.map((l) => l.supplierId))]);
+        await repos.requisitions.groups.insert(r.id, await newGroups(repos, r.branchId, lines.map((l) => l.supplierId)));
         await event(repos, r.id, "approved", scope.actor.id, now, { direct: true });
       }
       return r;
@@ -138,8 +152,9 @@ function draft(book: Book, product: Product, micro: bigint, presentationId: stri
   return { productId: product.id, name: product.name, baseUnit: product.baseUnit, presentationId, quantity: qtyText(book, product, presentationId, micro), supplierId: supplierId && suppliers.has(supplierId) ? supplierId : null };
 }
 
-/** RF-14 a RF-19: renglones sugeridos desde los mínimos, un cálculo guardado o una plantilla de compra. */
-export async function suggestLines(ctx: Ctx, scope: CatalogScope, input: { warehouseId: unknown; source: unknown; id?: unknown }): Promise<{ lines: DraftLine[]; skipped: string[] }> {
+/** RF-14 a RF-19: renglones sugeridos desde los mínimos, un cálculo guardado o una plantilla de compra; spec 013,
+ * RF-32: cuántos entraron desde los mínimos sin máximo (solo hasta su mínimo). */
+export async function suggestLines(ctx: Ctx, scope: CatalogScope, input: { warehouseId: unknown; source: unknown; id?: unknown }): Promise<{ lines: DraftLine[]; skipped: string[]; withoutMax: number }> {
   const access = await inventoryAccess(ctx.store, scope);
   const wh = movableWarehouse(scope, access, input.warehouseId);
   const book = await loadBook(ctx.store, access.businessId);
@@ -151,6 +166,7 @@ export async function suggestLines(ctx: Ctx, scope: CatalogScope, input: { wareh
   const purchaseFactor = (p: Product) => (p.purchasePresentationId ? dbToMilli(book.presentations.get(p.purchasePresentationId)!.factor) : null);
   const lines: DraftLine[] = [];
   const skipped: string[] = [];
+  let withoutMax = 0;
   if (input.source === "minimums") {
     const [levels, stock] = await Promise.all([ctx.store.catalog.levels.listByBusiness(access.businessId), ctx.store.inventory.stock.listByWarehouses([wh.id])]);
     for (const l of levels.filter((x) => x.warehouseId === wh.id && x.minBase)) {
@@ -160,6 +176,7 @@ export async function suggestLines(ctx: Ctx, scope: CatalogScope, input: { wareh
       const missing = shortfall(have, dbToMicro(l.minBase!), l.maxBase ? dbToMicro(l.maxBase) : null);
       if (missing === null) continue;
       lines.push(draft(book, p, roundUp(missing, purchaseFactor(p)), p.purchasePresentationId, p.supplierId, suppliers));
+      if (!l.maxBase) withoutMax++;
     }
     lines.sort((a, b) => a.name.localeCompare(b.name, "es"));
   } else if (input.source === "calculation") {
@@ -186,7 +203,7 @@ export async function suggestLines(ctx: Ctx, scope: CatalogScope, input: { wareh
       lines.push(draft(book, p, dbToMicro(item.quantityBase), item.presentationId, item.supplierId ?? p.supplierId, suppliers));
     }
   } else throw new AppError("validation");
-  return { lines, skipped };
+  return { lines, skipped, withoutMax };
 }
 
 // ---------- Aprobación, rechazo y cancelación ----------
@@ -213,7 +230,7 @@ export async function approveRequisition(ctx: Ctx, scope: CatalogScope, id: stri
       // Lo que agrega el dueño no se había solicitado.
       current = await repos.requisitions.lines.replace(r.id, toRows(lines, new Map([...requested, ...lines.filter((l) => !requested.has(l.productId)).map((l) => [l.productId, "0"] as [string, string])])));
     }
-    await repos.requisitions.groups.insert(r.id, [...new Set(current.map((l) => l.supplierId))]);
+    await repos.requisitions.groups.insert(r.id, await newGroups(repos, r.branchId, current.map((l) => l.supplierId)));
     const after = await repos.requisitions.requisitions.update(r.id, { status: "approved", ...(input.note !== undefined ? { note: optionalText(input.note, NOTE_MAX) } : {}), updatedAt: now });
     await event(repos, r.id, "approved", scope.actor.id, now, changes.length ? { changes } : null);
     return after;
@@ -268,6 +285,8 @@ async function operable(repos: Repos, scope: CatalogScope, id: string) {
 
 export interface GroupInput {
   buyer?: unknown;
+  /** Spec 013, RF-5: persona activa de Personal de la sucursal, o `null` para quitarla. */
+  buyerEmployeeId?: unknown;
   purchased?: unknown;
   total?: unknown;
   amounts?: unknown;
@@ -289,7 +308,22 @@ export async function updateGroup(ctx: Ctx, scope: CatalogScope, id: string, gro
       if (buyer === null) throw new AppError("validation");
       if (buyer.length > BUYER_MAX) throw new AppError("buyer_too_long");
       patch.buyer = buyer || null;
+      patch.buyerEmployeeId = null;
       detail.buyer = patch.buyer;
+    }
+    if (input.buyerEmployeeId !== undefined) {
+      if (input.buyerEmployeeId !== null && typeof input.buyerEmployeeId !== "string") throw new AppError("validation");
+      if (input.buyerEmployeeId) {
+        const e = await repos.personnel.employees.findById(uuidOrNotFound(input.buyerEmployeeId));
+        if (!e || e.branchId !== r.branchId || e.businessId !== r.businessId || !e.active) throw new AppError("buyer_not_in_branch");
+        patch.buyerEmployeeId = e.id;
+        detail.buyer = e.name;
+      } else {
+        patch.buyerEmployeeId = null;
+        detail.buyer = null;
+      }
+      patch.buyer = null;
+      detail.buyerEmployeeId = patch.buyerEmployeeId;
     }
     if (input.amounts !== undefined) {
       if (!Array.isArray(input.amounts)) throw new AppError("validation");
@@ -403,14 +437,17 @@ const totalOf = (g: RequisitionGroup | null, lines: RequisitionLine[]) => groupT
 export async function requisitionDetail(ctx: Ctx, scope: CatalogScope, id: string): Promise<RequisitionView> {
   const access = await inventoryAccess(ctx.store, scope);
   const r = await ownRequisition(ctx.store, scope, id);
-  const [book, lines, groups, events, users, suppliers] = await Promise.all([
+  const [book, lines, groups, events, users, suppliers, staff, habitual] = await Promise.all([
     loadBook(ctx.store, access.businessId),
     ctx.store.requisitions.lines.listByRequisitions([r.id]),
     ctx.store.requisitions.groups.listByRequisitions([r.id]),
     ctx.store.requisitions.events.listByRequisition(r.id),
     ctx.store.users.list(),
     ctx.store.catalog.suppliers.listByBusiness(access.businessId),
+    ctx.store.personnel.employees.listByBranch(r.branchId),
+    ctx.store.requisitions.supplierBuyers.listByBranch(r.branchId),
   ]);
+  const person = new Map(staff.map((e) => [e.id, e]));
   const wh = visibleWarehouse(access, r.warehouseId);
   const nameOf = (uid: string | null) => (uid ? (users.find((u) => u.id === uid)?.name ?? "") : null);
   const owner = isOwner(scope.actor);
@@ -438,6 +475,10 @@ export async function requisitionDetail(ctx: Ctx, scope: CatalogScope, id: strin
       archived: p.archivedAt !== null,
     };
   });
+  const activeName = (employeeId: string | undefined) => {
+    const e = employeeId ? person.get(employeeId) : undefined;
+    return e?.active ? e.name : null;
+  };
   const groupViews: GroupView[] = groupsOf(r, lines, groups).map(({ g, supplierId, lines: gl }) => {
     const s = suppliers.find((x) => x.id === supplierId);
     const total = totalOf(g, gl);
@@ -446,7 +487,10 @@ export async function requisitionDetail(ctx: Ctx, scope: CatalogScope, id: strin
       supplierId,
       supplierName: s?.name ?? null,
       supplierArchived: !!s?.archivedAt,
-      buyer: g?.buyer ?? null,
+      buyer: (g?.buyerEmployeeId ? person.get(g.buyerEmployeeId)?.name : g?.buyer) ?? null,
+      buyerEmployeeId: g?.buyerEmployeeId ?? null,
+      buyerInactive: !!g?.buyerEmployeeId && person.get(g.buyerEmployeeId)?.active === false,
+      habitualBuyer: !g && supplierId ? (activeName(habitual.find((h) => h.supplierId === supplierId)?.employeeId) ?? null) : null,
       status: groupStatus(!!g?.purchasedAt, gl.map(state)),
       purchasedAt: g?.purchasedAt?.toISOString() ?? null,
       purchasedBy: nameOf(g?.purchasedBy ?? null),
@@ -456,6 +500,7 @@ export async function requisitionDetail(ctx: Ctx, scope: CatalogScope, id: strin
       lineIds: gl.map((l) => l.id),
     };
   });
+  const buyerViews = groups.length ? buyersOf(scope, r, groupViews, lineViews, person) : [];
   const totals = groupViews.map((g) => g.total).filter((t): t is string => t !== null);
   const eventViews: EventItem[] = events.map((e) => ({ kind: e.kind, at: e.at.toISOString(), actor: e.actorName, detail: (e.detail as Record<string, unknown> | null) ?? null }));
   return {
@@ -474,8 +519,33 @@ export async function requisitionDetail(ctx: Ctx, scope: CatalogScope, id: strin
     total: totals.length ? centsToText(totals.reduce((a, t) => a + BigInt(t.replace(".", "")), 0n)) : null,
     lines: lineViews,
     groups: groupViews,
+    buyers: buyerViews,
+    staff: work && canOperate(r.status) ? staff.filter((e) => e.active).map((e) => ({ id: e.id, name: e.name })).sort((a, b) => a.name.localeCompare(b.name, "es")) : [],
     events: eventViews,
   };
+}
+
+/** Spec 013, RF-8 a RF-15: compradores con sus proveedores; a quien tiene algo por comprar en una aprobada, su mensaje. */
+function buyersOf(scope: CatalogScope, r: Requisition, groups: GroupView[], lines: LineView[], person: Map<string, { name: string; phone: string | null; active: boolean }>): BuyerView[] {
+  const keyed = groups.map((g) => ({ ...g, buyer: g.buyer === null ? null : { key: g.buyerEmployeeId ?? `text:${g.buyer}`, name: g.buyer } }));
+  return byBuyer(keyed).map((b) => {
+    const employee = b.buyer && !b.buyer.key.startsWith("text:") ? person.get(b.buyer.key) : undefined;
+    const toBuy = b.groups.filter((g) => g.status === "to_buy");
+    let message: string | null = null;
+    let link: string | null = null;
+    let missingPhone = false;
+    if (r.status === "approved" && toBuy.length) {
+      const suppliers = toBuy.map((g) => ({
+        name: g.supplierName,
+        lines: lines.filter((l) => g.lineIds.includes(l.id) && !l.closed).map((l) => ({ product: l.name, quantity: es.requisitions.qty(l.quantity, l.presentation.name ?? es.catalog.unitShort[l.baseUnit] ?? l.baseUnit) })),
+      }));
+      message = buyerMessage(es.requisitions.whatsapp, { business: scope.active.business.name, branch: scope.active.branch.name, folio: r.folio }, suppliers, r.note);
+      const phone = whatsappPhone(employee?.phone);
+      missingPhone = phone === null;
+      link = whatsappLink(phone, message);
+    }
+    return { key: b.buyer?.key ?? null, name: b.buyer?.name ?? null, inactive: employee ? !employee.active : false, groupIds: b.groups.map((g) => g.id!), counts: b.counts, message, link, missingPhone };
+  });
 }
 
 const STATUSES: RequisitionStatus[] = ["requested", "approved", "rejected", "cancelled", "closed"];
@@ -524,9 +594,11 @@ export async function builderData(ctx: Ctx, scope: CatalogScope) {
     ctx.store.requisitions.templates.listByBranch(scope.active.branch.id),
   ]);
   const byName = <T extends { name: string }>(a: T, b: T) => a.name.localeCompare(b.name, "es");
+  const warehouses = access.visible.filter((w) => !w.archivedAt && canMoveInWarehouse(scope.actor, access.memberships, access.branches, w));
   return {
     owner: isOwner(scope.actor),
-    warehouses: access.visible.filter((w) => !w.archivedAt && canMoveInWarehouse(scope.actor, access.memberships, access.branches, w)).map(warehouseOption).sort(byName),
+    warehouses: warehouses.map(warehouseOption).sort(byName),
+    levels: await levelsForBuilder(ctx, book, access.businessId, warehouses.map((w) => w.id)),
     products: [...book.products.values()]
       .filter((p) => !p.archivedAt)
       .map((p) => ({ ...productOption(book, p), supplierId: p.supplierId, purchasePresentationId: p.purchasePresentationId }))
@@ -535,4 +607,34 @@ export async function builderData(ctx: Ctx, scope: CatalogScope) {
     calculations: calcs.slice(0, 30).map((c) => ({ id: c.id, createdAt: c.createdAt.toISOString(), author: c.authorName })),
     templates: templates.filter((x) => !x.archivedAt).map((x) => ({ id: x.id, name: x.name })),
   };
+}
+
+/** Spec 013, RF-30: existencia, mínimo y máximo de cada producto en cada almacén, ya en cada presentación
+ * (clave "" = unidad base), para mostrarlos al armar. Solo los productos con existencia o nivel. */
+export type BuilderLevels = Record<string, Record<string, Record<string, { stock: string; min: string | null; max: string | null }>>>;
+
+async function levelsForBuilder(ctx: Ctx, book: Book, businessId: string, warehouseIds: string[]): Promise<BuilderLevels> {
+  const [levels, stock] = await Promise.all([ctx.store.catalog.levels.listByBusiness(businessId), ctx.store.inventory.stock.listByWarehouses(warehouseIds)]);
+  const out: BuilderLevels = {};
+  const presentationsOf = new Map<string, { id: string; factor: string }[]>();
+  for (const pr of book.presentations.values()) presentationsOf.set(pr.productId, [...(presentationsOf.get(pr.productId) ?? []), pr]);
+  for (const wid of warehouseIds) {
+    const perProduct: BuilderLevels[string] = {};
+    const ids = new Set([...levels.filter((l) => l.warehouseId === wid).map((l) => l.productId), ...stock.filter((x) => x.warehouseId === wid).map((x) => x.productId)]);
+    for (const pid of ids) {
+      const p = book.products.get(pid);
+      if (!p || p.archivedAt) continue;
+      const l = levels.find((x) => x.warehouseId === wid && x.productId === pid);
+      const have = dbToSignedMicro(stock.find((x) => x.warehouseId === wid && x.productId === pid)?.quantityBase ?? "0");
+      const shown = (micro: bigint, factor: bigint) => (micro < 0n ? `-${formatMilli(fromBaseMicro(-micro, factor))}` : formatMilli(fromBaseMicro(micro, factor)));
+      const entry: Record<string, { stock: string; min: string | null; max: string | null }> = {};
+      for (const pr of [{ id: "", factor: "1" }, ...(presentationsOf.get(pid) ?? [])]) {
+        const f = pr.id ? dbToMilli(pr.factor) : 1000n;
+        entry[pr.id] = { stock: shown(have, f), min: l?.minBase ? shown(dbToMicro(l.minBase), f) : null, max: l?.maxBase ? shown(dbToMicro(l.maxBase), f) : null };
+      }
+      perProduct[pid] = entry;
+    }
+    out[wid] = perProduct;
+  }
+  return out;
 }

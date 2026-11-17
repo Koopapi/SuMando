@@ -1,6 +1,12 @@
-// Spec 007: handlers de requisiciones con sesión y sucursal activa, su contrato y el aislamiento.
+// Specs 007 y 013: handlers de requisiciones con sesión y sucursal activa, su contrato y el aislamiento.
 import { describe, expect, it } from "vitest";
 import { POST as login } from "@/app/api/auth/login/route";
+import { POST as empPost } from "@/app/api/employees/route";
+import { POST as posPost } from "@/app/api/positions/route";
+import { GET as pdGet, POST as pdPost } from "@/app/api/purchase-data/route";
+import { PUT as buyerPut } from "@/app/api/supplier-buyers/[supplierId]/route";
+import { GET as buyersGet } from "@/app/api/supplier-buyers/route";
+import { POST as supplierPost } from "@/app/api/suppliers/route";
 import { POST as movePost } from "@/app/api/inventory/movements/route";
 import { POST as productPost } from "@/app/api/products/route";
 import { POST as tplAction } from "@/app/api/purchase-templates/[id]/[action]/route";
@@ -73,7 +79,7 @@ describe("spec 007 — API de requisiciones", () => {
   it("test_s007_rf14_rf18_sugerencias_y_plantillas_por_la_api", async () => {
     const w = await world();
     const sug = await w.sendero.call(suggest, "/api/requisitions/suggest", { body: { warehouseId: w.bodega, source: "minimums" } });
-    expect(await json(sug)).toEqual({ lines: [], skipped: [] });
+    expect(await json(sug)).toEqual({ lines: [], skipped: [], withoutMax: 0 });
     expect((await w.sendero.call(suggest, "/api/requisitions/suggest", { body: { warehouseId: w.bodega, source: "otro" } })).status).toBe(422);
     const t = await w.sendero.call(tplPost, "/api/purchase-templates", { body: { name: "Lunes", lines: [{ productId: w.leche, quantity: "500" }] } });
     expect(t.status).toBe(201);
@@ -83,5 +89,37 @@ describe("spec 007 — API de requisiciones", () => {
     await w.sendero.call((r) => tplAction(r, p({ id: template.id, action: "archive" })), "/x", { body: {} });
     expect((await json(await w.sendero.call(tplList, "/api/purchase-templates"))).templates).toEqual([{ id: template.id, name: "Lunes temprano", archived: true, lines: 1 }]);
     expect((await json(await w.inCentro.call(tplList, "/api/purchase-templates"))).templates).toEqual([]);
+  });
+});
+
+describe("spec 013 — API de compradores y datos de compra", () => {
+  it("test_s013_rf1_rf5_rf11_comprador_habitual_y_mensaje_por_la_api", async () => {
+    const w = await world();
+    const { supplier } = await json(await w.sendero.call(supplierPost, "/api/suppliers", { body: { name: "Sams" } }));
+    const { position } = await json(await w.sendero.call(posPost, "/api/positions", { body: { name: "Comprador" } }));
+    const { employee } = await json(await w.sendero.call(empPost, "/api/employees", { body: { name: "Ana Compras", positionId: position.id, hiredOn: "2026-11-01", phone: "5512345678" } }));
+    const put = await w.sendero.call((r) => buyerPut(r, p({ supplierId: supplier.id })), "/x", { method: "PUT", body: { employeeId: employee.id } });
+    expect(await json(put)).toEqual({ supplierId: supplier.id, employeeId: employee.id });
+    expect((await json(await w.sendero.call(buyersGet, "/api/supplier-buyers"))).buyers).toEqual([{ supplierId: supplier.id, employeeId: employee.id, name: "Ana Compras", active: true }]);
+    // En Centro, la persona de Sendero no se puede asignar.
+    expect((await w.inCentro.call((r) => buyerPut(r, p({ supplierId: supplier.id })), "/x", { method: "PUT", body: { employeeId: employee.id } })).status).toBe(422);
+    expect((await w.sendero.call((r) => buyerPut(r, p({ supplierId: supplier.id })), "/x", { method: "PUT", body: { employeeId: 3 } })).status).toBe(422);
+    const { requisition } = await json(await w.sendero.call(reqPost, "/api/requisitions", { body: { warehouseId: w.bodega, lines: [{ productId: w.leche, quantity: "1000", supplierId: supplier.id }] } }));
+    const d = (await json(await w.sendero.call((r) => reqGet(r, p({ id: requisition.id })), "/x"))).requisition;
+    expect(d.buyers[0]).toMatchObject({ name: "Ana Compras", missingPhone: false, link: expect.stringMatching(/^https:\/\/wa\.me\/525512345678\?text=/) });
+    const cleared = await w.sendero.call((r) => groupPatch(r, p({ id: requisition.id, groupId: d.groups[0].id })), "/x", { method: "PATCH", body: { buyerEmployeeId: null } });
+    expect((await json(cleared)).requisition.buyers[0].name).toBeNull();
+  });
+
+  it("test_s013_rf18_rf21_rf23_datos_de_compra_por_la_api", async () => {
+    const w = await world();
+    await w.sendero.call(movePost, "/api/inventory/movements", { body: { kind: "entry", warehouseId: w.bodega, lines: [{ productId: w.leche, quantity: "500" }] } });
+    const view = await json(await w.sendero.call(pdGet, `/api/purchase-data?almacen=${w.bodega}`));
+    expect(view.rows.map((r: { name: string; stock: string }) => [r.name, r.stock])).toEqual([["Leche", "500"]]);
+    const saved = await json(await w.sendero.call(pdPost, "/api/purchase-data", { body: { warehouseId: w.bodega, changes: [{ productId: w.leche, min: "1000", max: "2000" }, { productId: w.leche, max: "1" }] } }));
+    expect(saved.saved).toBe(1);
+    expect(saved.errors).toEqual([{ productId: w.leche, code: "max_below_min", message: expect.any(String) }]);
+    expect((await w.inCentro.call(pdGet, `/api/purchase-data?almacen=${w.bodega}`)).status).toBe(404);
+    expect((await w.sendero.call(pdPost, "/api/purchase-data", { body: { warehouseId: w.bodega, changes: "x" } })).status).toBe(422);
   });
 });

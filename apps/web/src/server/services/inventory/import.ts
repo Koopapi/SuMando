@@ -3,7 +3,7 @@
 // negocio y guarda proveedores, productos, presentaciones, mínimos, áreas con su lista y un conteo por área.
 import type { Product } from "@/db/schema";
 import { CATALOG_NAME_MAX, catalogKey } from "@/domain/catalog/names";
-import { formatMilli, microToDb, milliToDb } from "@/domain/catalog/units";
+import { dbToMicro, formatMilli, microToDb, milliToDb } from "@/domain/catalog/units";
 import { countResult } from "@/domain/inventory/count";
 import { dbToSignedMicro, signedMicroToDb } from "@/domain/inventory/quantities";
 import { analyzeInventorySheets, type AnalyzedRow, type PlannedPresentation, type RowProblem, type RowWarning } from "@/domain/inventory/sheet-import";
@@ -32,6 +32,8 @@ export interface ImportRowView {
   supplier: string | null;
   /** En la unidad base. */
   min: string | null;
+  /** Spec 013, RF-28: en la unidad base. */
+  max: string | null;
   quantity: string | null;
   problems: RowProblem[];
   warnings: RowWarning[];
@@ -106,6 +108,7 @@ export async function reviewInventoryImport(ctx: Ctx, scope: CatalogScope, wareh
       purchase: pres(r.purchase),
       supplier: r.supplier,
       min: r.minMilli === null ? null : formatMilli(r.minMilli),
+      max: r.maxMilli === null ? null : formatMilli(r.maxMilli),
       quantity: r.quantityMilli === null ? null : formatMilli(r.quantityMilli),
       problems: r.problems,
       warnings: r.warnings,
@@ -193,12 +196,19 @@ export async function confirmInventoryImport(ctx: Ctx, scope: CatalogScope, ware
         if (supplierId && !product.supplierId) patch.supplierId = supplierId;
         if (Object.keys(patch).length > 1) product = await repos.catalog.products.update(product.id, patch);
         productIds.set(r.nameKey, product.id);
-        // RF-31: el mínimo, si el producto no tiene uno en el almacén.
-        if (r.minMilli !== null) {
+        // RF-31 y spec 013, RF-27: el mínimo y el máximo, cada uno si el producto no lo tiene en el almacén y sin que
+        // el máximo quede por debajo del mínimo vigente.
+        if (r.minMilli !== null || r.maxMilli !== null) {
           const level = await repos.catalog.levels.find(product.id, warehouse.id);
-          if (!level?.minBase) await repos.catalog.levels.upsert({ businessId, productId: product.id, warehouseId: warehouse.id, minBase: microToDb(r.minMilli * 1000n), maxBase: level?.maxBase ?? null, updatedBy: actor, at: now });
+          let minBase = level?.minBase ?? (r.minMilli === null ? null : microToDb(r.minMilli * 1000n));
+          let maxBase = level?.maxBase ?? (r.maxMilli === null ? null : microToDb(r.maxMilli * 1000n));
+          if (minBase !== null && maxBase !== null && dbToMicro(maxBase) < dbToMicro(minBase)) {
+            if (!level?.maxBase) maxBase = null;
+            else if (!level?.minBase) minBase = null;
+          }
+          if (minBase !== (level?.minBase ?? null) || maxBase !== (level?.maxBase ?? null)) await repos.catalog.levels.upsert({ businessId, productId: product.id, warehouseId: warehouse.id, minBase, maxBase, updatedBy: actor, at: now });
         }
-        await audit(r.existingId ? "product.completed_by_import" : "product.imported", "product", product.id, { name: product.name, baseUnit: product.baseUnit, count: r.count && pres(r.count), purchase: r.purchase && pres(r.purchase), supplierId: product.supplierId, minBase: r.minMilli === null ? null : formatMilli(r.minMilli) });
+        await audit(r.existingId ? "product.completed_by_import" : "product.imported", "product", product.id, { name: product.name, baseUnit: product.baseUnit, count: r.count && pres(r.count), purchase: r.purchase && pres(r.purchase), supplierId: product.supplierId, minBase: r.minMilli === null ? null : formatMilli(r.minMilli), maxBase: r.maxMilli === null ? null : formatMilli(r.maxMilli) });
       }
 
       // RF-30: cada producto al final de la lista de su área, salvo que ya se cuente en otra área de ese almacén.

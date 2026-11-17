@@ -88,6 +88,9 @@ export function StockView({ warehouses, warehouse, rows, pending }: { warehouses
         <Link href="/inventario/movimientos" className="inline-flex min-h-11 items-center font-semibold text-primary">
           {t.movements}
         </Link>
+        <Link href={`/inventario/datos-de-compra${q}`} className="inline-flex min-h-11 items-center font-semibold text-primary">
+          {t.purchaseData.link}
+        </Link>
       </nav>
       {pending > 0 ? (
         <Alert tone="info">

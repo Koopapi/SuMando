@@ -30,6 +30,7 @@ export const common = {
   detailsOf: (name: string) => `Detalle de ${name}`,
   clearFilters: "Limpiar búsqueda y filtros",
   noMatches: "Ningún renglón coincide",
+  noOptions: "Nada coincide con lo que escribiste.",
   noMatchesBody: "Prueba con otra palabra o quita los filtros.",
   showing: (n: number, total: number) => `Mostrando ${n} de ${total}`,
   decrease: (name: string) => `Restar a ${name}`,
