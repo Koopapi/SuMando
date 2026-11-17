@@ -1,6 +1,6 @@
 // Criterios de la spec 005: inventarios (existencias, movimientos, traspasos, áreas y conteo), en escritorio.
 import postgres from "postgres";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { OWNER, login, ownerApiAt, seedBusiness, seedOwner } from "./helpers";
 import { BASE, DB } from "./warm";
@@ -25,6 +25,11 @@ async function world() {
   return { pastatti, pirrus, bodega: bodega.id as string };
 }
 
+/** Spec 014: el producto se busca escribiendo (ComboField). */
+async function pick(row: Locator, product: string) {
+  await row.getByRole("combobox", { name: "Producto" }).fill(product);
+  await row.page().getByRole("option", { name: product }).click();
+}
 const stockRow = (page: Page, product: string) => page.getByRole("row").filter({ hasText: product });
 const workAt = (page: Page, branchId: string) => page.request.put(`${BASE}/api/session/branch`, { data: { branchId } });
 
@@ -57,12 +62,12 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await page.goto(`/inventario?almacen=${w.bodega}`);
     await page.getByRole("link", { name: "Entrada" }).click();
     const first = page.getByRole("group", { name: "Producto 1" });
-    await first.getByLabel("Producto", { exact: true }).selectOption({ label: "Queso manchego" });
+    await pick(first, "Queso manchego");
     await first.getByLabel("Cantidad").fill("2");
     await expect(first.getByLabel("En")).toHaveValue(/.+/);
     await page.getByRole("button", { name: "Agregar producto" }).click();
     const second = page.getByRole("group", { name: "Producto 2" });
-    await second.getByLabel("Producto", { exact: true }).selectOption({ label: "Leche" });
+    await pick(second, "Leche");
     await second.getByLabel("Cantidad").fill("1000");
     await page.getByLabel("Folio o factura").fill("F-100");
     await page.getByRole("button", { name: "Guardar" }).click();
@@ -74,7 +79,7 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await page.goto(`/inventario/salida?almacen=${w.bodega}`);
     await page.getByLabel("Motivo").selectOption({ label: "Merma" });
     const first = page.getByRole("group", { name: "Producto 1" });
-    await first.getByLabel("Producto", { exact: true }).selectOption({ label: "Leche" });
+    await pick(first, "Leche");
     await first.getByLabel("Cantidad").fill("200");
     await page.getByRole("button", { name: "Guardar" }).click();
     await expect(page.getByText("Merma")).toBeVisible();
@@ -86,15 +91,15 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await expect(stockRow(page, "Queso manchego")).toContainText("2 Pieza");
     await expect(stockRow(page, "Queso manchego")).toContainText("Bajo mínimo");
     await expect(stockRow(page, "Queso manchego")).toContainText("Lácteos");
-    await page.getByRole("button", { name: "Bajo mínimo", exact: true }).click();
+    await page.getByLabel("Estado", { exact: true }).selectOption({ label: "Bajo mínimo" });
     await expect(stockRow(page, "Leche")).toHaveCount(0);
-    await page.getByRole("button", { name: "Bajo mínimo", exact: true }).click();
+    await page.getByRole("button", { name: "Limpiar", exact: true }).click();
   });
 
   await test.step("RF-20 RF-21 una salida mayor deja la existencia en negativo, marcada", async () => {
     await page.goto(`/inventario/salida?almacen=${w.bodega}`);
     const first = page.getByRole("group", { name: "Producto 1" });
-    await first.getByLabel("Producto", { exact: true }).selectOption({ label: "Queso manchego" });
+    await pick(first, "Queso manchego");
     await first.getByLabel("Cantidad").fill("3");
     await page.getByLabel("Motivo").selectOption({ label: "Cortesía" });
     await page.getByRole("button", { name: "Guardar" }).click();
@@ -108,7 +113,7 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await page.goto(`/inventario/traspaso?almacen=${w.bodega}`);
     await page.getByLabel("Hacia").selectOption({ label: "Pastatti · Central" });
     const first = page.getByRole("group", { name: "Producto 1" });
-    await first.getByLabel("Producto", { exact: true }).selectOption({ label: "Leche" });
+    await pick(first, "Leche");
     await first.getByLabel("Cantidad").fill("300");
     await page.getByRole("button", { name: "Traspaso" }).click();
     await expect(page.getByText("Hecho", { exact: true })).toBeVisible();
@@ -121,7 +126,7 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
     await page.goto(`/inventario/traspaso?almacen=${w.bodega}`);
     await page.getByLabel("Hacia").selectOption({ label: "Pirrus · Bodega Pirrus" });
     const first = page.getByRole("group", { name: "Producto 1" });
-    await first.getByLabel("Producto", { exact: true }).selectOption({ label: "Leche" });
+    await pick(first, "Leche");
     await first.getByLabel("Cantidad").fill("100");
     await page.getByRole("button", { name: "Traspaso" }).click();
     await expect(page.getByText("En camino", { exact: true })).toBeVisible();

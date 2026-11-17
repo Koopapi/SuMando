@@ -24,9 +24,9 @@ export function TablePattern() {
     { key: "supplier", header: t.columns.supplier, cell: (r) => r.supplier },
   ];
   const filters: Filter<SampleProduct>[] = [
-    { id: "dairy", label: t.filters.dairy, test: (r) => r.area === "Lácteos" },
-    { id: "vegetables", label: t.filters.vegetables, test: (r) => r.area === "Verduras" },
-    { id: "low", label: t.filters.low, test: (r) => r.status !== "ok" },
+    { id: "dairy", group: "area", groupLabel: es.common.filterGroups.area, label: t.filters.dairy, test: (r) => r.area === "Lácteos" },
+    { id: "vegetables", group: "area", groupLabel: es.common.filterGroups.area, label: t.filters.vegetables, test: (r) => r.area === "Verduras" },
+    { id: "low", group: "status", groupLabel: es.common.filterGroups.status, label: t.filters.low, test: (r) => r.status !== "ok" },
   ];
   return (
     <>

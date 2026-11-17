@@ -9,7 +9,7 @@ import { PageHeader } from "./page-header";
  */
 export function PageShell({ title, subtitle, figure, figureLabel, action, children, narrow = false }: { title?: string; subtitle?: string; figure?: string; figureLabel?: string; action?: ReactNode; children: ReactNode; narrow?: boolean }) {
   return (
-    <main className={`mx-auto flex w-full flex-col gap-6 px-4 pt-6 pb-10 lg:px-12 lg:py-9 ${narrow ? "max-w-3xl" : "max-w-6xl"}`}>
+    <main className={`mx-auto flex w-full flex-col gap-4 px-4 pt-4 pb-10 lg:gap-5 lg:px-10 lg:py-6 ${narrow ? "max-w-3xl" : "max-w-6xl"}`}>
       {title ? <PageHeader title={title} subtitle={subtitle} figure={figure} figureLabel={figureLabel} action={action} /> : null}
       {children}
     </main>

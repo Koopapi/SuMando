@@ -18,6 +18,7 @@ import { createPosition } from "@/server/services/personnel/positions";
 import { dashboardAlerts } from "@/server/services/reports/alerts";
 import { dashboardPage, dashboardSection, dashboardSummary } from "@/server/services/reports/dashboard";
 import { dashboardExcel } from "@/server/services/reports/export";
+import { documentLogo, setBusinessLogo } from "@/server/services/business-logo";
 import { dashboardScope } from "@/server/services/reports/scope";
 import { approveRequisition, createRequisition, rejectRequisition } from "@/server/services/requisitions/requisitions";
 import { code, inventoryWorld } from "./inventory-fixture";
@@ -383,5 +384,33 @@ describe("spec 012 — Excel", () => {
     expect(alertRows.flat()).not.toContain("Pirrus");
     const ownerAlerts = readWorkbook((await dashboardExcel(w.ctx, w.owner, "alerts", {})).bytes).sheets[0].rows;
     expect(ownerAlerts.at(-1)).toEqual(["Cortes con diferencia", "Pirrus", "Centro", "Corte del 2026-11-11", "Diferencia de 1.00"]);
+  });
+});
+
+describe("spec 014 — logo en el Excel del tablero", () => {
+  const png = (width: number, height: number) => {
+    const b = new Uint8Array(33);
+    b.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52]);
+    new DataView(b.buffer).setUint32(16, width);
+    new DataView(b.buffer).setUint32(20, height);
+    return b;
+  };
+
+  it("test_s014_rf32_el_excel_de_un_negocio_lleva_su_logo_y_el_de_varios_no", async () => {
+    const w = await world();
+    await w.senderoCut(0);
+    await w.pirrusCut(0);
+    await setBusinessLogo(w.ctx, w.owner, w.pastatti.id, png(400, 100));
+    const one = (await dashboardExcel(w.ctx, w.senderoAdmin, "sales", {})).bytes.toString("latin1");
+    expect(one).toContain("xl/media/logo.png");
+    const many = (await dashboardExcel(w.ctx, w.owner, "sales", {})).bytes.toString("latin1");
+    expect(many).not.toContain("xl/media/logo.png");
+  });
+
+  it("test_s014_rf31_rf32_el_logo_del_documento_mide_48_px_de_alto_y_cabe_completo", async () => {
+    const w = await world();
+    await setBusinessLogo(w.ctx, w.owner, w.pastatti.id, png(400, 100));
+    expect(await documentLogo(w.ctx, w.pastatti.id)).toMatchObject({ width: 192, height: 48 });
+    expect(await documentLogo(w.ctx, w.pirrus.id)).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import { cutFigures, piecesTotal, sumMovements } from "@/domain/cash/calc";
 import { compare, weekInPeriod, type Period } from "@/domain/reports/period";
 import { addDays } from "@/domain/payroll/week";
 import type { BusinessColor } from "@/domain/business-color";
+import { logoVersion } from "../business-logo";
 import { moneyText } from "../payroll/weeks";
 import type { Ctx } from "../context";
 import type { DashboardScope, MoneySection } from "./scope";
@@ -25,6 +26,8 @@ export interface FigureRow {
 
 export interface BusinessRow extends FigureRow {
   color: BusinessColor;
+  /** Spec 014, RF-29. */
+  logoVersion: string | null;
   branches: FigureRow[];
 }
 
@@ -143,7 +146,7 @@ export function moneyDetail(scope: DashboardScope, c: Collected, section: MoneyS
   for (const { branch, business } of scope.branches) {
     let row = businesses.find((b) => b.id === business.id);
     if (!row) {
-      row = { id: business.id, name: business.name, color: business.color as BusinessColor, figure: figureOf(zero()), branches: [] };
+      row = { id: business.id, name: business.name, color: business.color as BusinessColor, logoVersion: logoVersion(business), figure: figureOf(zero()), branches: [] };
       businesses.push(row);
     }
     row.branches.push({ id: branch.id, name: branch.name, figure: figureOf(pairFor(c.byBranch.get(branch.id)!, section)) });

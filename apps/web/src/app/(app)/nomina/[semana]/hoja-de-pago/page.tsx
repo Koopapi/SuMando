@@ -6,7 +6,9 @@ import { es } from "@/i18n";
 import { appCtx } from "@/server/app-context";
 import { requirePageBranch } from "@/server/auth/page-guards";
 import { isAppError } from "@/server/errors";
+import { logoVersion } from "@/server/services/business-logo";
 import { payrollWeekForOwner } from "@/server/services/payroll/weeks";
+import type { BusinessColor } from "@/domain/business-color";
 import { PageShell } from "@/ui";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +26,9 @@ export default async function Page({ params }: { params: Promise<{ semana: strin
   const cash = Object.fromEntries(Object.entries(breakdowns).map(([id, b]) => [id, serialCash(b)]));
   return (
     <PageShell>
-      <PaySheet start={data.view.start} end={data.view.end} total={data.view.totals!.net} rows={rows} cash={cash} totalCash={serialCash(sumBreakdowns(Object.values(breakdowns)))} />
+      <PaySheet start={data.view.start} end={data.view.end} total={data.view.totals!.net} rows={rows} cash={cash} totalCash={serialCash(sumBreakdowns(Object.values(breakdowns)))}
+        business={{ id: active.business.id, name: active.business.name, color: active.business.color as BusinessColor, logoVersion: logoVersion(active.business) }}
+      />
     </PageShell>
   );
 }

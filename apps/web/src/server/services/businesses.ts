@@ -7,6 +7,7 @@ import { nameKey } from "@/domain/text";
 import { AppError } from "../errors";
 import type { Repos } from "../ports";
 import { recordAudit } from "./audit";
+import { logoVersion } from "./business-logo";
 import type { Ctx } from "./context";
 import type { PublicUser } from "./users-public";
 import { assertValidName, isUniqueViolation } from "./validation";
@@ -211,9 +212,11 @@ export interface BusinessView {
   id: string;
   name: string;
   color: BusinessColor;
+  /** Spec 014: versión del logo (nulo = sin logo). */
+  logoVersion: string | null;
   archived: boolean;
   branches: BranchView[];
 }
 
 export const branchView = (b: Branch): BranchView => ({ id: b.id, name: b.name, archived: b.archivedAt !== null });
-export const businessView = (b: BusinessWithBranches): BusinessView => ({ id: b.id, name: b.name, color: b.color as BusinessColor, archived: b.archivedAt !== null, branches: b.branches.map(branchView) });
+export const businessView = (b: BusinessWithBranches): BusinessView => ({ id: b.id, name: b.name, color: b.color as BusinessColor, logoVersion: logoVersion(b), archived: b.archivedAt !== null, branches: b.branches.map(branchView) });

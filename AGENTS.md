@@ -50,6 +50,10 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
   `server/auth/checklist-actor.ts`; sus pantallas viven en `/piso`, fuera de `(app)`.
 - Corte de caja (spec 011): `domain/cash` y `server/services/cash`; la vista del teléfono de piso es ciega (sin
   datos del punto de venta) y eso lo comprueban los tests de integración.
+- Pulido visual (spec 014): menú por áreas desde `domain/navigation.ts` (la barra del teléfono: Inicio, Inventario,
+  Requisiciones, Checklists); `DataTable` con filtros por tipo (`group`), `groupBy` plegable y páginas de 25;
+  `CaptureRow` para renglones de captura; logo del negocio por `/api/businesses/[id]/logo` (PNG convertido en el
+  navegador) con `BusinessMark`, también en la hoja de pago y en los Excel de un negocio.
 - Requisiciones en el día a día (spec 013): comprador habitual por proveedor y sucursal en `supplier_buyers` (persona
   de Personal); la lista de cada comprador va por WhatsApp con un enlace `wa.me` que arma el servidor
   (`domain/requisitions/whatsapp.ts`), sin la API de Meta; «Datos de compra» en `/inventario/datos-de-compra`;

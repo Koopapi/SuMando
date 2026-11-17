@@ -1,10 +1,11 @@
 // Spec 009 RF-41 a RF-44: hoja de pago con un bloque por empleado (desglose, neto, billetes y firma) y el efectivo
 // a preparar para toda la semana. Solo la ve el dueño.
 import Link from "next/link";
+import type { BusinessColor } from "@/domain/business-color";
 import { DENOMINATIONS, type Breakdown } from "@/domain/payroll/cash";
 import { es } from "@/i18n";
 import type { PayrollRowView } from "@/server/services/payroll/views";
-import { PageHeader, SectionLabel, formatMoney } from "@/ui";
+import { BusinessMark, PageHeader, SectionLabel, formatMoney, logoUrl } from "@/ui";
 import { showDate } from "../personnel/dates";
 import { PrintButton } from "./print-button";
 
@@ -28,9 +29,14 @@ function Cash({ cash, testId }: { cash: { pieces: { cents: string; count: number
 
 export const serialCash = (b: Breakdown) => ({ pieces: b.pieces.map((p) => ({ cents: p.cents.toString(), count: p.count })), leftover: b.leftoverCents.toString() });
 
-export function PaySheet({ start, end, total, rows, cash, totalCash }: { start: string; end: string; total: string; rows: PayrollRowView[]; cash: Record<string, ReturnType<typeof serialCash>>; totalCash: ReturnType<typeof serialCash> }) {
+export function PaySheet({ start, end, total, rows, cash, totalCash, business }: { start: string; end: string; total: string; rows: PayrollRowView[]; cash: Record<string, ReturnType<typeof serialCash>>; totalCash: ReturnType<typeof serialCash>; business: { id: string; name: string; color: BusinessColor; logoVersion: string | null } }) {
   return (
     <>
+      {/* Spec 014, RF-31: el logo del negocio encabeza la hoja de pago (también impresa). */}
+      <p className="flex items-center gap-3 font-brand text-lg font-bold" data-testid="pay-sheet-business">
+        <BusinessMark name={business.name} color={business.color} logoUrl={logoUrl(business.id, business.logoVersion)} size="lg" />
+        {business.name}
+      </p>
       <Link href={`/nomina/${start}`} className="inline-flex min-h-11 items-center self-start font-semibold text-primary print:hidden">
         {t.back}
       </Link>

@@ -124,13 +124,14 @@ export function PurchaseData({ warehouses, view }: { warehouses: WarehouseOption
   ];
 
   const rows = view?.rows ?? [];
+  const fg = es.common.filterGroups;
   const filters: Filter<PurchaseRow>[] = [
-    { id: "no-supplier", label: t.filterNoSupplier, test: (r) => r.supplierId === null },
-    { id: "no-presentation", label: t.filterNoPresentation, test: (r) => r.purchasePresentationId === null },
-    { id: "no-min", label: t.filterNoMin, test: (r) => r.min === null },
-    { id: "no-max", label: t.filterNoMax, test: (r) => r.max === null },
-    ...(view?.areas ?? []).map((a) => ({ id: `area:${a.id}`, label: t.filterArea(a.name), test: (r: PurchaseRow) => r.area?.id === a.id })),
-    ...(view?.suppliers ?? []).filter((s) => rows.some((r) => r.supplierId === s.id)).map((s) => ({ id: `supplier:${s.id}`, label: t.filterSupplier(s.name), test: (r: PurchaseRow) => r.supplierId === s.id })),
+    { id: "no-supplier", group: "data", groupLabel: fg.data, label: t.filterNoSupplier, test: (r) => r.supplierId === null },
+    { id: "no-presentation", group: "data", groupLabel: fg.data, label: t.filterNoPresentation, test: (r) => r.purchasePresentationId === null },
+    { id: "no-min", group: "data", groupLabel: fg.data, label: t.filterNoMin, test: (r) => r.min === null },
+    { id: "no-max", group: "data", groupLabel: fg.data, label: t.filterNoMax, test: (r) => r.max === null },
+    ...(view?.areas ?? []).map((a) => ({ id: `area:${a.id}`, group: "area", groupLabel: fg.area, label: a.name, test: (r: PurchaseRow) => r.area?.id === a.id })),
+    ...(view?.suppliers ?? []).filter((s) => rows.some((r) => r.supplierId === s.id)).map((s) => ({ id: `supplier:${s.id}`, group: "supplier", groupLabel: fg.supplier, label: s.name, test: (r: PurchaseRow) => r.supplierId === s.id })),
   ];
 
   return (
@@ -163,6 +164,9 @@ export function PurchaseData({ warehouses, view }: { warehouses: WarehouseOption
           searchLabel={t.search}
           filters={filters}
           emptyTitle={t.empty}
+          groupBy={(r) => r.area?.name ?? null}
+          groupNone={es.common.noArea}
+          storageKey={`datos-de-compra:${view.warehouse.id}`}
         />
       ) : null}
       {changed ? (

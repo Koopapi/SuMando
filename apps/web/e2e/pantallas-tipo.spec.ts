@@ -13,7 +13,7 @@ function watchWrites(page: Page) {
   return writes;
 }
 
-const rows = (page: Page) => page.locator("tbody tr");
+const rows = (page: Page) => page.locator("tbody tr[data-row]");
 
 test("tabla larga con búsqueda y filtros", async ({ page }) => {
   const writes = watchWrites(page);
@@ -39,9 +39,10 @@ test("tabla larga con búsqueda y filtros", async ({ page }) => {
   });
 
   await test.step("RF-31 sin resultados aparece el vacío con acción para limpiar", async () => {
-    await page.getByRole("button", { name: "Lácteos" }).click();
-    await page.getByRole("button", { name: "Solo bajos" }).click();
-    await expect(page.getByRole("button", { name: "Lácteos" })).toHaveAttribute("aria-pressed", "true");
+    // Spec 014 (RF-8, RF-9): un selector por tipo y una etiqueta por filtro elegido.
+    await page.getByLabel("Área", { exact: true }).selectOption({ label: "Lácteos" });
+    await page.getByLabel("Estado", { exact: true }).selectOption({ label: "Solo bajos" });
+    await expect(page.getByRole("button", { name: "Quitar el filtro Lácteos" })).toBeVisible();
     await page.getByRole("searchbox").fill("aceite");
     await expect(page.locator("[data-state=empty]")).toContainText("Ningún renglón coincide");
     await page.getByRole("button", { name: "Limpiar búsqueda y filtros" }).click();

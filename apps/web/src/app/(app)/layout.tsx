@@ -5,6 +5,7 @@ import { AppShell } from "@/features/shell/app-shell";
 import { appCtx } from "@/server/app-context";
 import { currentSession } from "@/server/auth/session";
 import { resolveBranchState } from "@/server/services/active-branch";
+import { logoVersion } from "@/server/services/business-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session) redirect("/login");
   const state = await resolveBranchState(appCtx(), session);
   const active =
-    state.kind === "active" ? { business: state.active.business.name, branch: state.active.branch.name, color: state.active.business.color as BusinessColor } : null;
+    state.kind === "active"
+      ? { businessId: state.active.business.id, business: state.active.business.name, branch: state.active.branch.name, color: state.active.business.color as BusinessColor, logoVersion: logoVersion(state.active.business) }
+      : null;
   return (
     <AppShell user={session.user} active={active}>
       {children}

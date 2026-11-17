@@ -32,19 +32,27 @@ export async function openMenuIfNeeded(page: Page) {
   if (await more.isVisible()) await more.click();
 }
 
+/** Abre el menú de la cuenta (spec 014, RF-4), donde viven «Cambiar contraseña» y «Cerrar sesión». */
+export async function openAccountMenu(page: Page) {
+  const account = page.getByRole("button", { name: /^Tu cuenta:/ }).filter({ visible: true });
+  if ((await account.getAttribute("aria-expanded")) !== "true") await account.click();
+}
+
 /** Comprueba que se puede cerrar sesión (en teléfono, dentro de «Más», que luego se vuelve a cerrar). */
 export async function expectCanLogout(page: Page) {
   const more = moreButton(page);
   const phone = await more.isVisible();
   if (phone) await more.click();
-  await page.getByRole("button", { name: "Cerrar sesión" }).waitFor();
+  await openAccountMenu(page);
+  await page.getByRole("button", { name: "Cerrar sesión" }).filter({ visible: true }).waitFor();
   if (phone) await page.keyboard.press("Escape");
 }
 
 /** Cierra la sesión y espera a estar de vuelta en la pantalla de entrada. */
 export async function logout(page: Page) {
   await openMenuIfNeeded(page);
-  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await openAccountMenu(page);
+  await page.getByRole("button", { name: "Cerrar sesión" }).filter({ visible: true }).click();
   await page.waitForURL(/\/login$/);
 }
 

@@ -26,6 +26,12 @@ export const shell = {
   cash: "Corte de caja",
   dashboard: "Tablero",
   password: "Cambiar contraseña",
+  // Spec 014: menú por áreas de trabajo y menú de la cuenta.
+  groups: { general: "General", daily: "Operación del día", purchasing: "Compras e inventario", kitchen: "Cocina", team: "Equipo", admin: "Administración" },
+  account: "Tu cuenta",
+  accountOf: (name: string) => `Tu cuenta: ${name}`,
+  accountPrefix: "Tu cuenta: ",
+  switchBranchSuffix: ": cambiar de sucursal",
   chooseTitle: "Elegir sucursal",
   chooseIntro: "¿En qué sucursal vas a trabajar?",
   current: "Actual",

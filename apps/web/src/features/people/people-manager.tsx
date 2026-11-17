@@ -121,9 +121,9 @@ export function PeopleManager({ people, businesses, selfId }: { people: PersonVi
     { key: "actions", header: t.actions, cell: actions, phone: "primary", align: "end" },
   ];
   const filters: Filter<PersonView>[] = [
-    { id: "active", label: t.filterActive, test: (p) => p.isActive },
-    { id: "inactive", label: t.filterInactive, test: (p) => !p.isActive },
-    { id: "owners", label: t.filterOwners, test: (p) => p.role === "owner" },
+    { id: "active", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterActive, test: (p) => p.isActive },
+    { id: "inactive", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterInactive, test: (p) => !p.isActive },
+    { id: "owners", group: "role", groupLabel: es.common.filterGroups.role, label: t.filterOwners, test: (p) => p.role === "owner" },
   ];
 
   return (

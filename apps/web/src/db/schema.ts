@@ -62,6 +62,11 @@ export const businesses = pgTable(
     nameKey: varchar("name_key", { length: 60 }).notNull(),
     // Clave de la paleta cerrada de 8 colores (spec 002, RF-8 y RF-10); los tonos viven en src/ui/tokens.css.
     color: varchar("color", { length: 16 }).notNull(),
+    // Spec 014, RF-25 a RF-27: logo en el almacén de archivos (PNG); nulo = sin logo, se ve la inicial sobre el color.
+    logoKey: varchar("logo_key", { length: 80 }),
+    logoWidth: integer("logo_width"),
+    logoHeight: integer("logo_height"),
+    logoUpdatedAt: timestamp("logo_updated_at", { withTimezone: true }),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: uuid("created_by").references(() => users.id),
     ...timestamps,

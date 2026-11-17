@@ -41,7 +41,7 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
     await page.goto("/inventario");
     await page.getByRole("link", { name: "Datos de compra" }).click();
     await expect(page.getByRole("heading", { name: "Datos de compra" })).toBeVisible();
-    await page.getByRole("button", { name: "Sin máximo" }).click();
+    await page.getByLabel("Datos", { exact: true }).selectOption({ label: "Sin máximo" });
     await page.getByLabel("Máximo de Harina").fill("5");
     await page.getByLabel("Mínimo de Vasos de 16 onzas").fill("100");
     await page.getByLabel("Máximo de Vasos de 16 onzas").fill("300");
@@ -49,7 +49,7 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
     await expect(page.getByText("Se guardaron 2 productos.")).toBeVisible();
     // Con el filtro «Sin máximo» encendido, lo que ya tiene máximo sale de la lista.
     await expect(page.getByLabel("Máximo de Harina")).toHaveCount(0);
-    await page.getByRole("button", { name: "Sin máximo" }).click();
+    await page.getByRole("button", { name: "Quitar el filtro Sin máximo" }).click();
     await expect(page.getByLabel("Máximo de Harina")).toHaveValue("5");
   });
 

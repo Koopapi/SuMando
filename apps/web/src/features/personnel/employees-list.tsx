@@ -41,11 +41,11 @@ export function EmployeesList({ employees, owner, canCreate }: { employees: Empl
   ];
   const positions = [...new Set(employees.map((e) => e.position))].sort((a, b) => a.localeCompare(b, "es"));
   const filters: Filter<EmployeeSummaryView>[] = [
-    { id: "active", label: t.filterActive, test: (e) => e.active },
-    { id: "inactive", label: t.filterInactive, test: (e) => !e.active },
-    { id: "incomplete", label: t.filterIncomplete, test: (e) => e.docs.missing > 0 },
-    { id: "expired", label: t.filterExpired, test: (e) => e.docs.expired > 0 },
-    ...positions.map((p) => ({ id: `pos:${p}`, label: t.filterPosition(p), test: (e: EmployeeSummaryView) => e.position === p })),
+    { id: "active", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterActive, test: (e) => e.active },
+    { id: "inactive", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterInactive, test: (e) => !e.active },
+    { id: "incomplete", group: "documents", groupLabel: es.common.filterGroups.documents, label: t.filterIncomplete, test: (e) => e.docs.missing > 0 },
+    { id: "expired", group: "documents", groupLabel: es.common.filterGroups.documents, label: t.filterExpired, test: (e) => e.docs.expired > 0 },
+    ...positions.map((p) => ({ id: `pos:${p}`, group: "position", groupLabel: es.common.filterGroups.position, label: p, test: (e: EmployeeSummaryView) => e.position === p })),
   ];
   return (
     <>
@@ -73,7 +73,7 @@ export function EmployeesList({ employees, owner, canCreate }: { employees: Empl
       {employees.length === 0 ? (
         <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
       ) : (
-        <DataTable caption={t.caption} rows={employees} columns={columns} rowKey={(e) => e.id} rowName={(e) => e.name} searchFields={(e) => [e.name]} searchLabel={t.search} filters={filters} initialFilters={["active"]} />
+        <DataTable caption={t.caption} rows={employees} columns={columns} rowKey={(e) => e.id} rowName={(e) => e.name} searchFields={(e) => [e.name]} searchLabel={t.search} filters={filters} initialFilters={["active"]} groupBy={(e) => e.position || null} groupNone={es.common.noPosition} storageKey="personal" />
       )}
     </>
   );

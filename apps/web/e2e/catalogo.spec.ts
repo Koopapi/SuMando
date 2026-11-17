@@ -154,7 +154,7 @@ test("catálogo: flujo principal y consulta", async ({ page }) => {
     await d.getByRole("button", { name: "Guardar" }).click();
     await page.waitForURL(/\/productos\/[0-9a-f-]{36}$/);
     await page.goto("/productos");
-    const names = page.locator("tbody th");
+    const names = page.locator("tbody th[scope=row]");
     await expect(names).toHaveText(["Aceite de oliva", "Azúcar"]);
     await page.getByRole("searchbox", { name: "Buscar producto" }).fill("azucar");
     await expect(names).toHaveText(["Azúcar"]);
@@ -165,13 +165,13 @@ test("catálogo: flujo principal y consulta", async ({ page }) => {
     await expect(names).toHaveText(["Azúcar"]);
     await page.getByLabel("Proveedor", { exact: true }).selectOption({ label: "Todos los proveedores" });
     await page.getByLabel("Mínimos del almacén").selectOption({ label: "Cámara fría" });
-    await page.getByRole("button", { name: "Con mínimo" }).click();
+    // Spec 014 (RF-8): los filtros van en un selector por tipo.
+    await page.getByLabel("Mínimo", { exact: true }).selectOption({ label: "Con mínimo" });
     await expect(names).toHaveText(["Aceite de oliva"]);
-    await expect(page.locator("tbody tr").first()).toContainText("24 Botella");
-    await page.getByRole("button", { name: "Con mínimo" }).click();
-    await page.getByRole("button", { name: "Sin mínimo" }).click();
+    await expect(page.locator("tbody tr[data-row]").first()).toContainText("24 Botella");
+    await page.getByLabel("Mínimo", { exact: true }).selectOption({ label: "Sin mínimo" });
     await expect(names).toHaveText(["Azúcar"]);
-    await page.getByRole("button", { name: "Sin mínimo" }).click();
+    await page.getByRole("button", { name: "Quitar el filtro Sin mínimo" }).click();
   });
 
   await test.step("RF-33 RF-34 archivar oculta de los activos y se puede reactivar", async () => {
@@ -179,11 +179,10 @@ test("catálogo: flujo principal y consulta", async ({ page }) => {
     await page.getByRole("button", { name: "Archivar" }).click();
     await expect(page.getByText("Archivado", { exact: true })).toBeVisible();
     await page.goto("/productos");
-    const names = page.locator("tbody th");
-    await expect(page.getByRole("button", { name: "Activos" })).toHaveAttribute("aria-pressed", "true");
+    const names = page.locator("tbody th[scope=row]");
+    await expect(page.getByLabel("Estado", { exact: true })).toHaveValue("active");
     await expect(names).toHaveText(["Aceite de oliva"]);
-    await page.getByRole("button", { name: "Activos" }).click();
-    await page.getByRole("button", { name: "Archivados" }).click();
+    await page.getByLabel("Estado", { exact: true }).selectOption({ label: "Archivados" });
     await expect(names).toHaveText(["Azúcar"]);
     await page.getByRole("link", { name: "Azúcar" }).click();
     await page.getByRole("button", { name: "Reactivar" }).click();

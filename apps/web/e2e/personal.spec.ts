@@ -91,7 +91,7 @@ test("personal: alta, documentos, sueldo del dueño, baja y reingreso", async ({
 
   await test.step("RF-37 el filtro de incompletos lo encuentra", async () => {
     await page.goto("/personal");
-    await page.getByRole("button", { name: "Incompletos" }).click();
+    await page.getByLabel("Documentos", { exact: true }).selectOption({ label: "Incompletos" });
     await expect(page.getByRole("row").filter({ hasText: "Empleado de Prueba" })).toBeVisible();
   });
 });

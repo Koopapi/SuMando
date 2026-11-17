@@ -8,6 +8,7 @@ import type { Authenticated } from "./auth";
 import type { Ctx } from "./context";
 import type { PublicUser } from "./users-public";
 import type { BusinessColor } from "@/domain/business-color";
+import { logoVersion } from "./business-logo";
 
 export interface ActiveBranch {
   branch: Branch;
@@ -17,7 +18,7 @@ export interface ActiveBranch {
 export type BranchState = { kind: "active"; active: ActiveBranch } | { kind: "choose" } | { kind: "none" };
 
 export interface BranchChoice {
-  business: { id: string; name: string; color: BusinessColor };
+  business: { id: string; name: string; color: BusinessColor; logoVersion: string | null };
   branches: { id: string; name: string }[];
 }
 
@@ -33,7 +34,7 @@ export async function accessibleFor(ctx: Ctx, user: PublicUser): Promise<ActiveB
 export async function branchChoices(ctx: Ctx, user: PublicUser): Promise<BranchChoice[]> {
   const groups = new Map<string, BranchChoice>();
   for (const { branch, business } of await accessibleFor(ctx, user)) {
-    const g = groups.get(business.id) ?? { business: { id: business.id, name: business.name, color: business.color as BusinessColor }, branches: [] };
+    const g = groups.get(business.id) ?? { business: { id: business.id, name: business.name, color: business.color as BusinessColor, logoVersion: logoVersion(business) }, branches: [] };
     g.branches.push({ id: branch.id, name: branch.name });
     groups.set(business.id, g);
   }

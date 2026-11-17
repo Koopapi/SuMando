@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { es } from "@/i18n";
 import type { BranchChoice } from "@/server/services/active-branch";
-import { Alert, Icon } from "@/ui";
+import { Alert, BusinessMark, Icon, logoUrl } from "@/ui";
 import { api } from "../api";
 
 const t = es.shell;
@@ -35,7 +35,7 @@ export function BranchChooser({ choices, activeId }: { choices: BranchChoice[]; 
         {choices.map((c) => (
           <section key={c.business.id} className={`biz-${c.business.color} flex flex-col gap-1`}>
             <h2 className="flex items-center gap-3 pb-2 font-brand text-xl font-bold" data-business-color={c.business.color}>
-              <span aria-hidden className="h-7 w-1 rounded-full bg-biz" />
+              <BusinessMark name={c.business.name} color={c.business.color} logoUrl={logoUrl(c.business.id, c.business.logoVersion)} />
               {c.business.name}
             </h2>
             <ul className="flex flex-col">

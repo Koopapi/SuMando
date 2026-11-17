@@ -32,8 +32,8 @@ export function RecipesManager({ recipes }: { recipes: RecipeSummary[] }) {
     { key: "half", header: t.half, phone: "primary", cell: (r) => t.halfCell(r.halfPercent) },
   ];
   const filters: Filter<RecipeSummary>[] = [
-    { id: "active", label: t.filterActive, test: (r) => !r.archived },
-    { id: "archived", label: t.filterArchived, test: (r) => r.archived },
+    { id: "active", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterActive, test: (r) => !r.archived },
+    { id: "archived", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterArchived, test: (r) => r.archived },
   ];
   return (
     <>

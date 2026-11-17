@@ -94,10 +94,10 @@ export function InventoryImport({ warehouses }: { warehouses: WarehouseOption[] 
     { key: "detail", header: t.detail, phone: "detail", cell: (r) => <Detail r={r} /> },
   ];
   const filters: Filter<ImportRowView>[] = [
-    { id: "new", label: t.filterNew, test: (r) => r.status === "new" },
-    { id: "existing", label: t.filterExisting, test: (r) => r.status === "existing" },
-    { id: "problem", label: t.filterProblem, test: (r) => r.status === "problem" },
-    { id: "warning", label: t.filterWarning, test: (r) => r.warnings.length > 0 },
+    { id: "new", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterNew, test: (r) => r.status === "new" },
+    { id: "existing", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterExisting, test: (r) => r.status === "existing" },
+    { id: "problem", group: "status", groupLabel: es.common.filterGroups.status, label: t.filterProblem, test: (r) => r.status === "problem" },
+    { id: "warning", group: "warnings", groupLabel: es.common.filterGroups.warnings, label: t.filterWarning, test: (r) => r.warnings.length > 0 },
   ];
   const importable = review ? review.summary.newProducts + review.summary.existingProducts : 0;
   const s = review?.summary;
