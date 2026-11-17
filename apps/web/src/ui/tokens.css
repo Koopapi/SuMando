@@ -32,6 +32,10 @@
   --band-pill: #FFFFFF1F;
   --band-line: #FFFFFF66;
   --band-accent: #FFC54D;
+  /* Spec 014: el logo de un negocio va siempre sobre un cuadro claro (se lee también en modo oscuro), y la inicial
+     de un negocio sin logo, en blanco sobre su color. */
+  --logo-tile: #FFFFFF;
+  --on-biz: #FFFFFF;
 }
 
 /* Colores de negocio (RF-8, RF-13): el negocio se pinta con la clase de su clave. */
@@ -105,6 +109,8 @@
   --color-focus: var(--focus);
   --color-scrim: var(--scrim);
   --color-biz: var(--biz);
+  --color-logo-tile: var(--logo-tile);
+  --color-on-biz: var(--on-biz);
   --color-biz-soft: var(--biz-soft);
   --color-biz-band: var(--biz-band);
   --color-band: var(--band);
@@ -127,6 +133,17 @@
   html:has([data-bottom-nav]) {
     --nav-space: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom: var(--nav-space);
+  }
+}
+
+/* Spec 014: dentro de la banda azul del teléfono, la acción principal usa el ámbar de la banda (el azul de siempre
+   no se distingue sobre la banda) y el resto de los botones se leen sobre fondo blanco. */
+@media (width < 64rem) {
+  .band-scope {
+    --primary: var(--band-accent);
+    --primary-hover: var(--band-accent);
+    --on-primary: #151A2E;
+    --focus: var(--band-accent);
   }
 }
 

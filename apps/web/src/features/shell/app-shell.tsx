@@ -11,12 +11,15 @@ import { activeHref, navigation, type NavGroup, type NavItem, type NavKey } from
 import { LogoutButton } from "@/features/auth/logout-button";
 import { es } from "@/i18n";
 import type { PublicUser } from "@/server/services/users-public";
-import { BottomNav, BusinessBadge, Icon, Sheet } from "@/ui";
+import { BottomNav, BusinessBadge, BusinessMark, Icon, Sheet, logoUrl } from "@/ui";
 import { LogoMark, Wordmark } from "@/ui/brand/logo";
 
 const t = es.shell;
 
 export interface ActiveForShell {
+  businessId: string;
+  /** Spec 014, RF-29: versión del logo del negocio; nulo = sin logo. */
+  logoVersion: string | null;
   business: string;
   branch: string;
   color: BusinessColor;
@@ -73,14 +76,16 @@ function AccountMenu({ name, onNavigate }: { name: string; onNavigate?: () => vo
         type="button"
         aria-expanded={open}
         aria-controls="account-menu"
-        aria-label={t.accountOf(name)}
         onClick={() => setOpen((o) => !o)}
         className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left font-semibold text-on-band hover:bg-band-pill"
       >
         <span aria-hidden className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-band-pill text-sm font-bold">
           {name.trim().charAt(0).toUpperCase()}
         </span>
-        <span className="min-w-0 flex-1 truncate">{name}</span>
+        <span className="min-w-0 flex-1 truncate">
+          <span className="sr-only">{t.accountPrefix}</span>
+          {name}
+        </span>
         <Icon name={open ? "chevronUp" : "chevronDown"} size={18} className="text-band-muted" />
       </button>
       {open ? (
@@ -119,7 +124,8 @@ export function AppShell({ user, active, children }: { user: PublicUser; active:
           <p aria-hidden className="hidden text-xs font-semibold tracking-widest text-band-muted uppercase lg:block">
             {t.workingIn}
           </p>
-          <Link href="/elegir-sucursal" aria-label={t.switchBranchFrom(branchLabel)} title={branchLabel} className="flex min-h-11 max-w-full min-w-0 items-center self-start">
+          <Link href="/elegir-sucursal" title={t.switchBranchFrom(branchLabel)} className="flex min-h-11 max-w-full min-w-0 items-center gap-2 self-start">
+            {active ? <BusinessMark name={active.business} color={active.color} logoUrl={logoUrl(active.businessId, active.logoVersion)} size="sm" /> : null}
             {active ? (
               <BusinessBadge tone="band" color={active.color} testId="active-branch">
                 {branchLabel}
@@ -129,6 +135,7 @@ export function AppShell({ user, active, children }: { user: PublicUser; active:
                 {branchLabel}
               </span>
             )}
+            <span className="sr-only">{t.switchBranchSuffix}</span>
           </Link>
         </div>
         <nav aria-label={t.nav} className="hidden lg:flex lg:flex-1 lg:flex-col lg:gap-1">

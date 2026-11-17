@@ -6,7 +6,7 @@ import { useState } from "react";
 import { addDays } from "@/domain/payroll/week";
 import { es } from "@/i18n";
 import type { FigureRow, MoneyDetail } from "@/server/services/reports/figures";
-import { Icon, SectionLabel } from "@/ui";
+import { BusinessMark, Icon, SectionLabel, logoUrl } from "@/ui";
 import { showDate } from "../personnel/dates";
 import { Amount, Change } from "./figure";
 
@@ -48,7 +48,7 @@ export function MoneyDetailView({ detail }: { detail: MoneyDetail }) {
                   onClick={() => setExpanded(open ? null : b.id)}
                   className="flex w-full min-w-0 items-center gap-3 text-left hover:bg-primary-soft lg:px-2"
                 >
-                  <span aria-hidden className="h-10 w-1 shrink-0 rounded-full bg-biz" />
+                  <BusinessMark name={b.name} color={b.color} logoUrl={logoUrl(b.id, b.logoVersion)} size="sm" />
                   <span className="min-w-0 flex-1">
                     <Row row={b} strong />
                   </span>

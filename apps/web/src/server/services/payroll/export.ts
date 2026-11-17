@@ -2,6 +2,7 @@
 import { weekTotals } from "@/domain/payroll/calc";
 import { es } from "@/i18n";
 import { Num, writeWorkbook, type Cell } from "../../adapters/xlsx-writer";
+import { documentLogo } from "../business-logo";
 import type { CatalogScope } from "../catalog/shared";
 import type { Ctx } from "../context";
 import { moneyText, payrollWeekForOwner } from "./weeks";
@@ -22,5 +23,7 @@ export async function payrollWeekExcel(ctx: Ctx, scope: CatalogScope, rawMonday:
   const bonus = people.reduce((a, p) => a + p.totals.bonusCents, 0n);
   rows.push([t.excelTotals, null, count((p) => p.totals.daysCount), count((p) => p.totals.halfCount), count((p) => p.totals.lateCount), null, money(sum.daysCents), money(sum.extrasBonusCents - bonus), money(bonus), null, money(sum.lateCents), money(sum.mealCents), money(sum.loanCents), money(sum.netCents)]);
   const slug = scope.active.branch.name.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  return { fileName: t.excelFile(slug || "sucursal", view.start), bytes: writeWorkbook(t.excelSheet(view.start), rows) };
+  // Spec 014, RF-32: el logo del negocio arriba de la semana.
+  const logo = await documentLogo(ctx, scope.active.business.id);
+  return { fileName: t.excelFile(slug || "sucursal", view.start), bytes: writeWorkbook(t.excelSheet(view.start), rows, { logo }) };
 }

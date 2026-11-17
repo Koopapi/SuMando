@@ -38,7 +38,10 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
     await page.getByRole("link", { name: "Nueva requisición" }).click();
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregó 1 producto.")).toBeVisible();
+    // Spec 014 (RF-20): lo agregado se ve como una franja que se abre para editar.
     const first = page.getByRole("group", { name: "Producto 1" });
+    await expect(first).toContainText("Cerveza · 5 Cartón · Heineken");
+    await first.getByRole("button", { name: /^Editar Producto 1/ }).click();
     await expect(first.getByRole("combobox", { name: "Producto" })).toHaveValue("Cerveza");
     await expect(first.getByLabel("Cantidad")).toHaveValue("5");
     await page.getByRole("button", { name: "Agregar producto" }).click();
@@ -61,6 +64,7 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto(url);
     await page.getByRole("link", { name: "Editar" }).click();
+    await page.getByRole("group", { name: "Producto 1" }).getByRole("button", { name: /^Editar Producto 1/ }).click();
     await page.getByRole("group", { name: "Producto 1" }).getByLabel("Cantidad").fill("4");
     await page.getByRole("button", { name: "Guardar cambios" }).click();
     await page.getByRole("button", { name: "Aprobar" }).click();

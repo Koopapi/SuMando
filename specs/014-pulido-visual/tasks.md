@@ -30,45 +30,45 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Captura y espacio
 
-- [ ] **T6 — Renglón de captura compacto**
+- [x] **T6 — Renglón de captura compacto**
   - RF: RF-20, RF-21
   - Depende de: —
   - Hecho cuando: el componente está en `/sistema/captura` y se abre uno a la vez.
-- [ ] **T7 — Requisición, entradas, salidas y traspasos compactos**
+- [x] **T7 — Requisición, entradas, salidas y traspasos compactos**
   - RF: RF-20, RF-21, RF-22
   - Depende de: T6
   - Hecho cuando: E2E de requisiciones e inventario en verde y 6 renglones a la vista a 390 × 844.
-- [ ] **T8 — Encabezados más bajos**
+- [x] **T8 — Encabezados más bajos**
   - RF: RF-23, RF-24
   - Depende de: —
   - Hecho cuando: medidas del E2E en escritorio y teléfono en verde.
 
 ## Entrega 4 — Logo
 
-- [ ] **T9 — Reglas del logo y migración**
+- [x] **T9 — Reglas del logo y migración**
   - RF: RF-25, RF-26, RF-28
   - Depende de: —
   - Hecho cuando: `business-logo.test.ts` en verde y `0012_logo_negocio` aplica conservando los negocios.
-- [ ] **T10 — Servicio y API del logo**
+- [x] **T10 — Servicio y API del logo**
   - RF: RF-25, RF-26, RF-27, RF-33, RF-34
   - Depende de: T9
   - Hecho cuando: tests de integración de subir, cambiar, quitar, servir, permisos, aislamiento y registro en verde.
-- [ ] **T11 — Marca del negocio en pantalla**
+- [x] **T11 — Marca del negocio en pantalla**
   - RF: RF-27, RF-28, RF-29, RF-30
   - Depende de: T10
   - Hecho cuando: logo o inicial en el menú, «Elegir sucursal», Negocios (con subir y quitar) y tablero.
-- [ ] **T12 — Logo en la hoja de pago y en los Excel**
+- [x] **T12 — Logo en la hoja de pago y en los Excel**
   - RF: RF-31, RF-32
   - Depende de: T10
   - Hecho cuando: test del libro con imagen y de los exportes con y sin logo en verde; la hoja de pago lo muestra.
 
 ## Entrega 5 — Cierre
 
-- [ ] **T13 — E2E, barrido y capturas**
+- [x] **T13 — E2E, barrido y capturas**
   - RF: RF-1, RF-4, RF-6, RF-9, RF-10, RF-15, RF-19, RF-22, RF-23, RF-24, RF-29
   - Depende de: T2, T5, T7, T8, T11
   - Hecho cuando: `e2e/pulido-visual.spec.ts`, los E2E de escritorio afectados y `qa-sweep` en verde; capturas antes y después.
-- [ ] **T14 — Validación y documentos**
+- [x] **T14 — Validación y documentos**
   - RF: todos
   - Depende de: T13
   - Hecho cuando: `validation.md` 34 de 34; `pnpm test`, `typecheck` y `lint` en verde; reglas y roadmap al día.

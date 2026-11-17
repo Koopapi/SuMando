@@ -5,7 +5,8 @@ import { useState } from "react";
 import type { BusinessColor } from "@/domain/business-color";
 import { es } from "@/i18n";
 import type { BranchView, BusinessView } from "@/server/services/businesses";
-import { Alert, Button, ColorPicker, Dialog, EmptyState, Icon, PageHeader, SectionLabel, StatusBadge, TextField } from "@/ui";
+import { Alert, BusinessMark, Button, ColorPicker, Dialog, EmptyState, Icon, PageHeader, SectionLabel, StatusBadge, TextField, logoUrl } from "@/ui";
+import { uploadLogo } from "./logo-upload";
 import { api, formValues } from "../api";
 
 type Mode =
@@ -68,7 +69,7 @@ export function BusinessesManager({ businesses, suggestedColor }: { businesses: 
         {active.map((b) => (
           <section key={b.id} className={`biz-${b.color} flex flex-col gap-2`}>
             <div className="flex items-center gap-3.5">
-              <span aria-hidden className="h-12 w-1 shrink-0 rounded-full bg-biz" />
+              <BusinessMark name={b.name} color={b.color} logoUrl={logoUrl(b.id, b.logoVersion)} size="lg" />
               <div className="flex min-w-0 flex-col">
                 <h2 className="truncate font-brand text-2xl font-bold tracking-tight" data-business-color={b.color}>
                   {b.name}
@@ -83,6 +84,31 @@ export function BusinessesManager({ businesses, suggestedColor }: { businesses: 
               <Button variant="ghost" aria-label={t.actionFor(t.changeColor, b.name)} onClick={() => setMode({ kind: "color", business: b })}>
                 {t.changeColor}
               </Button>
+              <label className="inline-flex min-h-11 cursor-pointer items-center rounded-md px-4 font-brand text-base font-bold text-primary focus-within:outline-2 hover:bg-primary-soft">
+                {b.logoVersion ? t.changeLogo : t.uploadLogo}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  aria-label={t.actionFor(b.logoVersion ? t.changeLogo : t.uploadLogo, b.name)}
+                  className="sr-only"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (!file) return;
+                    setBusy(true);
+                    setError(null);
+                    const problem = await uploadLogo(b.id, file);
+                    setBusy(false);
+                    if (problem) setError(problem);
+                    else router.refresh();
+                  }}
+                />
+              </label>
+              {b.logoVersion ? (
+                <Button variant="ghost" aria-label={t.actionFor(t.removeLogo, b.name)} onClick={() => run(`/api/businesses/${b.id}/logo`, { method: "DELETE" })}>
+                  {t.removeLogo}
+                </Button>
+              ) : null}
               <Button variant="ghost" aria-label={t.actionFor(t.archive, b.name)} loading={busy} onClick={() => run(`/api/businesses/${b.id}/archive`, { method: "POST" })}>
                 {t.archive}
               </Button>

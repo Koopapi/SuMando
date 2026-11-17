@@ -275,14 +275,18 @@ export function DataTable<T>({ caption, rows, columns, rowKey, rowName, searchFi
                       <button
                         type="button"
                         aria-expanded={on}
-                        aria-label={t.groupToggle(g.label, g.rows.length)}
                         disabled={searching}
                         onClick={() => setGroupsOpen((o) => ({ ...o, [g.key]: !on }))}
                         className="flex min-h-11 w-full items-center gap-2 border-b border-line bg-page px-1 text-left font-brand font-bold disabled:cursor-default lg:px-4"
                       >
                         <Icon name={on ? "chevronDown" : "chevronRight"} size={18} className="text-ink-muted" />
-                        <span className="flex-1">{g.label}</span>
-                        <span className="text-sm font-semibold text-ink-muted tabular-nums">{g.rows.length}</span>
+                        <span className="flex-1">
+                          {g.label}
+                        </span>
+                        <span className="text-sm font-semibold text-ink-muted tabular-nums">
+                          {g.rows.length}
+                          <span className="sr-only">{t.rowsWord(g.rows.length)}</span>
+                        </span>
                       </button>
                     </th>
                   </tr>

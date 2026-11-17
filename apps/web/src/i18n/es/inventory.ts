@@ -62,6 +62,7 @@ export const inventory = {
   adjustmentReasonHint: "De 3 a 200 caracteres, por ejemplo «faltó registrar la entrada».",
   lines: "Productos",
   lineN: (n: number) => `Producto ${n}`,
+  noQuantity: "sin cantidad",
   chooseProduct: "Elige un producto",
   quantity: "Cantidad",
   signedQuantity: "Cantidad (+ suma, − resta)",

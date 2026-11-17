@@ -9,6 +9,7 @@ import { dashboardSection } from "./dashboard";
 import type { AlertView } from "./alerts";
 import type { Figure } from "./figures";
 import { periodOf } from "./scope";
+import { documentLogo } from "../business-logo";
 
 const t = es.dashboard;
 const num = (amount: string) => new Num(amount);
@@ -46,5 +47,8 @@ export async function dashboardExcel(ctx: Ctx, actor: PublicUser, rawSection: un
     if (detail.expenses) rows.push([], [t.expensesList], t.excelExpenseHeaders, ...detail.expenses.map((e) => [e.date, e.business, e.branch, e.concept, num(e.amount)]));
     if (detail.weeks) rows.push([], [t.weeksList], t.excelWeekHeaders, ...detail.weeks.map((w) => [t.periodLine(w.weekStart, addDays(w.weekStart, 6)), w.business, w.branch, num(w.total)]));
   }
-  return { fileName: t.excelFile(detail.section, period.from, period.to), bytes: writeWorkbook(t.excelSheet(name), rows) };
+  // Spec 014, RF-32: con el logo solo cuando el libro es de un negocio.
+  const ids = new Set(detail.section === "alerts" ? detail.alerts.items.map((a) => a.businessId) : detail.businesses.map((b) => b.id));
+  const logo = ids.size === 1 ? await documentLogo(ctx, [...ids][0]) : null;
+  return { fileName: t.excelFile(detail.section, period.from, period.to), bytes: writeWorkbook(t.excelSheet(name), rows, { logo }) };
 }

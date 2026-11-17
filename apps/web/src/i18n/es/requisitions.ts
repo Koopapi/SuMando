@@ -36,6 +36,7 @@ export const requisitions = {
   lines: "Productos",
   lineN: (n: number) => `Producto ${n}`,
   searchProduct: "Escribe para buscar",
+  noQuantity: "sin cantidad",
   newLines: "Productos por elegir",
   groupCount: (n: number) => plural(n, "producto", "productos"),
   levelLine: (stock: string, min: string | null, max: string | null, unit: string) =>

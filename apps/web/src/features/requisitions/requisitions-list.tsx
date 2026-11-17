@@ -35,7 +35,7 @@ export function RequisitionsList({ requisitions, status }: { requisitions: Requi
       ) : (
         <ul className="flex flex-col" aria-label={t.listCaption}>
           {requisitions.map((r) => (
-            <li key={r.id} className="border-b border-line">
+            <li key={r.id} className="border-b border-line" data-row={r.id}>
               <Link href={`/requisiciones/${r.id}`} className="flex min-h-14 flex-wrap items-center gap-x-3 gap-y-1 py-2 hover:bg-primary-soft">
                 <span className="font-semibold text-primary">{t.folio(r.folio)}</span>
                 <StatusBadge tone={TONE[r.status]}>{t.statuses[r.status]}</StatusBadge>

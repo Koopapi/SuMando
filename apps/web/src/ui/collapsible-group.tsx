@@ -13,13 +13,17 @@ export function CollapsibleGroup({ label, count, defaultOpen = true, children }:
         <button
           type="button"
           aria-expanded={open}
-          aria-label={es.common.groupToggle(label, count)}
           onClick={() => setOpen((o) => !o)}
           className="flex min-h-11 w-full items-center gap-2 border-b border-line bg-page px-1 text-left font-brand font-bold"
         >
           <Icon name={open ? "chevronDown" : "chevronRight"} size={18} className="text-ink-muted" />
-          <span className="flex-1">{label}</span>
-          <span className="text-sm font-semibold text-ink-muted tabular-nums">{count}</span>
+          <span className="flex-1">
+            {label}
+          </span>
+          <span className="text-sm font-semibold text-ink-muted tabular-nums">
+            {count}
+            <span className="sr-only">{es.common.rowsWord(count)}</span>
+          </span>
         </button>
       </h2>
       {open ? children : null}

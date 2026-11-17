@@ -10,7 +10,7 @@ import { es } from "@/i18n";
 import type { ProductOption, WarehouseOption } from "@/server/services/inventory/views";
 import type { BuilderLevels } from "@/server/services/requisitions/requisitions";
 import type { DraftLine } from "@/server/services/requisitions/views";
-import { Alert, Button, ComboField, Dialog, Icon, NumberField, PageHeader, SectionLabel, SelectField, TextArea, TextField, formatQuantity } from "@/ui";
+import { Alert, Button, CaptureRow, ComboField, Dialog, Icon, NumberField, PageHeader, SectionLabel, SelectField, TextArea, TextField, formatQuantity } from "@/ui";
 import { api } from "../api";
 import { unitShort } from "../catalog/labels";
 import { warehouseLabel } from "../inventory/labels";
@@ -48,6 +48,8 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
   const router = useRouter();
   const [warehouseId, setWarehouseId] = useState(editing?.warehouseId ?? warehouses[0]?.id ?? "");
   const [rows, setRows] = useState<Row[]>(() => (editing ? editing.lines.map(fromDraft) : initial?.length ? initial.map(fromDraft) : [blank()]));
+  // Spec 014, RF-21: un solo renglón abierto; al empezar vacía, el primero.
+  const [openKey, setOpenKey] = useState<number | null>(() => (rows.length === 1 && !rows[0].productId ? rows[0].key : null));
   const [source, setSource] = useState<"minimums" | "calculation" | "template">("minimums");
   const [sourceId, setSourceId] = useState("");
   const [notice, setNotice] = useState<string | null>(initialNotice ?? null);
@@ -106,12 +108,13 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
         {error ? <Alert tone="error">{error}</Alert> : null}
         {notice ? <Alert tone="info">{notice}</Alert> : null}
         <SelectField label={t.warehouse} className="lg:max-w-md" value={warehouseId} disabled={!!editing} onChange={(e) => setWarehouseId(e.target.value)} options={warehouses.map((w) => ({ value: w.id, label: warehouseLabel(w) }))} />
-        <section aria-label={t.addFrom} className="flex flex-col gap-3">
+        <section aria-label={t.addFrom} className="flex flex-col gap-2">
           <SectionLabel as="h2">{t.addFrom}</SectionLabel>
-          <div className="grid gap-3 lg:grid-cols-3 lg:items-end">
+          <div className="flex flex-wrap items-end gap-2">
             <SelectField
               label={t.addFrom}
               hideLabel
+              className="min-w-0 flex-1 lg:max-w-xs"
               value={source}
               onChange={(e) => {
                 setSource(e.target.value as typeof source);
@@ -124,12 +127,10 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
               ]}
             />
             {source === "calculation" ? (
-              <SelectField label={t.fromCalculation} hideLabel value={sourceId} onChange={(e) => setSourceId(e.target.value)} options={[{ value: "", label: t.chooseCalculation }, ...calculations.map((c) => ({ value: c.id, label: c.label }))]} />
+              <SelectField label={t.fromCalculation} hideLabel className="order-last w-full lg:order-none lg:w-72" value={sourceId} onChange={(e) => setSourceId(e.target.value)} options={[{ value: "", label: t.chooseCalculation }, ...calculations.map((c) => ({ value: c.id, label: c.label }))]} />
             ) : source === "template" ? (
-              <SelectField label={t.fromTemplate} hideLabel value={sourceId} onChange={(e) => setSourceId(e.target.value)} options={[{ value: "", label: t.chooseTemplate }, ...templates.map((x) => ({ value: x.id, label: x.name }))]} />
-            ) : (
-              <span className="hidden lg:block" />
-            )}
+              <SelectField label={t.fromTemplate} hideLabel className="order-last w-full lg:order-none lg:w-72" value={sourceId} onChange={(e) => setSourceId(e.target.value)} options={[{ value: "", label: t.chooseTemplate }, ...templates.map((x) => ({ value: x.id, label: x.name }))]} />
+            ) : null}
             <Button variant="secondary" disabled={!warehouseId || (source !== "minimums" && !sourceId)} onAction={addFrom}>
               {t.add}
             </Button>
@@ -152,53 +153,65 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
                   const level = product ? levels[warehouseId]?.[product.id]?.[row.presentationId] : undefined;
                   const unit = product ? (product.presentations.find((x) => (x.id ?? "") === row.presentationId)?.name ?? unitShort(product.baseUnit)) : "";
                   return (
-                    <li key={row.key} className="border-b border-line py-3">
-                      <fieldset className="grid grid-cols-6 gap-x-3 gap-y-2 lg:grid-cols-12 lg:items-start">
-                        <legend className="sr-only">{t.lineN(index + 1)}</legend>
-                        <ComboField
-                          label={t.product}
-                          placeholder={t.searchProduct}
-                          className="col-span-6 lg:col-span-3"
-                          value={row.productId}
-                          onChange={(id) => {
-                            const p = byId.get(id);
-                            set(row.key, { productId: id, presentationId: p?.purchasePresentationId ?? "", supplierId: p?.supplierId ?? "" });
-                          }}
-                          options={productOptions}
-                        />
-                        <NumberField label={t.quantity} className="col-span-2 lg:col-span-2" value={row.quantity} onChange={(e) => set(row.key, { quantity: e.target.value })} />
-                        <SelectField
-                          label={t.presentation}
-                          className="col-span-4 lg:col-span-3"
-                          value={row.presentationId}
-                          onChange={(e) => set(row.key, { presentationId: e.target.value })}
-                          options={(product?.presentations ?? [{ id: null, name: null, factor: "1" }]).map((p) => ({ value: p.id ?? "", label: p.id ? `${p.name} (${formatQuantity(p.factor)} ${unitShort(product!.baseUnit)})` : product ? unitShort(product.baseUnit) : "—" }))}
-                        />
-                        <SelectField label={t.supplier} className="col-span-5 lg:col-span-3" value={row.supplierId} onChange={(e) => set(row.key, { supplierId: e.target.value })} options={[{ value: "", label: t.noSupplier }, ...suppliers.map((s) => ({ value: s.id, label: s.name }))]} />
-                        <div className="col-span-1 flex items-end justify-end lg:pt-7">
-                          <Button variant="ghost" aria-label={t.removeLine(product?.name ?? "")} onClick={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}>
-                            <Icon name="trash" size={18} />
-                          </Button>
+                    <li key={row.key}>
+                      <CaptureRow
+                        label={t.lineN(index + 1)}
+                        summary={product ? [product.name, row.quantity ? `${formatQuantity(row.quantity)} ${unit}` : t.noQuantity, row.supplierId ? supplierName.get(row.supplierId) : t.noSupplier].filter(Boolean).join(" · ") : t.chooseProduct}
+                        detail={product ? <span data-testid="builder-level">{t.levelLine(formatQuantity(level?.stock ?? "0"), level?.min ? formatQuantity(level.min) : null, level?.max ? formatQuantity(level.max) : null, unit)}</span> : undefined}
+                        open={openKey === row.key}
+                        onOpen={() => setOpenKey(row.key)}
+                        onClose={() => setOpenKey(null)}
+                        onRemove={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}
+                        removeLabel={t.removeLine(product?.name ?? "")}
+                      >
+                        <div className="grid grid-cols-6 gap-x-3 gap-y-2 lg:grid-cols-12 lg:items-start">
+                          <ComboField
+                            label={t.product}
+                            placeholder={t.searchProduct}
+                            className="col-span-6 lg:col-span-4"
+                            value={row.productId}
+                            onChange={(id) => {
+                              const p = byId.get(id);
+                              set(row.key, { productId: id, presentationId: p?.purchasePresentationId ?? "", supplierId: p?.supplierId ?? "" });
+                            }}
+                            options={productOptions}
+                          />
+                          <NumberField label={t.quantity} className="col-span-2 lg:col-span-2" value={row.quantity} onChange={(e) => set(row.key, { quantity: e.target.value })} />
+                          <SelectField
+                            label={t.presentation}
+                            className="col-span-4 lg:col-span-3"
+                            value={row.presentationId}
+                            onChange={(e) => set(row.key, { presentationId: e.target.value })}
+                            options={(product?.presentations ?? [{ id: null, name: null, factor: "1" }]).map((p) => ({ value: p.id ?? "", label: p.id ? `${p.name} (${formatQuantity(p.factor)} ${unitShort(product!.baseUnit)})` : product ? unitShort(product.baseUnit) : "—" }))}
+                          />
+                          <SelectField label={t.supplier} className="col-span-6 lg:col-span-3" value={row.supplierId} onChange={(e) => set(row.key, { supplierId: e.target.value })} options={[{ value: "", label: t.noSupplier }, ...suppliers.map((s) => ({ value: s.id, label: s.name }))]} />
+                          {product ? (
+                            <p className="col-span-6 text-sm text-ink-muted tabular-nums lg:col-span-12">
+                              {t.levelLine(formatQuantity(level?.stock ?? "0"), level?.min ? formatQuantity(level.min) : null, level?.max ? formatQuantity(level.max) : null, unit)}
+                            </p>
+                          ) : null}
                         </div>
-                        {product ? (
-                          <p className="col-span-6 text-sm text-ink-muted tabular-nums lg:col-span-12" data-testid="builder-level">
-                            {t.levelLine(formatQuantity(level?.stock ?? "0"), level?.min ? formatQuantity(level.min) : null, level?.max ? formatQuantity(level.max) : null, unit)}
-                          </p>
-                        ) : null}
-                      </fieldset>
+                      </CaptureRow>
                     </li>
                   );
                 })}
               </ol>
             </section>
           ))}
-          <button type="button" onClick={() => setRows((rs) => [...rs, blank()])} className="inline-flex min-h-12 items-center gap-2 self-start font-semibold text-primary">
+          <button
+            type="button"
+            onClick={() => {
+              const row = blank();
+              setRows((rs) => [...rs, row]);
+              setOpenKey(row.key);
+            }}
+            className="inline-flex min-h-12 items-center gap-2 self-start font-semibold text-primary">
             <Icon name="plus" size={18} />
             {t.addLine}
           </button>
         </section>
         <TextArea label={t.note} name="note" rows={2} maxLength={200} hint={t.noteHint} defaultValue={editing?.note ?? ""} />
-        <div className="sticky bottom-(--nav-space) -mx-4 flex flex-wrap justify-end gap-2 border-t border-line bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
+        <div className="sticky bottom-(--nav-space) -mx-4 flex justify-end gap-2 border-t border-line bg-surface px-4 py-2 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 [&>*]:flex-1 lg:[&>*]:flex-none">
           <Button variant="secondary" onClick={() => setSaving({ name: "", exists: false })}>
             {t.saveTemplate}
           </Button>

@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 17 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF), 011 (42 RF) y 013 (33 RF) vigentes, con test en verde.
+Última actualización: 17 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF), 011 (42 RF), 013 (33 RF) y 014 (34 RF) vigentes, con test en verde.
 
 ---
 
@@ -54,7 +54,7 @@ Origen: spec 002 (aprobada el 11 de noviembre de 2026; construida y validada el 
 
 ### Pulido visual
 
-Origen: spec 014 (aprobada el 17 de noviembre de 2026). Estado: **Aprobada**.
+Origen: spec 014 (aprobada el 17 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
 
 - **Menú por áreas de trabajo**: Inicio y Tablero; Operación del día; Compras e inventario; Cocina; Equipo; y
   Administración solo para el dueño. Contraseña y salida en el menú de la cuenta (RF-1 a RF-5).

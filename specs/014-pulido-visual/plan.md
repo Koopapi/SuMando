@@ -88,3 +88,16 @@ Ninguna nueva.
 3. **Captura y espacio**: renglón compacto y encabezados.
 4. **Logo**: base, servicio, API, marca en pantalla, hoja de pago y Excel.
 5. **Cierre**: E2E, barrido, capturas antes y después, validación y documentos.
+
+## Ajustes al construir
+
+- Una lista con un solo grupo no lleva título y se pagina como cualquier otra (así 1,000 productos sin proveedor no
+  se muestran de golpe).
+- El conteo «Mostrando N de M» siempre dice cuántos coinciden de cuántos hay; el rango de la página va junto a
+  «Página N de M».
+- El nombre accesible de los grupos, las franjas de captura, el menú de la cuenta y el enlace de sucursal sale del
+  texto visible (más texto solo para lectores de pantalla), para cumplir `label-content-name-mismatch` de axe.
+- La acción principal dentro de la banda azul del teléfono usa el ámbar de la banda (`.band-scope`): el azul no se
+  distinguía sobre el azul.
+- La búsqueda de producto (`ComboField`, spec 013) también se usa en entradas, salidas y traspasos.
+- `Requisiciones` marca sus renglones con `data-row` para la medida de RF-24.
