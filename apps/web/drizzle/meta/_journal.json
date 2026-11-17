@@ -78,6 +78,13 @@
       "when": 1794779970292,
       "tag": "0010_tablero",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794936972010,
+      "tag": "0011_compradores",
+      "breakpoints": true
     }
   ]
 }

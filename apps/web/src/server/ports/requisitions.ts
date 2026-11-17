@@ -1,11 +1,13 @@
 // Repositorios de requisiciones (spec 007) como puertos; `server/adapters/drizzle/requisitions.ts` los implementa.
-import type { PurchaseTemplate, PurchaseTemplateItem, Requisition, RequisitionEvent, RequisitionGroup, RequisitionLine } from "@/db/schema";
+import type { PurchaseTemplate, PurchaseTemplateItem, Requisition, RequisitionEvent, RequisitionGroup, RequisitionLine, SupplierBuyer } from "@/db/schema";
 
 export type NewRequisition = Pick<Requisition, "businessId" | "branchId" | "warehouseId" | "folio" | "status" | "note" | "createdBy" | "createdAt">;
 export type RequisitionPatch = Partial<Pick<Requisition, "status" | "note">> & { updatedAt: Date };
 export type LineRow = Pick<RequisitionLine, "productId" | "supplierId" | "presentationId" | "requestedBase" | "quantityBase">;
 export type LinePatch = Partial<Pick<RequisitionLine, "quantityBase" | "receivedBase" | "amountCents" | "closedAt" | "closedBy" | "closeReason">>;
-export type GroupPatch = Partial<Pick<RequisitionGroup, "buyer" | "purchasedAt" | "purchasedBy" | "totalCents">>;
+export type GroupPatch = Partial<Pick<RequisitionGroup, "buyer" | "buyerEmployeeId" | "purchasedAt" | "purchasedBy" | "totalCents">>;
+export type NewGroup = Pick<RequisitionGroup, "supplierId" | "buyerEmployeeId">;
+export type SupplierBuyerValues = Omit<SupplierBuyer, "id">;
 export type EventView = RequisitionEvent & { actorName: string };
 export type TemplateItemRow = Pick<PurchaseTemplateItem, "productId" | "presentationId" | "supplierId" | "quantityBase">;
 
@@ -29,12 +31,18 @@ export interface RequisitionsRepo {
   };
   groups: {
     listByRequisitions(ids: string[]): Promise<RequisitionGroup[]>;
-    insert(requisitionId: string, supplierIds: (string | null)[]): Promise<RequisitionGroup[]>;
+    insert(requisitionId: string, rows: NewGroup[]): Promise<RequisitionGroup[]>;
     update(id: string, patch: GroupPatch): Promise<RequisitionGroup>;
   };
   events: {
     insert(e: Omit<RequisitionEvent, "id">): Promise<void>;
     listByRequisition(id: string): Promise<EventView[]>;
+  };
+  /** Spec 013, RF-1: comprador habitual de cada proveedor en una sucursal. */
+  supplierBuyers: {
+    listByBranch(branchId: string): Promise<SupplierBuyer[]>;
+    set(values: SupplierBuyerValues): Promise<void>;
+    remove(branchId: string, supplierId: string): Promise<void>;
   };
   templates: {
     listByBranch(branchId: string): Promise<PurchaseTemplate[]>;

@@ -35,6 +35,7 @@ function Detail({ r }: { r: ImportRowView }) {
     r.purchase ? t.buyAs(r.purchase.name, formatQuantity(r.purchase.factor), unit) : null,
     r.quantity !== null ? t.quantity(formatQuantity(r.quantity), unit) : t.noQuantity,
     r.min !== null ? t.min(formatQuantity(r.min), unit) : null,
+    r.max !== null ? t.max(formatQuantity(r.max), unit) : null,
     r.supplier ? t.supplier(r.supplier) : null,
   ].filter((x): x is string => x !== null);
   return (

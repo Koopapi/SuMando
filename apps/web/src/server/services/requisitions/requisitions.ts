@@ -12,6 +12,7 @@ import { fromCalculation, mergeLines, roundUp, shortfall } from "@/domain/requis
 import { dbToCentiMicro } from "@/domain/recipes/supplies";
 import { AppError } from "../../errors";
 import type { Repos } from "../../ports";
+import type { NewGroup } from "../../ports/requisitions";
 import { businessLock, type CatalogScope } from "../catalog/shared";
 import type { Ctx } from "../context";
 import { applyMovement } from "../inventory/movements";
@@ -70,6 +71,16 @@ async function parseLines(repos: Repos, book: Book, businessId: string, raw: unk
 const toRows = (lines: ParsedLine[], requested: Map<string, string> = new Map()) =>
   lines.map((l) => ({ productId: l.productId, presentationId: l.presentationId, supplierId: l.supplierId, quantityBase: microToDb(l.quantityMicro), requestedBase: requested.get(l.productId) ?? microToDb(l.quantityMicro) }));
 
+/** Spec 013, RF-4: al fijar los grupos, cada proveedor toma su comprador habitual en la sucursal, si sigue activo. */
+async function newGroups(repos: Repos, branchId: string, supplierIds: (string | null)[]): Promise<NewGroup[]> {
+  const [habitual, staff] = await Promise.all([repos.requisitions.supplierBuyers.listByBranch(branchId), repos.personnel.employees.listByBranch(branchId)]);
+  const active = new Set(staff.filter((e) => e.active).map((e) => e.id));
+  return [...new Set(supplierIds)].map((supplierId) => {
+    const employeeId = supplierId ? habitual.find((h) => h.supplierId === supplierId)?.employeeId : undefined;
+    return { supplierId, buyerEmployeeId: employeeId && active.has(employeeId) ? employeeId : null };
+  });
+}
+
 const event = (repos: Repos, requisitionId: string, kind: string, actorId: string, at: Date, detail: Record<string, unknown> | null = null) => repos.requisitions.events.insert({ requisitionId, kind, actorId, at, detail });
 
 /** Una requisición de la sucursal activa; de otra, no existe (RF-6). */
@@ -103,7 +114,7 @@ export async function createRequisition(ctx: Ctx, scope: CatalogScope, input: { 
       await repos.requisitions.lines.replace(r.id, toRows(lines));
       await event(repos, r.id, "requested", scope.actor.id, now, { lines: lines.length });
       if (owner) {
-        await repos.requisitions.groups.insert(r.id, [...new Set(lines.map((l) => l.supplierId))]);
+        await repos.requisitions.groups.insert(r.id, await newGroups(repos, r.branchId, lines.map((l) => l.supplierId)));
         await event(repos, r.id, "approved", scope.actor.id, now, { direct: true });
       }
       return r;
@@ -213,7 +224,7 @@ export async function approveRequisition(ctx: Ctx, scope: CatalogScope, id: stri
       // Lo que agrega el dueño no se había solicitado.
       current = await repos.requisitions.lines.replace(r.id, toRows(lines, new Map([...requested, ...lines.filter((l) => !requested.has(l.productId)).map((l) => [l.productId, "0"] as [string, string])])));
     }
-    await repos.requisitions.groups.insert(r.id, [...new Set(current.map((l) => l.supplierId))]);
+    await repos.requisitions.groups.insert(r.id, await newGroups(repos, r.branchId, current.map((l) => l.supplierId)));
     const after = await repos.requisitions.requisitions.update(r.id, { status: "approved", ...(input.note !== undefined ? { note: optionalText(input.note, NOTE_MAX) } : {}), updatedAt: now });
     await event(repos, r.id, "approved", scope.actor.id, now, changes.length ? { changes } : null);
     return after;

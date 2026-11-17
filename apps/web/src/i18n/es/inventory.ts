@@ -238,6 +238,7 @@ export const inventory = {
     quantity: (q: string, unit: string) => `Existencia: ${q} ${unit}`,
     noQuantity: "Sin cantidad: su existencia no cambia",
     min: (q: string, unit: string) => `Mínimo: ${q} ${unit}`,
+    max: (q: string, unit: string) => `Máximo: ${q} ${unit}`,
     supplier: (name: string) => `Proveedor: ${name}`,
     problems: {
       no_area: "No tiene área.",
@@ -250,6 +251,7 @@ export const inventory = {
       no_purchase: "Sin presentación de compra: falta la presentación final o su conversión.",
       invalid_quantity: "La cantidad no es un número: su existencia no cambia.",
       invalid_minimum: "El mínimo no es un número: no se guarda.",
+      invalid_maximum: "El máximo no es un número o es menor que el mínimo: no se guarda.",
       in_other_area: "Ya se cuenta en otra área de este almacén: se queda ahí.",
     } as Record<string, string>,
     done: "Importación terminada",

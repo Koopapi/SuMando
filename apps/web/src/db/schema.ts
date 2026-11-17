@@ -718,7 +718,9 @@ export const requisitionGroups = pgTable(
       .notNull()
       .references(() => requisitions.id),
     supplierId: uuid("supplier_id").references(() => suppliers.id),
+    // Texto escrito a mano antes de la spec 013 (RF-7); desde entonces, una persona de Personal.
     buyer: varchar("buyer", { length: 60 }),
+    buyerEmployeeId: uuid("buyer_employee_id").references((): AnyPgColumn => employees.id),
     purchasedAt: timestamp("purchased_at", { withTimezone: true }),
     purchasedBy: uuid("purchased_by").references(() => users.id),
     totalCents: bigint("total_cents", { mode: "bigint" }),
@@ -783,6 +785,30 @@ export const purchaseTemplateItems = pgTable(
     position: integer("position").notNull(),
   },
   (t) => [uniqueIndex("purchase_template_items_unique").on(t.templateId, t.productId)],
+);
+
+// --- Spec 013: comprador habitual de cada proveedor en una sucursal (RF-1) ---
+
+export const supplierBuyers = pgTable(
+  "supplier_buyers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    supplierId: uuid("supplier_id")
+      .notNull()
+      .references(() => suppliers.id),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references((): AnyPgColumn => employees.id),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [uniqueIndex("supplier_buyers_branch_supplier_unique").on(t.branchId, t.supplierId)],
 );
 
 // --- Spec 008: personal (plan, sección 2) ---
@@ -1361,6 +1387,7 @@ export type RequisitionLine = typeof requisitionLines.$inferSelect;
 export type RequisitionGroup = typeof requisitionGroups.$inferSelect;
 export type RequisitionEvent = typeof requisitionEvents.$inferSelect;
 export type PurchaseTemplate = typeof purchaseTemplates.$inferSelect;
+export type SupplierBuyer = typeof supplierBuyers.$inferSelect;
 export type PurchaseTemplateItem = typeof purchaseTemplateItems.$inferSelect;
 export type Position = typeof positions.$inferSelect;
 export type Employee = typeof employees.$inferSelect;

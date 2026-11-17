@@ -154,6 +154,19 @@ Origen: spec 007 (aprobada el 13 de noviembre de 2026; construida y validada el 
   o se cierra con motivo; un excedente entra y se marca. Todo recibido o cerrado = requisición cerrada (RF-34 a
   RF-41).
 
+### Requisiciones en el día a día
+
+Origen: spec 013 (aprobada el 17 de noviembre de 2026). Estado: **Aprobada**.
+
+- Cada proveedor tiene, por sucursal, un **comprador habitual** de Personal; al aprobar una requisición cada
+  proveedor toma su comprador, que se puede cambiar mientras no se reciba nada (RF-1 a RF-7).
+- La requisición aprobada se ve **dividida por comprador** y, dentro, por proveedor; a cada comprador se le manda su
+  lista por **WhatsApp desde el teléfono de quien opera** (enlace, sin la API de Meta), o se copia (RF-8 a RF-16).
+- **Datos de compra**: proveedor, presentación de compra, mínimo y máximo de muchos productos en una tabla; una fila
+  con error no impide guardar las demás (RF-17 a RF-24).
+- **Sin máximo se pide solo hasta el mínimo**; el máximo se captura en Datos de compra o con la columna MÁXIMO del
+  importador, que no pisa uno existente (RF-25 a RF-28, RF-32).
+
 ## 7. Personal y nómina
 
 ### Personal

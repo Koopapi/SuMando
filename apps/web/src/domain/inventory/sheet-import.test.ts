@@ -103,3 +103,32 @@ describe("spec 006 — análisis de la hoja de inventario", () => {
     expect(analyze([row("A", "Raro", "1", "LITRO", "1", "KILOGRAMO")]).rows[0].warnings).toEqual(["no_purchase"]);
   });
 });
+
+describe("spec 013 — máximo en la hoja de inventario", () => {
+  const withMax = (rows: string[][]) =>
+    analyzeInventorySheets([{ name: "Inventario por áreas", rows: [["ÁREA", "ARTÍCULO", "UNIDAD", "CONVERSIÓN", "PRESENTACIÓN FINAL", "MÍNIMO", " MÁXIMO "], ...rows] }], empty, "wh").rows;
+
+  it("test_s013_rf25_el_maximo_se_entiende_como_el_minimo", () => {
+    const [cerveza, queso] = withMax([
+      ["BEBIDAS", "AMSTEL", "PIEZA", "24", "CARTON", "2", "6"],
+      ["LÁCTEOS", "QUESO", "KILOGRAMO", "", "", "2", "5"],
+    ]);
+    expect(cerveza).toMatchObject({ minMilli: 48_000n, maxMilli: 144_000n, warnings: [] });
+    expect(queso).toMatchObject({ minMilli: 2_000_000n, maxMilli: 5_000_000n });
+  });
+
+  it("test_s013_rf25_sin_columna_o_vacio_no_hay_maximo", () => {
+    const [a] = withMax([["A", "Uno", "PIEZA", "", "", "1", ""]]);
+    expect(a.maxMilli).toBeNull();
+    expect(analyze([row("A", "Dos", "1", "PIEZA", "", "")]).rows[0].maxMilli).toBeNull();
+  });
+
+  it("test_s013_rf26_maximo_invalido_o_menor_que_el_minimo_es_aviso_sin_maximo", () => {
+    const [a, b] = withMax([
+      ["A", "Uno", "PIEZA", "", "", "1", "mucho"],
+      ["A", "Dos", "PIEZA", "", "", "5", "3"],
+    ]);
+    expect([a.maxMilli, a.warnings.includes("invalid_maximum")]).toEqual([null, true]);
+    expect([b.maxMilli, b.minMilli, b.warnings.includes("invalid_maximum")]).toEqual([null, 5_000n, true]);
+  });
+});
