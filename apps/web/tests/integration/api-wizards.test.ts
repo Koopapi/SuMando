@@ -77,6 +77,18 @@ describe("spec 015 — API de los asistentes", () => {
     expect((await get(phone, "req-new", `?employee=${w.employeeId}`)).status).toBe(403);
   });
 
+  it("test_s015_rf50_el_corte_ciego_se_guarda_por_corte_y_empleado", async () => {
+    const w = await world();
+    const phone = await w.at("admin@mando.test", w.temporaryPassword);
+    await phone.call(devicePost, "/api/floor-devices", { body: { name: "Tablet de caja" } });
+    const q = `?target=c1&employee=${w.employeeId}`;
+    expect((await put(phone, "floor-cash", { step: "cash", data: { pieces: { "50000": 2 }, amounts: {} } }, q)).status).toBe(200);
+    expect((await json(await get(phone, "floor-cash", q))).draft.data.pieces).toEqual({ "50000": 2 });
+    // Ligado al corte: sin él no se guarda ni se lee, y el de otro corte no aparece.
+    expect((await get(phone, "floor-cash", `?employee=${w.employeeId}`)).status).toBe(422);
+    expect((await json(await get(phone, "floor-cash", `?target=c2&employee=${w.employeeId}`))).draft).toBeNull();
+  });
+
   it("test_s015_rf26_la_vista_elegida_se_guarda", async () => {
     const w = await world();
     const res = await w.sendero.call((r) => viewPut(r, p("req-new")), "/api/wizards/req-new/view", { method: "PUT", body: { view: "full" } });

@@ -123,15 +123,15 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 6 — Teléfono de piso
 
-- [ ] **T27 — Asistente «Checklist» de piso**
+- [x] **T27 — Asistente «Checklist» de piso**
   - RF: RF-22, RF-48, RF-49
   - Depende de: T10
   - Hecho cuando: elige nombre, un paso por sección, puntos clave uno por uno con foto y resumen; se retoma por empleado en ese teléfono.
-- [ ] **T28 — Asistente «Corte ciego»**
+- [x] **T28 — Asistente «Corte ciego»**
   - RF: RF-16, RF-50
   - Depende de: T10
   - Hecho cuando: efectivo, terminales y resumen sin nada de lo esperado (lo comprueba la integración del corte ciego).
-- [ ] **T29 — E2E de piso**
+- [x] **T29 — E2E de piso**
   - RF: RF-16, RF-22, RF-48, RF-49, RF-50
   - Depende de: T27, T28
   - Hecho cuando: `e2e/asistentes-piso.spec.ts` y los E2E de checklists y caja de piso en verde.

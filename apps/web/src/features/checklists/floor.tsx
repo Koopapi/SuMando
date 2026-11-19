@@ -4,12 +4,16 @@
 // hojas de hoy; nada más de SuMando se abre aquí.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { es } from "@/i18n";
 import type { FloorEmployeeView } from "@/server/services/checklists/floor";
 import type { SheetView, TodayView } from "@/server/services/checklists/sheets";
 import { Alert, Button, EmptyState, ListRow, LoadingState, PageHeader } from "@/ui";
 import { api } from "../api";
+import { readFloorView, writeFloorView } from "../wizards/floor-view";
+import { draftPath } from "../wizards/use-wizard-draft";
+import type { View } from "../wizards/view-switch";
+import { FloorChecklistWizard } from "./wizards/floor-checklist";
 import { TodayList } from "./lists";
 import { SheetBoard } from "./sheet-board";
 
@@ -24,7 +28,7 @@ export function readFloorEmployee(): string | null {
   }
 }
 
-function writeChosen(id: string | null) {
+export function writeChosen(id: string | null) {
   try {
     if (id) localStorage.setItem(KEY, id);
     else localStorage.removeItem(KEY);
@@ -87,31 +91,78 @@ export function FloorHome({ device, employees, today, items, cash = false }: { d
   );
 }
 
-export function FloorSheet({ templateId, today }: { templateId: string; today: string }) {
+/** Spec 010 RF-38 y spec 015 RF-48: la hoja de hoy en el teléfono de piso, con el asistente «Checklist» o la hoja
+ *  completa según lo que eligió ese empleado en ese teléfono (`?vista=` lo fuerza y lo recuerda). */
+export function FloorSheet({ templateId, today, employees, view: forced }: { templateId: string; today: string; employees: FloorEmployeeView[]; view: View | null }) {
   const router = useRouter();
-  const [sheet, setSheet] = useState<SheetView | null>(null);
-  const [employee, setEmployee] = useState<string | null>(null);
+  const [state, setState] = useState<{ sheet: SheetView; employee: string; view: View; resume: boolean; pending: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(
+    (id: string, view: View, resume: boolean) => {
+      void Promise.all([
+        api<{ sheet: SheetView }>(`/api/checklists/${templateId}/${today}?employee=${encodeURIComponent(id)}`),
+        view === "full" ? api<{ draft: unknown }>(draftPath("floor-checklist", templateId, id)) : Promise.resolve(null),
+      ]).then(([r, d]) => {
+        if (!r.ok) return setError(r.error.message);
+        setError(null);
+        setState({ sheet: r.data.sheet, employee: id, view, resume, pending: !!(d?.ok && d.data.draft) });
+      });
+    },
+    [templateId, today],
+  );
+
   useEffect(() => {
     const id = readFloorEmployee();
     if (!id) {
       router.replace("/piso");
       return;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- la elección vive en este teléfono y solo se lee al montar.
-    setEmployee(id);
-    void api<{ sheet: SheetView }>(`/api/checklists/${templateId}/${today}?employee=${encodeURIComponent(id)}`).then((r) => (r.ok ? setSheet(r.data.sheet) : setError(r.error.message)));
-  }, [templateId, today, router]);
+    if (forced) writeFloorView("floor-checklist", id, forced);
+    load(id, forced ?? readFloorView("floor-checklist", id), false);
+  }, [forced, load, router]);
+
+  const switchTo = (view: View) => {
+    if (!state) return;
+    writeFloorView("floor-checklist", state.employee, view);
+    setState(null);
+    load(state.employee, view, view === "wizard");
+  };
+
   return (
     <>
       <Link href="/piso" className="inline-flex min-h-11 items-center self-start font-semibold text-primary">
         {t.floorBack}
       </Link>
       {error ? <Alert tone="error">{error}</Alert> : null}
-      {sheet && employee ? (
+      {state ? (
         <>
-          <PageHeader title={sheet.templateName} />
-          <SheetBoard sheet={sheet} mode="device" employeeId={employee} />
+          <PageHeader title={state.sheet.templateName} />
+          {state.view === "wizard" ? (
+            <FloorChecklistWizard
+              key={state.employee}
+              sheet={state.sheet}
+              employees={employees}
+              employee={state.employee}
+              autoResume={state.resume}
+              onEmployee={(id) => {
+                writeChosen(id);
+                setState(null);
+                load(id, readFloorView("floor-checklist", id), false);
+              }}
+              onFullView={() => switchTo("full")}
+            />
+          ) : (
+            <>
+              <div>
+                <Button variant="secondary" onClick={() => switchTo("wizard")}>
+                  {es.common.stepByStep}
+                </Button>
+              </div>
+              {state.pending ? <Alert tone="info">{t.floorWizard.pendingDraft}</Alert> : null}
+              <SheetBoard sheet={state.sheet} mode="device" employeeId={state.employee} />
+            </>
+          )}
         </>
       ) : !error ? (
         <LoadingState />

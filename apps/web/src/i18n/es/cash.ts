@@ -134,6 +134,11 @@ export const cash = {
     done: "Se entregó el conteo.",
     notOpen: "Este corte ya no está abierto para contar.",
   },
+  // Spec 015, RF-50: asistente «Corte ciego» del teléfono de piso.
+  floorWizard: {
+    methods: "Terminales",
+    noMethods: "Esta sucursal no tiene terminales ni otras formas de pago: solo se cuenta el efectivo.",
+  },
   // Spec 015, RF-42: asistente «Reporte del punto de venta».
   posWizard: {
     title: "Reporte del punto de venta",

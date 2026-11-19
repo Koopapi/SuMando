@@ -112,6 +112,33 @@ export const checklists = {
   floorHello: (name: string) => `Llenando como ${name}`,
   floorNoEmployees: "No hay empleados activos en esta sucursal.",
   floorBack: "Checklists de hoy",
+  // Spec 015, RF-48 y RF-49: asistente «Checklist» del teléfono de piso.
+  floorWizard: {
+    steps: { who: "Elige tu nombre" },
+    hints: {
+      who: "Toca tu nombre: lo que marques queda a tu nombre en este teléfono.",
+      key: "Este punto es clave: revísalo y márcalo antes de seguir.",
+      rest: "Palomea lo que está en orden; si todo está bien, toca «Todo en orden».",
+    },
+    example: (item: string) => item,
+    keyN: (n: number, total: number) => `Punto clave ${n} de ${total}`,
+    keyRequired: (item: string) => `Falta «${item}»: es un punto clave.`,
+    keyPhotoRequired: (item: string) => `Toma la foto de «${item}»: es un punto clave.`,
+    previousKey: "Punto clave anterior",
+    keysDone: (n: number) => (n === 1 ? "El punto clave ya está." : `Los ${n} puntos clave ya están.`),
+    photoChosen: (name: string) => `Foto lista: ${name}`,
+    alreadyReady: "Esta sección ya está lista.",
+    doneLine: (item: string) => `✓ ${item}`,
+    pendingLine: (item: string, key: boolean) => `Sin palomear · ${item}${key ? " (clave)" : ""}`,
+    photoLine: (item: string, name: string) => `✓ ${item} · foto ${name}`,
+    commentLine: (item: string, text: string) => `${item}: ${text || "sin comentario"}`,
+    confirmIntro: "Al confirmar se registra lo marcado y tus secciones quedan listas.",
+    nothingOpen: "Tus secciones de hoy ya están listas.",
+    notEditable: "Esta hoja ya no se puede llenar.",
+    pendingDraft: "Tienes marcas del paso a paso sin registrar: vuelve a «Paso a paso» para terminarlas.",
+    confirm: "Registrar y dar por lista",
+    done: (n: number) => (n === 1 ? "Se registró tu sección y quedó lista." : `Se registraron tus ${n} secciones y quedaron listas.`),
+  },
   // Spec 015, RF-47: asistente «Nueva plantilla de checklist».
   templateWizard: {
     stepByStep: "Plantilla paso a paso",

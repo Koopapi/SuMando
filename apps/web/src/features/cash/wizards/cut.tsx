@@ -5,19 +5,18 @@
 // conteo, con las rutas de siempre (`movement` y `deliver`). El corte no lleva avisos de dato raro (RF-13).
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DENOMINATIONS } from "@/domain/payroll/cash";
 import { nextAfter } from "@/domain/wizards/next";
 import { es } from "@/i18n";
 import type { CutView } from "@/server/services/cash/cuts";
-import { Alert, Button, Icon, IconButton, LinkButton, LoadingState, MoneyField, NumberField, ResumePrompt, SectionLabel, TextField, Wizard, formatMoney } from "@/ui";
+import { Alert, Button, Icon, IconButton, LinkButton, LoadingState, MoneyField, ResumePrompt, SectionLabel, TextField, Wizard, formatMoney } from "@/ui";
 import { api } from "../../api";
 import { useWizardDraft } from "../../wizards/use-wizard-draft";
 import { switchView, viewHref } from "../../wizards/view-switch";
+import { DenominationCount, pesos, piecesCount, piecesTotal } from "./denominations";
 
 const t = es.cash;
 const w = t.cutWizard;
 const STEPS = ["cash", "methods", "expenses"];
-const pesos = (cents: bigint) => formatMoney(Number(cents) / 100);
 const money = (text: string) => formatMoney(Number(text.replace(/,/g, "")));
 
 interface Expense {
@@ -70,11 +69,10 @@ export function CutWizard({ cut, autoResume }: { cut: CutView; autoResume: boole
   if (draft.prompt) return <ResumePrompt updatedAt={draft.prompt.updatedAt} stepTitle={w.steps[draft.prompt.step as keyof typeof w.steps] ?? w.steps.cash} onContinue={draft.resume} onRestart={() => void draft.restart()} />;
 
   const set = (patch: Partial<CutDraft>) => draft.update((x) => ({ ...x, ...patch }));
-  const setCount = (key: string, n: number) => set({ pieces: { ...d.pieces, [key]: Math.max(0, Math.floor(Number.isFinite(n) ? n : 0)) } });
   const setExpense = (key: number, patch: Partial<Expense>) => set({ expenses: d.expenses.map((e) => (e.key === key ? { ...e, ...patch } : e)) });
-  const pieceCount = Object.values(d.pieces).reduce((a, n) => a + (n || 0), 0);
+  const pieceCount = piecesCount(d.pieces);
   // Lo mismo que muestra la pantalla de siempre mientras se cuenta: la suma de lo que se lleva contado.
-  const total = DENOMINATIONS.reduce((a, x) => a + x.cents * BigInt(d.pieces[x.cents.toString()] ?? 0), 0n);
+  const total = piecesTotal(d.pieces);
   const expenses = cut.movements.filter((m) => m.kind === "expense" && !m.cancelled);
   const fresh = d.expenses.filter((e) => e.concept.trim() || e.amount.trim());
   const go = (i: number) => {
@@ -133,27 +131,7 @@ export function CutWizard({ cut, autoResume }: { cut: CutView; autoResume: boole
           content: (
             <div className="flex flex-col gap-2">
               {errorBox}
-              <ul className="flex flex-col">
-                {DENOMINATIONS.map((x) => {
-                  const key = x.cents.toString();
-                  const label = t.denomination(pesos(x.cents), x.kind);
-                  const n = d.pieces[key] ?? 0;
-                  return (
-                    <li key={key} className="flex items-end gap-2 border-b border-line py-2">
-                      <NumberField label={label} value={n ? String(n) : ""} onChange={(e) => setCount(key, Number(e.target.value))} className="min-w-0 flex-1" />
-                      <IconButton label={t.less(label)} onClick={() => setCount(key, n - 1)}>
-                        <Icon name="minus" />
-                      </IconButton>
-                      <IconButton label={t.more(label)} onClick={() => setCount(key, n + 1)}>
-                        <Icon name="plus" />
-                      </IconButton>
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className="font-brand text-xl font-bold tabular-nums" data-testid="cash-counted-total">
-                {t.cashCounted}: {pesos(total)}
-              </p>
+              <DenominationCount pieces={d.pieces} onChange={(pieces) => set({ pieces })} />
             </div>
           ),
           summary: `${pesos(total)} · ${w.piecesLine(pieceCount)}`,

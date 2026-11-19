@@ -12,6 +12,7 @@ describe("spec 015 — borradores de los asistentes", () => {
     expect(needsTarget("req-new")).toBe(false);
     expect(needsTarget("req-approve")).toBe(true);
     expect(needsTarget("pay-close")).toBe(true);
+    expect(needsTarget("floor-cash")).toBe(true);
   });
 
   it("test_s015_rf22_solo_checklist_y_corte_ciego_son_del_telefono_de_piso", () => {

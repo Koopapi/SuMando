@@ -30,7 +30,7 @@ const FLOOR: readonly WizardKind[] = ["floor-checklist", "floor-cash"];
 export const isFloorKind = (k: WizardKind) => FLOOR.includes(k);
 
 /** Trabajan sobre una requisición, traspaso, semana, corte o plantilla concretos: el borrador lleva su id. */
-const TARGETED: readonly WizardKind[] = ["req-approve", "req-buy", "req-receive", "inv-transfer-receive", "pay-attendance", "pay-close", "cash-cut", "cash-pos", "floor-checklist"];
+const TARGETED: readonly WizardKind[] = ["req-approve", "req-buy", "req-receive", "inv-transfer-receive", "pay-attendance", "pay-close", "cash-cut", "cash-pos", "floor-checklist", "floor-cash"];
 export const needsTarget = (k: WizardKind) => TARGETED.includes(k);
 
 export const DRAFT_TTL_DAYS = 7;

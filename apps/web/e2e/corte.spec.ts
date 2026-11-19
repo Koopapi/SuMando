@@ -58,6 +58,8 @@ test("corte de caja: configuración, conteo a ciegas en el teléfono, diferencia
 
   await test.step("RF-18 RF-20 RF-22 RF-32 cuenta a ciegas con el asistente y entrega", async () => {
     await phone.getByRole("button", { name: "Contar" }).click();
+    // Spec 015: el teléfono abre el «Corte ciego»; esta prueba recorre el conteo de siempre.
+    await phone.getByRole("button", { name: "Vista completa" }).click();
     await phone.getByLabel("Billetes de $1,000.00", { exact: true }).fill("1");
     await phone.getByRole("button", { name: "Una más: Billetes de $200.00" }).click();
     await expect(phone.getByTestId("cash-counted-total")).toContainText("$1,200.00");

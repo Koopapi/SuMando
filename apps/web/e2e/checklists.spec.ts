@@ -78,6 +78,8 @@ test("checklists: plantilla, teléfono de piso, foto, cierre con pendientes e hi
   await test.step("RF-19 RF-40 RF-25 RF-22 RF-27 el empleado elige su nombre, palomea, toma la foto y da por lista", async () => {
     await page.getByRole("button", { name: "Cocinera de Prueba" }).click();
     await page.getByRole("link", { name: /Apertura/ }).click();
+    // Spec 015: el teléfono abre el asistente; esta prueba recorre la hoja completa.
+    await page.getByRole("button", { name: "Vista completa" }).click();
     await expect(page.getByTestId("sheet-section").first()).toContainText("Cocina");
     const cocina = section(page, "Cocina");
     await cocina.getByRole("button", { name: "Todo en orden en Cocina" }).click();

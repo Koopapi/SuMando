@@ -183,22 +183,22 @@ function Review({ steps, extra, onChange }: { steps: WizardStep[]; extra?: React
   const t = es.common;
   return (
     <div className="flex flex-col gap-4">
-      <dl className="flex flex-col">
+      <ul className="flex flex-col">
         {steps.map((s, i) =>
           s.summary === undefined ? null : (
-            <div key={s.id} className="flex flex-col gap-1 border-b border-line py-3" data-summary={s.id}>
+            <li key={s.id} className="flex flex-col gap-1 border-b border-line py-3" data-summary={s.id}>
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-sm font-semibold text-ink-muted">{s.title}</dt>
+                <h3 className="text-sm font-semibold text-ink-muted">{s.title}</h3>
                 <Button variant="ghost" onClick={() => onChange(i)}>
                   {t.change}
                   <span className="sr-only"> {s.title}</span>
                 </Button>
               </div>
-              <dd className="min-w-0">{s.summary}</dd>
-            </div>
+              <div className="min-w-0">{s.summary}</div>
+            </li>
           ),
         )}
-      </dl>
+      </ul>
       {extra}
     </div>
   );

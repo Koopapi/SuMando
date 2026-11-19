@@ -174,3 +174,16 @@ Ninguna nueva.
   guarda de una vez con la ruta del editor.
 - Renglones con varios campos a ancho de teléfono: el texto lleva un ancho base para pasar a su propia línea en lugar
   de quedarse en cero (también en el editor de plantillas de la spec 010).
+- Teléfono de piso: no hay cuenta de persona donde recordar la vista (RF-26), así que se recuerda en ese teléfono por
+  empleado y tarea, como el nombre elegido; `?vista=` la fuerza. Sin almacenamiento, abre el asistente (RF-23).
+- «Checklist» de piso (`/piso/[plantilla]`): las secciones de la persona son las de su puesto y las que no tienen
+  puesto (si no hay ninguna, todas). Lo guardado a medias son solo las marcas y comentarios que cambió en el asistente;
+  al confirmar se suben las fotos, se palomea lo que difiere de la hoja, se guardan los comentarios y cada sección
+  queda lista, con las rutas de la spec 010. Las fotos, como los documentos, se vuelven a tomar si se retoma. La hoja
+  completa es en vivo: si hay marcas del asistente sin registrar, lo avisa y no las aplica. El paso de cada sección
+  se guarda con el id de la sección (el nombre del paso admite 40 caracteres).
+- «Corte ciego»: su borrador va ligado al corte (`floor-cash` lleva objetivo, como `cash-cut`) para que uno viejo no
+  aparezca en el corte de otro día. Su vista completa es el conteo de la spec 011, y entre las dos se pasa lo contado.
+  El efectivo por denominación es el mismo componente del «Corte» de las personas.
+- El resumen de `ui/wizard.tsx` pasó de `<dl>` a una lista con títulos: axe marcaba el `<dl>` (el botón «Cambiar»
+  quedaba dentro del grupo de término y definición). El barrido no llegaba al resumen; el E2E de piso corre axe en él.
