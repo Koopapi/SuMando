@@ -11,5 +11,7 @@ describe("spec 015 — qué sigue al terminar", () => {
     expect(nextAfter("req-new", { id: "r1" })).toEqual({ href: "/requisiciones/r1", key: "seeRequisition" });
     expect(nextAfter("req-buy", { id: "r1" })).toEqual({ href: "/requisiciones/r1/recibir", key: "receive" });
     expect(nextAfter("pay-close", { id: "2026-11-16" })).toEqual({ href: "/nomina/2026-11-16/hoja-de-pago", key: "paySheet" });
+    // La asistencia lleva a la semana completa, no de vuelta al asistente.
+    expect(nextAfter("pay-attendance", { id: "2026-11-16" })).toEqual({ href: "/nomina/2026-11-16?vista=completa", key: "seeWeek" });
   });
 });

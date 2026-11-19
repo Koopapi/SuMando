@@ -28,7 +28,7 @@ export function nextAfter(kind: WizardKind, done: { id: string }): NextStep {
     case "inv-transfer":
       return { href: `/inventario/traspasos/${id}`, key: "seeTransfer" };
     case "pay-attendance":
-      return { href: `/nomina/${id}`, key: "seeWeek" };
+      return { href: `/nomina/${id}?vista=completa`, key: "seeWeek" };
     case "pay-close":
       return { href: `/nomina/${id}/hoja-de-pago`, key: "paySheet" };
     case "cash-open":

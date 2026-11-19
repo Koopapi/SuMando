@@ -8,6 +8,7 @@ import { appCtx } from "@/server/app-context";
 import { requirePageBranch } from "@/server/auth/page-guards";
 import { isAppError } from "@/server/errors";
 import { cutDetail } from "@/server/services/cash/cuts";
+import { wizardViews } from "@/server/services/wizards/preferences";
 import { PageHeader, PageShell } from "@/ui";
 
 export const dynamic = "force-dynamic";
@@ -20,13 +21,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     throw e;
   });
   if (!cut) notFound();
+  const views = await wizardViews(appCtx(), user);
   return (
     <PageShell>
       <Link href="/caja/historial" className="inline-flex min-h-11 items-center self-start font-semibold text-primary">
         {es.cash.history}
       </Link>
       <PageHeader title={es.cash.cutTitle(showDate(cut.date))} />
-      <CutBoard key={`${cut.id}-${cut.status}`} cut={cut} mode="user" canOpen={false} />
+      <CutBoard key={`${cut.id}-${cut.status}`} cut={cut} mode="user" canOpen={false} wizards={{ cut: views["cash-cut"] ?? "wizard", pos: views["cash-pos"] ?? "wizard", open: "full" }} />
     </PageShell>
   );
 }

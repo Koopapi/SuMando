@@ -3,7 +3,7 @@
 import type { Page } from "@playwright/test";
 import postgres from "postgres";
 import { expect, test } from "./fixtures";
-import { OWNER, lastMonday, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, lastMonday, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner, preferFullView } from "./helpers";
 import { BASE, DB } from "./warm";
 
 const ADMIN = { email: "admin.nomina@mando.test", password: "admin-nomina-1" };
@@ -31,6 +31,8 @@ test("nómina: el administrador marca, el dueño paga, cierra, reabre y vuelve a
 
   await test.step("RF-3 RF-4 el administrador abre Nómina y marca días, media jornada y retardo", async () => {
     await login(page, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await page.getByRole("navigation").getByRole("link", { name: "Nómina" }).first().click();
     await expect(page).toHaveURL(/\/nomina\/\d{4}-\d{2}-\d{2}$/);
     await page.goto(`/nomina/${w.week}`);
@@ -55,6 +57,8 @@ test("nómina: el administrador marca, el dueño paga, cierra, reabre y vuelve a
 
   await test.step("RF-18 RF-19 RF-25 el dueño ve el neto y el total", async () => {
     await login(page, OWNER.email, OWNER.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto(`/nomina/${w.week}`);
     // 2 días × 400 + media 200 − retardo 200 = 800.
@@ -138,6 +142,8 @@ test("nómina: el administrador marca, el dueño paga, cierra, reabre y vuelve a
   await test.step("RF-7 el administrador no llega a la hoja de pago ni al Excel", async () => {
     await logout(page);
     await login(page, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     expect((await page.request.get(`${BASE}/api/payroll/weeks/${w.week}/excel`)).status()).toBe(403);
     const res = await page.goto(`/nomina/${w.week}/hoja-de-pago`);
     expect(res?.status()).toBe(404);
@@ -159,6 +165,8 @@ test("nómina: volumen de 60 empleados", async ({ page }) => {
   }
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas.
+  await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
   await page.goto(`/nomina/${w.week}`);
 

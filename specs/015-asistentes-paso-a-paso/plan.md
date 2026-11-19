@@ -145,3 +145,18 @@ Ninguna nueva.
   siempre según la vista elegida, y la sección ofrece «Recibir paso a paso».
 - Los campos que propone un asistente llevan la cantidad tal como la manda el servidor («2000»), nunca con separador
   de miles: «2,000» se leería como 2 con la coma decimal.
+- «Asistencia de la semana» vive en `/nomina/[semana]` (con la semana abierta y la vista de asistente) y tiene un
+  paso por cada día que se puede marcar; guarda los cambios al confirmar, uno por día y persona. La semana completa
+  ofrece «Asistencia paso a paso» y, al terminar, «Ver la semana» lleva a la vista completa.
+- «Cerrar la semana» vive en `/nomina/[semana]/cerrar`. La revisión y los billetes salen de una **vista previa del
+  servidor** (`POST /api/payroll/weeks/[start]/preview`, `previewClose`), que recalcula la semana con lo capturado sin
+  guardar y reporta lo que impediría cerrar con los mismos mensajes que el cierre. Es la única ruta nueva además de los
+  borradores: sin ella, la revisión tendría que calcular netos en el navegador (constitución, principio 3).
+- El sueldo de la semana para el aviso de bono o extra es el pago de días que ya calcula el servidor; sin sueldo por
+  día no hay aviso (RF-15).
+- «Abrir caja» abre en `/caja` cuando no hay corte; «Corte» y «Reporte del punto de venta» viven en
+  `/caja/[id]/corte` y `/caja/[id]/reporte`. El tablero del corte abre el asistente o lo de siempre según la vista de
+  cada tarea. Los gastos del paso «Gastos pagados de la caja» se registran al confirmar, antes de entregar el conteo.
+- El resumen del reporte muestra lo que no cuadra con otra **vista previa del servidor** (acción `pos-preview`,
+  `previewPos`), solo para personas; el teléfono de piso la recibe como prohibida (RF-16). El conteo a ciegas del
+  teléfono sigue con su asistente de la spec 011 hasta la entrega 6.

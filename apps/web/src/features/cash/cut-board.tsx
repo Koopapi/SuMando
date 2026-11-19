@@ -2,21 +2,26 @@
 
 // Spec 011: el corte de caja. Lo usan las personas (`/caja`, `/caja/[id]`) y el teléfono de piso (`/piso/caja`); la
 // vista del teléfono llega ciega del servidor (sin reporte, esperado ni diferencias). Cada acción vuelve con el corte.
+// Spec 015 RF-25, RF-41, RF-42: para personas, «Contar» y el reporte abren su asistente o lo de siempre según la vista
+// que eligió cada quien, y lo de siempre ofrece «paso a paso».
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DENOMINATIONS } from "@/domain/payroll/cash";
 import { es } from "@/i18n";
 import type { CutView } from "@/server/services/cash/cuts";
-import { Alert, Button, Dialog, EmptyState, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextArea, TextField, Wizard, formatDateTime, formatMoney, useToast } from "@/ui";
+import { Alert, Button, Dialog, EmptyState, IconButton, Icon, LinkButton, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextArea, TextField, Wizard, formatDateTime, formatMoney, useToast } from "@/ui";
 import { api, formValues } from "../api";
 import { showDate } from "../personnel/dates";
+import { StepByStepButton } from "../wizards/step-by-step-button";
+
+type View = "wizard" | "full";
 
 const t = es.cash;
 const money = (text: string | null | undefined) => (text === null || text === undefined ? "—" : formatMoney(Number(text)));
 const at = (iso: string) => formatDateTime(new Date(iso));
 const pesos = (cents: bigint) => formatMoney(Number(cents) / 100);
 
-export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { cut: CutView | null; mode: "user" | "device"; employeeId?: string; canOpen?: boolean }) {
+export function CutBoard({ cut: initial, mode, employeeId, canOpen = true, wizards }: { cut: CutView | null; mode: "user" | "device"; employeeId?: string; canOpen?: boolean; wizards?: { cut: View; pos: View; open: View } }) {
   const router = useRouter();
   const toast = useToast();
   const [cut, setCut] = useState(initial);
@@ -57,6 +62,7 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
             <Button type="submit" loading={busy}>
               {t.open}
             </Button>
+            {wizards ? <StepByStepButton kind="cash-open" href="/caja" /> : null}
           </form>
         ) : null}
       </div>
@@ -130,10 +136,16 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
         ) : null}
       </section>
 
-      {open && !counting ? (
-        <Button className="self-start" onClick={() => (setError(null), setCounting(true))}>
-          {t.count}
-        </Button>
+      {open && !counting && wizards?.cut === "wizard" ? (
+        <div>
+          <LinkButton href={`/caja/${cut.id}/corte`}>{t.count}</LinkButton>
+        </div>
+      ) : null}
+      {open && !counting && wizards?.cut !== "wizard" ? (
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => (setError(null), setCounting(true))}>{t.count}</Button>
+          {wizards ? <StepByStepButton kind="cash-cut" href={`/caja/${cut.id}/corte`} label={t.cutWizard.stepByStep} /> : null}
+        </div>
       ) : null}
       {open && counting ? <CountWizard cut={cut} busy={busy} error={error} onExit={() => setCounting(false)} onDeliver={(body) => act("deliver", body, () => setCounting(false))} /> : null}
 
@@ -153,7 +165,18 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
 
       {person && cut.status !== "open" ? <Summary cut={cut} /> : null}
 
-      {person && cut.status === "counted" ? (
+      {person && cut.status === "counted" && wizards?.pos === "wizard" ? (
+        <section aria-label={t.pos} className="flex flex-col gap-3">
+          <SectionLabel as="h2">{t.pos}</SectionLabel>
+          <div className="flex flex-wrap gap-2">
+            <LinkButton href={`/caja/${cut.id}/reporte`} variant={cut.posCaptured ? "secondary" : "primary"}>
+              {t.posWizard.open}
+            </LinkButton>
+            {cut.posCaptured ? <Button onClick={() => (setError(null), setModal({ kind: "close" }))}>{t.close}</Button> : null}
+          </div>
+        </section>
+      ) : null}
+      {person && cut.status === "counted" && wizards?.pos !== "wizard" ? (
         <section aria-label={t.pos} className="flex flex-col gap-3">
           <SectionLabel as="h2">{t.pos}</SectionLabel>
           <p className="text-sm text-ink-muted">{t.posIntro}</p>
@@ -173,6 +196,7 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
               <Button type="submit" variant="secondary" loading={busy}>
                 {t.savePos}
               </Button>
+              {wizards ? <StepByStepButton kind="cash-pos" href={`/caja/${cut.id}/reporte`} label={t.posWizard.stepByStep} /> : null}
               {cut.posCaptured ? <Button onClick={() => (setError(null), setModal({ kind: "close" }))}>{t.close}</Button> : null}
             </div>
           </form>

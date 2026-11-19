@@ -67,3 +67,18 @@ export interface PayrollWeekSummaryView {
   /** Solo para el dueño (RF-46). */
   total?: string;
 }
+
+/** Billetes y monedas de un sobre (spec 009, RF-41); `cents` y `leftover` en centavos, como texto. */
+export interface CashView {
+  pieces: { cents: string; count: number }[];
+  leftover: string;
+}
+
+/** Spec 015, RF-39: la semana como quedaría al cerrar con lo capturado en el asistente, sin guardar. */
+export interface ClosePreviewView {
+  week: PayrollWeekView;
+  cash: Record<string, CashView>;
+  totalCash: CashView;
+  /** Lo que impediría cerrar, ya en español. */
+  problems: string[];
+}

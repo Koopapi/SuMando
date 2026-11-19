@@ -4,6 +4,7 @@ import type { Employee, EmployeePeriod, Loan, LoanPayment, PayrollDay, PayrollLi
 import { isOwner } from "@/domain/access/owner";
 import { writtenReason } from "@/domain/inventory/movement";
 import { lineTotals, weekTotals, type DayMark, type LineTotals } from "@/domain/payroll/calc";
+import { cashBreakdown, sumBreakdowns, type Breakdown } from "@/domain/payroll/cash";
 import { applyPayment, proposedPayment, revertPayment } from "@/domain/payroll/loans";
 import { addDays, dayIsFuture, dayWithinPeriods, isMonday, weekDates, weekOverlapsPeriods } from "@/domain/payroll/week";
 import { todayInMexico } from "@/domain/personnel/documents";
@@ -15,7 +16,7 @@ import { businessLock, type CatalogScope } from "../catalog/shared";
 import type { Ctx } from "../context";
 import { uuidOrNotFound } from "../inventory/shared";
 import { ownerOnly, personnelAccess } from "../personnel/shared";
-import type { DayView, PayrollRowView, PayrollWeekSummaryView, PayrollWeekView } from "./views";
+import type { CashView, ClosePreviewView, DayView, PayrollRowView, PayrollWeekSummaryView, PayrollWeekView } from "./views";
 
 export const BONUS_CONCEPT_MAX = 80;
 
@@ -276,16 +277,24 @@ export async function setLoanPayment(ctx: Ctx, scope: CatalogScope, rawMonday: u
 
 const names = (list: Person[]) => list.map((p) => p.employee.name).join(", ");
 
+/** RF-32 a RF-34: lo que impide cerrar, en el orden en que se revisa. */
+function closeProblems(people: Person[]): AppError[] {
+  const out: AppError[] = [];
+  const missing = people.filter((p) => p.totals.missingPay);
+  if (missing.length) out.push(new AppError("close_missing_pay", { names: names(missing) }));
+  const negative = people.filter((p) => p.totals.netCents < 0n);
+  if (negative.length) out.push(new AppError("close_negative", { names: names(negative) }));
+  const over = people.filter((p) => p.loans.some((l) => l.payment > l.loan.balanceCents));
+  if (over.length) out.push(new AppError("close_loan_over", { names: names(over) }));
+  return out;
+}
+
 /** RF-31 a RF-37: cerrar congela todo y aplica los abonos (solo el dueño). */
 export async function closeWeek(ctx: Ctx, scope: CatalogScope, rawMonday: unknown): Promise<PayrollWeekView> {
   ownerOnly(scope);
   await inWeek(ctx, scope, rawMonday, async (repos, w, week, now) => {
-    const missing = w.people.filter((p) => p.totals.missingPay);
-    if (missing.length) throw new AppError("close_missing_pay", { names: names(missing) });
-    const negative = w.people.filter((p) => p.totals.netCents < 0n);
-    if (negative.length) throw new AppError("close_negative", { names: names(negative) });
-    const over = w.people.filter((p) => p.loans.some((l) => l.payment > l.loan.balanceCents));
-    if (over.length) throw new AppError("close_loan_over", { names: names(over) });
+    const problem = closeProblems(w.people)[0];
+    if (problem) throw problem;
     for (const p of w.people) {
       const line = await repos.payroll.lines.ensure(week.id, p.employee.id, now);
       const t = p.totals;
@@ -357,4 +366,49 @@ export async function listPayrollWeeks(ctx: Ctx, scope: CatalogScope): Promise<P
     out.push({ start: w.weekStart, end: addDays(w.weekStart, 6), status: w.status, people: loaded.people.length, ...(owner ? { total: moneyText(total) } : {}) });
   }
   return out;
+}
+
+const cashView = (b: Breakdown): CashView => ({ pieces: b.pieces.map((p) => ({ cents: p.cents.toString(), count: p.count })), leftover: b.leftoverCents.toString() });
+
+export interface ClosePreviewInput {
+  /** Por empleado: extras, bono, concepto y comida capturados en el asistente. */
+  lines?: Record<string, AmountsInput>;
+  /** Por préstamo: el abono de esta semana. */
+  loans?: Record<string, unknown>;
+}
+
+/** Spec 015, RF-39: la semana como quedaría con lo capturado en «Cerrar la semana», sin guardar nada: netos por
+ *  persona, billetes de cada sobre y lo que impediría cerrar. Lo calcula el servidor, como la semana (solo el dueño). */
+export async function previewClose(ctx: Ctx, scope: CatalogScope, rawMonday: unknown, input: ClosePreviewInput): Promise<ClosePreviewView> {
+  ownerOnly(scope);
+  await personnelAccess(ctx.store, scope);
+  const monday = mondayOrInvalid(rawMonday);
+  const w = await loadWeek(ctx.store, scope, monday);
+  if (w.week?.status === "closed") throw new AppError("week_closed");
+  const lines = input.lines ?? {};
+  const loans = input.loans ?? {};
+  const people = w.people.map((p): Person => {
+    const o = lines[p.employee.id];
+    const pick = (raw: unknown, current: bigint) => (raw === undefined ? current : amount(raw));
+    const extras = pick(o?.extras, p.line?.extrasCents ?? 0n);
+    const bonus = pick(o?.bonus, p.line?.bonusCents ?? 0n);
+    const meal = pick(o?.meal, p.line?.mealCents ?? 0n);
+    let concept = p.line?.bonusConcept ?? null;
+    if (o?.bonusConcept !== undefined) {
+      const text = typeof o.bonusConcept === "string" ? o.bonusConcept.trim() : "";
+      if (text.length > BONUS_CONCEPT_MAX) throw new AppError("validation");
+      concept = text || null;
+    }
+    const mine = p.loans.map((l) => (loans[l.loan.id] === undefined ? l : { ...l, payment: amount(loans[l.loan.id]) }));
+    const totals = lineTotals({ dailyPayCents: p.pay, days: p.days, extrasCents: extras, bonusCents: bonus, mealCents: meal, loanCents: mine.reduce((a, l) => a + l.payment, 0n) });
+    const line = p.line ? { ...p.line, bonusConcept: concept } : concept ? ({ bonusConcept: concept } as PayrollLine) : null;
+    return { ...p, line, loans: mine, totals };
+  });
+  const breakdowns = people.map((p) => [p.employee.id, cashBreakdown(p.totals.netCents)] as const);
+  return {
+    week: weekView(ctx, scope, { ...w, people }),
+    cash: Object.fromEntries(breakdowns.map(([id, b]) => [id, cashView(b)])),
+    totalCash: cashView(sumBreakdowns(breakdowns.map(([, b]) => b))),
+    problems: closeProblems(people).map((e) => e.message),
+  };
 }

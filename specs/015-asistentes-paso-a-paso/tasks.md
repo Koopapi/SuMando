@@ -85,19 +85,19 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 4 — Nómina y caja
 
-- [ ] **T19 — Asistente «Asistencia de la semana»**
+- [x] **T19 — Asistente «Asistencia de la semana»**
   - RF: RF-11, RF-38
   - Depende de: T10
   - Hecho cuando: un paso por día y resumen; el administrador no ve montos.
-- [ ] **T20 — Asistente «Cerrar la semana»**
+- [x] **T20 — Asistente «Cerrar la semana»**
   - RF: RF-13, RF-39
   - Depende de: T10
   - Hecho cuando: extras, bonos y comida (aviso si pasa del sueldo de la semana), préstamos, revisión por persona y resumen con billetes; solo el dueño.
-- [ ] **T21 — Asistentes «Abrir caja», «Corte» y «Reporte del punto de venta»**
+- [x] **T21 — Asistentes «Abrir caja», «Corte» y «Reporte del punto de venta»**
   - RF: RF-40, RF-41, RF-42
   - Depende de: T10
   - Hecho cuando: los tres asistentes funcionan sobre el corte de la sucursal y el conteo existente pasa al asistente ampliado.
-- [ ] **T22 — E2E de nómina y caja**
+- [x] **T22 — E2E de nómina y caja**
   - RF: RF-11, RF-38, RF-39, RF-40, RF-41, RF-42
   - Depende de: T19, T20, T21
   - Hecho cuando: `e2e/asistentes-nomina-caja.spec.ts` y los E2E de nómina y caja existentes en verde.

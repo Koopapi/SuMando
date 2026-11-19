@@ -59,6 +59,11 @@ describe("spec 011 — API del corte", () => {
     const blind = JSON.stringify(await json(await w.phone.call(currentGet, `/api/cash/current?employee=${w.employeeId}`)));
     expect(blind).not.toMatch(/777|"pos"|difference|figures/);
     expect((await w.phone.call(act("pos"), "/x", { body: { amounts: pos } })).status).toBe(403);
+    // Spec 015, RF-16 y RF-42: la vista previa del reporte tampoco es para el teléfono de piso.
+    expect((await w.phone.call(act("pos-preview"), "/x", { body: { employeeId: w.employeeId, amounts: pos } })).status).toBe(403);
+    const preview = await w.sendero.call(act("pos-preview"), "/x", { body: { amounts: pos } });
+    expect(preview.status).toBe(200);
+    expect((await json(preview)).cut.figures.posTotal).toBe("1554.00");
     expect((await w.phone.call(act("close"), "/x", { body: {} })).status).toBe(403);
     expect((await w.phone.call(cutsGet, "/api/cash/cuts")).status).toBe(401);
     expect((await w.phone.call((r) => cutGet(r, p({ id: cut.id })), "/x")).status).toBe(401);

@@ -3,6 +3,8 @@
 // Spec 009: la semana de nómina. El administrador marca días, medias jornadas y retardos; el dueño además ve netos y
 // totales al instante, captura montos y abonos, cierra y reabre. Cada cambio vuelve con la semana recalculada por el
 // servidor (RF-24); la vista del administrador no trae ningún monto (RF-5).
+// Spec 015 RF-25: es la vista completa de «Asistencia de la semana» y ofrece volver a ella; «Cerrar semana» abre el
+// asistente o el diálogo de siempre según la vista que eligió el dueño.
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { es } from "@/i18n";
@@ -10,13 +12,14 @@ import type { PayrollRowView, PayrollWeekView } from "@/server/services/payroll/
 import { Alert, Button, DayMark, Dialog, EmptyState, LinkButton, MoneyField, PageHeader, SectionLabel, Sheet, StatusBadge, TextArea, TextField, formatDateTime, formatMoney } from "@/ui";
 import { api, formValues } from "../api";
 import { showDate } from "../personnel/dates";
+import { StepByStepButton } from "../wizards/step-by-step-button";
 
 const t = es.payroll;
 const NEXT = { empty: "worked", worked: "half", half: "empty" } as const;
 
 const money = (text: string) => formatMoney(Number(text));
 
-export function WeekBoard({ week: initial }: { week: PayrollWeekView }) {
+export function WeekBoard({ week: initial, closeView = "full" }: { week: PayrollWeekView; closeView?: "wizard" | "full" }) {
   const router = useRouter();
   const [week, setWeek] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
@@ -77,10 +80,15 @@ export function WeekBoard({ week: initial }: { week: PayrollWeekView }) {
         figureLabel={week.totals ? t.total : t.people(rows.length)}
         action={
           <span className="flex flex-wrap gap-2">
-            {week.owner && open ? (
-              <Button onClick={() => (setError(null), setModal("close"))} disabled={!!busy}>
-                {t.close}
-              </Button>
+            {open ? <StepByStepButton kind="pay-attendance" href={`/nomina/${week.start}`} label={t.attendanceWizard.stepByStep} /> : null}
+            {week.owner && open && closeView === "wizard" ? <LinkButton href={`/nomina/${week.start}/cerrar`}>{t.close}</LinkButton> : null}
+            {week.owner && open && closeView === "full" ? (
+              <>
+                <StepByStepButton kind="pay-close" href={`/nomina/${week.start}/cerrar`} label={t.closeWizard.stepByStep} />
+                <Button onClick={() => (setError(null), setModal("close"))} disabled={!!busy}>
+                  {t.close}
+                </Button>
+              </>
             ) : null}
             {week.owner && !open ? (
               <Button variant="secondary" onClick={() => (setError(null), setModal("reopen"))}>
