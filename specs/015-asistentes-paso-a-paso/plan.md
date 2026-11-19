@@ -133,3 +133,15 @@ Ninguna nueva.
   la vista completa no leen el borrador: lo capturado en el asistente se conserva y se retoma al volver a él (RF-27).
 - «Comprar» no pide un comprador con cuenta: quien opera elige de qué comprador es la lista (los compradores son de
   Personal, spec 013) y recorre sus proveedores pendientes.
+- «Contar un área» recorre los productos con «Siguiente» (uno por pantalla, «Producto N de M») y pasa al resumen
+  después del último; el aviso del 30 % solo se calcula en la presentación de conteo, la misma de lo esperado. Lo
+  esperado que se vio al empezar se guarda en el borrador, para que el servidor avise si la existencia cambió.
+- `/inventario/conteo` abre el asistente (`?area=` lo empieza en un área) y `/inventario/conteo/[id]` lleva a él
+  salvo con la vista completa. La hoja completa carga el borrador del asistente si es de la misma área.
+- «Entrada», «Salida» y «Traspaso» son un mismo asistente con un paso propio (Proveedor, Motivo o Destino). Para los
+  avisos reciben la existencia y el máximo por almacén y presentación (`movementWizardData`, que reutiliza los niveles
+  de la requisición). La nota va en «Motivo» en la salida y al final de los productos en la entrada y el traspaso.
+- «Recibir traspaso» vive en `/inventario/traspasos/[id]/recibir`; el detalle abre el asistente o la sección de
+  siempre según la vista elegida, y la sección ofrece «Recibir paso a paso».
+- Los campos que propone un asistente llevan la cantidad tal como la manda el servidor («2000»), nunca con separador
+  de miles: «2,000» se leería como 2 con la coma decimal.

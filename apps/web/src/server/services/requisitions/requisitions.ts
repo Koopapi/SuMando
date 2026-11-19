@@ -613,7 +613,7 @@ export async function builderData(ctx: Ctx, scope: CatalogScope) {
  * (clave "" = unidad base), para mostrarlos al armar. Solo los productos con existencia o nivel. */
 export type BuilderLevels = Record<string, Record<string, Record<string, { stock: string; min: string | null; max: string | null }>>>;
 
-async function levelsForBuilder(ctx: Ctx, book: Book, businessId: string, warehouseIds: string[]): Promise<BuilderLevels> {
+export async function levelsForBuilder(ctx: Ctx, book: Book, businessId: string, warehouseIds: string[]): Promise<BuilderLevels> {
   const [levels, stock] = await Promise.all([ctx.store.catalog.levels.listByBusiness(businessId), ctx.store.inventory.stock.listByWarehouses(warehouseIds)]);
   const out: BuilderLevels = {};
   const presentationsOf = new Map<string, { id: string; factor: string }[]>();

@@ -39,7 +39,7 @@ export function ReceiveRequisitionWizard({ requisition: r, examples, group, auto
   const [done, setDone] = useState<string | null>(null);
   const chosen = groups.find((g) => g.id === d.groupId);
   const lines = chosen ? r.lines.filter((l) => chosen.lineIds.includes(l.id) && !l.closed) : [];
-  const value = (l: LineView) => d.quantities[l.id] ?? formatQuantity(l.pending);
+  const value = (l: LineView) => d.quantities[l.id] ?? l.pending;
   const name = (g: GroupView) => g.supplierName ?? t.groupNoSupplier;
   const go = (i: number) => {
     setStepError(null);

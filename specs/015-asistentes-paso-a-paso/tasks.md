@@ -66,19 +66,19 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 3 — Inventario
 
-- [ ] **T15 — Asistente «Contar un área»**
+- [x] **T15 — Asistente «Contar un área»**
   - RF: RF-13, RF-33
   - Depende de: T10
   - Hecho cuando: almacén y área, conteo producto por producto con aviso al pasar del 30 % y resumen con diferencias.
-- [ ] **T16 — Asistentes «Entrada» y «Salida»**
+- [x] **T16 — Asistentes «Entrada» y «Salida»**
   - RF: RF-13, RF-34, RF-35
   - Depende de: T10
   - Hecho cuando: los dos asistentes registran su movimiento, con aviso de entrada > 3 × máximo y salida > mitad de la existencia.
-- [ ] **T17 — Asistentes «Traspaso» y «Recibir traspaso»**
+- [x] **T17 — Asistentes «Traspaso» y «Recibir traspaso»**
   - RF: RF-36, RF-37
   - Depende de: T10
   - Hecho cuando: origen, destino, productos y resumen; recibir propone lo enviado.
-- [ ] **T18 — E2E de inventario**
+- [x] **T18 — E2E de inventario**
   - RF: RF-13, RF-33, RF-34, RF-35, RF-36, RF-37
   - Depende de: T15, T16, T17
   - Hecho cuando: `e2e/asistentes-inventario.spec.ts` y los E2E de inventario existentes en verde.

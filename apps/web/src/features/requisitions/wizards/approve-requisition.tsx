@@ -32,14 +32,14 @@ const sameQty = (a: string, b: string) => parseMilli(a.trim()) !== null && parse
 
 export function ApproveRequisitionWizard({ requisition: r, examples, autoResume }: { requisition: RequisitionView; examples: WizardExamples; autoResume: boolean }) {
   const router = useRouter();
-  const initial: ApproveDraft = { edits: Object.fromEntries(r.lines.map((l) => [l.id, { quantity: formatQuantity(l.quantity), removed: false }])), decision: "", reason: "" };
+  const initial: ApproveDraft = { edits: Object.fromEntries(r.lines.map((l) => [l.id, { quantity: l.quantity, removed: false }])), decision: "", reason: "" };
   const draft = useWizardDraft({ kind: "req-approve", target: r.id, initial, steps: STEPS, autoResume });
   const d = draft.data;
   const [stepError, setStepError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<null | "approve" | "reject">(null);
-  const edit = (l: LineView) => d.edits[l.id] ?? { quantity: formatQuantity(l.quantity), removed: false };
+  const edit = (l: LineView) => d.edits[l.id] ?? { quantity: l.quantity, removed: false };
   const setEdit = (id: string, patch: Partial<{ quantity: string; removed: boolean }>) => draft.update((x) => ({ ...x, edits: { ...x.edits, [id]: { ...(x.edits[id] ?? { quantity: "", removed: false }), ...patch } } }));
   const kept = r.lines.filter((l) => !edit(l).removed);
   const changes = r.lines.filter((l) => edit(l).removed || !sameQty(edit(l).quantity, l.quantity));

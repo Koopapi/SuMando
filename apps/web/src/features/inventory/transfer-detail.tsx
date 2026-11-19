@@ -2,19 +2,22 @@
 
 // Spec 005 RF-29 a RF-37: detalle del traspaso; quien recibe confirma lo que llegó y en qué producto entra, quien
 // envía puede cancelarlo mientras está en camino (o uno interno hecho).
+// Spec 015 RF-25, RF-37: con la vista de asistente, «Recibir» abre el asistente; en la vista completa, la sección de
+// siempre ofrece «Recibir paso a paso».
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { es } from "@/i18n";
 import type { ProductOption, TransferView } from "@/server/services/inventory/views";
-import { Alert, Button, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, formatDateTime, formatQuantity } from "@/ui";
+import { Alert, Button, LinkButton, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, formatDateTime, formatQuantity } from "@/ui";
 import { api } from "../api";
 import { unitShort } from "../catalog/labels";
+import { StepByStepButton } from "../wizards/step-by-step-button";
 import { ReasonDialog } from "./reason-dialog";
 
 const t = es.inventory;
 
-export function TransferDetail({ transfer, products }: { transfer: TransferView; products: ProductOption[] }) {
+export function TransferDetail({ transfer, products, receiveView = "full" }: { transfer: TransferView; products: ProductOption[]; receiveView?: "wizard" | "full" }) {
   const router = useRouter();
   const [values, setValues] = useState(() => Object.fromEntries(transfer.lines.map((l) => [l.id, { productId: l.proposedProductId ?? "", quantity: l.sent }])));
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +69,12 @@ export function TransferDetail({ transfer, products }: { transfer: TransferView;
       ) : null}
       {transfer.note ? <p className="text-sm">{transfer.note}</p> : null}
 
-      {transfer.canReceive ? (
+      {transfer.canReceive && receiveView === "wizard" ? (
+        <div>
+          <LinkButton href={`/inventario/traspasos/${transfer.id}/recibir`}>{t.receiveWizard.open}</LinkButton>
+        </div>
+      ) : null}
+      {transfer.canReceive && receiveView === "full" ? (
         <section aria-label={t.receiveTitle} className="flex flex-col gap-3">
           <SectionLabel as="h2">{t.receiveTitle}</SectionLabel>
           <p className="text-sm text-ink-muted">{t.receiveIntro}</p>
@@ -94,7 +102,8 @@ export function TransferDetail({ transfer, products }: { transfer: TransferView;
               );
             })}
           </ol>
-          <div className="flex justify-end">
+          <div className="flex flex-wrap justify-end gap-2">
+            <StepByStepButton kind="inv-transfer-receive" href={`/inventario/traspasos/${transfer.id}/recibir`} label={t.receiveWizard.stepByStep} />
             <Button loading={busy} onClick={() => void receive()}>
               {t.confirmReceive}
             </Button>
