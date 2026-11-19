@@ -8,6 +8,7 @@ import type { PayrollRepo } from "./payroll";
 import type { PersonnelRepo } from "./personnel";
 import type { RecipesRepo } from "./recipes";
 import type { RequisitionsRepo } from "./requisitions";
+import type { WizardsRepo } from "./wizards";
 
 export type NewUser = {
   name: string;
@@ -119,6 +120,7 @@ export interface Repos {
   payroll: PayrollRepo;
   checklists: ChecklistsRepo;
   cash: CashRepo;
+  wizards: WizardsRepo;
 }
 
 export interface Store extends Repos {
