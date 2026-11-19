@@ -1,8 +1,10 @@
 "use client";
 
-// Asistente por pasos (spec 002, RF-34 a RF-36). El estado de lo capturado vive en quien lo usa, así que volver a
-// un paso anterior no pierde nada; mientras haya datos sin terminar, salir pide confirmación.
-import { useEffect, useState, type ReactNode } from "react";
+// Asistente por pasos (spec 002, RF-34 a RF-36; ampliado en la spec 015, RF-1 a RF-7 y RF-24). El estado de lo
+// capturado vive en quien lo usa, así que volver a un paso anterior no pierde nada. Cada paso puede llevar una
+// indicación de una frase y un ejemplo; con `review`, el asistente termina con un paso «Resumen» que muestra lo de
+// cada paso con «Cambiar». El paso puede ser controlado (`index`) para volver al que tiene un error o retomar.
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { es } from "@/i18n";
 import { Button } from "./button";
 import { Dial } from "./dial";
@@ -13,18 +15,73 @@ export interface WizardStep {
   id: string;
   title: string;
   content: ReactNode;
+  /** false deshabilita «Siguiente» (spec 002). */
   canContinue?: boolean;
+  /** RF-5: al tocar «Siguiente»; false no avanza (el paso muestra sus mensajes). Puede esperar al servidor. */
+  validate?: () => boolean | Promise<boolean>;
+  /** RF-2: qué hacer, en una frase. */
+  hint?: string;
+  /** RF-3: ejemplo con datos del negocio. */
+  example?: string;
+  /** RF-7: lo capturado en este paso, para el resumen; sin él, el paso no aparece en el resumen. */
+  summary?: ReactNode;
 }
 
-export function Wizard({ steps, dirty, onExit, onFinish }: { steps: WizardStep[]; dirty: boolean; onExit: () => void; onFinish: () => void }) {
+export interface WizardReview {
+  /** Lo que va al final del resumen (avisos, totales). */
+  extra?: ReactNode;
+  /** Texto del botón que registra (por defecto «Confirmar»). */
+  confirmLabel?: string;
+  busy?: boolean;
+  /** RF-21: false no deja confirmar. */
+  canConfirm?: boolean;
+}
+
+export interface WizardProps {
+  steps: WizardStep[];
+  dirty: boolean;
+  onExit: () => void;
+  onFinish: () => void;
+  /** Paso controlado (índice dentro de los pasos más el resumen, si lo hay). */
+  index?: number;
+  onIndexChange?: (index: number) => void;
+  /** RF-7: añade el paso «Resumen» al final. */
+  review?: WizardReview;
+  /** RF-24: «Vista completa»; quien lo usa guarda lo capturado y cambia de pantalla. */
+  onFullView?: () => void;
+  /** Con borrador guardado en el servidor, salir no pierde nada y no pide confirmar. */
+  saved?: boolean;
+}
+
+export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIndexChange, review, onFullView, saved }: WizardProps) {
   const t = es.common;
-  const [index, setIndex] = useState(0);
+  const [own, setOwn] = useState(0);
   const [confirm, setConfirm] = useState<null | (() => void)>(null);
-  const step = steps[index];
-  const last = index === steps.length - 1;
+  const heading = useRef<HTMLHeadingElement>(null);
+  const first = useRef(true);
+  const all: WizardStep[] = review ? [...steps, { id: "summary", title: t.summaryTitle, hint: t.summaryHint, content: <Review steps={steps} extra={review.extra} onChange={(i) => go(i)} /> }] : steps;
+  const index = Math.min(controlled ?? own, all.length - 1);
+  const step = all[index];
+  const last = index === all.length - 1;
+  const guard = dirty && !saved;
+
+  function go(i: number) {
+    if (controlled === undefined) setOwn(i);
+    onIndexChange?.(i);
+  }
+
+  // Al cambiar de paso, el foco va al título para que el lector de pantalla lo anuncie (RF-1, accesibilidad).
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    heading.current?.focus();
+    window.scrollTo({ top: 0 });
+  }, [index]);
 
   useEffect(() => {
-    if (!dirty) return;
+    if (!guard) return;
     const beforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
@@ -43,31 +100,60 @@ export function Wizard({ steps, dirty, onExit, onFinish }: { steps: WizardStep[]
       window.removeEventListener("beforeunload", beforeUnload);
       document.removeEventListener("click", onClick, true);
     };
-  }, [dirty]);
+  }, [guard]);
 
-  const exit = () => (dirty ? setConfirm(() => onExit) : onExit());
+  const [checking, setChecking] = useState(false);
+  const exit = () => (guard ? setConfirm(() => onExit) : onExit());
+  const next = async () => {
+    if (step.validate) {
+      setChecking(true);
+      const ok = await step.validate();
+      setChecking(false);
+      if (!ok) return;
+    }
+    if (last) onFinish();
+    else go(index + 1);
+  };
+  const isReview = review !== undefined && last;
+  const disabled = isReview ? review.busy || review.canConfirm === false : step.canContinue === false;
 
   return (
     <div className="flex flex-col gap-4" data-step={step.id}>
       <div className="flex items-center gap-3">
-        <Dial value={(index + 1) / steps.length} label={t.step(index + 1, steps.length)} />
+        <Dial value={(index + 1) / all.length} label={t.step(index + 1, all.length)} />
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="text-xs font-semibold tracking-widest text-primary uppercase" data-testid="wizard-progress">
-            {t.step(index + 1, steps.length)}
+            {t.step(index + 1, all.length)}
           </p>
-          <h2 className="font-brand text-xl font-bold">{step.title}</h2>
+          <h2 ref={heading} tabIndex={-1} className="font-brand text-xl font-bold outline-none">
+            <span className="sr-only">{t.step(index + 1, all.length)}: </span>
+            {step.title}
+          </h2>
         </div>
         <button type="button" aria-label={t.exit} onClick={exit} className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-line-strong hover:bg-primary-soft">
           <Icon name="close" />
         </button>
       </div>
-      <div>{step.content}</div>
+      {step.hint || step.example ? (
+        <div className="flex flex-col gap-1" data-testid="wizard-hint">
+          {step.hint ? <p>{step.hint}</p> : null}
+          {step.example ? <p className="text-sm text-ink-muted">{t.examplePrefix} {step.example}</p> : null}
+        </div>
+      ) : null}
+      <div className="min-w-0">{step.content}</div>
+      {onFullView ? (
+        <div>
+          <Button variant="ghost" onClick={onFullView}>
+            {t.fullView}
+          </Button>
+        </div>
+      ) : null}
       <div className="sticky bottom-(--nav-space) -mx-4 flex gap-3 border-t border-line-strong bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
-        <Button variant="secondary" full disabled={index === 0} onClick={() => setIndex((i) => i - 1)}>
+        <Button variant="secondary" full disabled={index === 0} onClick={() => go(index - 1)}>
           {t.previous}
         </Button>
-        <Button full disabled={step.canContinue === false} onClick={() => (last ? onFinish() : setIndex((i) => i + 1))}>
-          {last ? t.finish : t.next}
+        <Button full disabled={disabled} loading={checking || (isReview && review.busy)} onClick={() => void next()}>
+          {isReview ? (review.confirmLabel ?? t.confirm) : last ? t.finish : t.next}
         </Button>
       </div>
       <Dialog open={confirm !== null} title={t.exitTitle} onClose={() => setConfirm(null)}>
@@ -88,6 +174,32 @@ export function Wizard({ steps, dirty, onExit, onFinish }: { steps: WizardStep[]
           </Button>
         </div>
       </Dialog>
+    </div>
+  );
+}
+
+/** RF-7: lo capturado en cada paso, con «Cambiar» para volver a él. */
+function Review({ steps, extra, onChange }: { steps: WizardStep[]; extra?: ReactNode; onChange: (index: number) => void }) {
+  const t = es.common;
+  return (
+    <div className="flex flex-col gap-4">
+      <dl className="flex flex-col">
+        {steps.map((s, i) =>
+          s.summary === undefined ? null : (
+            <div key={s.id} className="flex flex-col gap-1 border-b border-line py-3" data-summary={s.id}>
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-sm font-semibold text-ink-muted">{s.title}</dt>
+                <Button variant="ghost" onClick={() => onChange(i)}>
+                  {t.change}
+                  <span className="sr-only"> {s.title}</span>
+                </Button>
+              </div>
+              <dd className="min-w-0">{s.summary}</dd>
+            </div>
+          ),
+        )}
+      </dl>
+      {extra}
     </div>
   );
 }

@@ -4,43 +4,43 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 1 — Base y Nueva requisición
 
-- [ ] **T1 — Reglas de dato raro**
+- [x] **T1 — Reglas de dato raro**
   - RF: RF-12, RF-13, RF-15, RF-16
   - Depende de: —
   - Hecho cuando: `domain/wizards/unusual.test.ts` en verde (cada regla, sus bordes, sin referencia y corte ciego).
-- [ ] **T2 — Tipos, vigencia y qué sigue**
+- [x] **T2 — Tipos, vigencia y qué sigue**
   - RF: RF-9, RF-17, RF-22, RF-51
   - Depende de: —
   - Hecho cuando: `drafts.test.ts` y `next.test.ts` en verde (7 días, tamaño, tipos de piso, siguiente tarea).
-- [ ] **T3 — Migración y servicio de borradores**
+- [x] **T3 — Migración y servicio de borradores**
   - RF: RF-17, RF-19, RF-20, RF-22, RF-51
   - Depende de: T2
   - Hecho cuando: `0013_asistentes` aplica conservando los datos y la integración de guardar, leer en otra sesión, descartar, vencer y aislar por persona, sucursal, negocio y empleado de piso está en verde.
-- [ ] **T4 — Preferencia de vista y ejemplos**
+- [x] **T4 — Preferencia de vista y ejemplos**
   - RF: RF-3, RF-23, RF-26
   - Depende de: T3
   - Hecho cuando: integración de la preferencia por persona y tarea y de los ejemplos con datos del negocio (y genéricos sin datos) en verde.
-- [ ] **T5 — Rutas de la API**
+- [x] **T5 — Rutas de la API**
   - RF: RF-17, RF-18, RF-20, RF-22, RF-26
   - Depende de: T3, T4
   - Hecho cuando: tests de las rutas de borrador y vista (persona, teléfono de piso, `wizard_unknown`, `draft_too_large`) en verde.
-- [ ] **T6 — Asistente ampliado**
+- [x] **T6 — Asistente ampliado**
   - RF: RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7, RF-24
   - Depende de: —
   - Hecho cuando: `/sistema/asistente` muestra paso controlado, indicación, ejemplo, resumen con «Cambiar», «Vista completa» y el anuncio del paso; E2E de pantallas tipo en verde.
-- [ ] **T7 — Aviso de dato raro y retomar**
+- [x] **T7 — Aviso de dato raro y retomar**
   - RF: RF-12, RF-14, RF-18, RF-20
   - Depende de: T6
   - Hecho cuando: `UnusualNotice` y `ResumePrompt` están en `/sistema/asistente` y el barrido no marca nada.
-- [ ] **T8 — Borrador en la pantalla y cambio de vista**
+- [x] **T8 — Borrador en la pantalla y cambio de vista**
   - RF: RF-6, RF-8, RF-10, RF-17, RF-18, RF-19, RF-20, RF-21, RF-24, RF-25, RF-26, RF-27
   - Depende de: T5, T7
   - Hecho cuando: `use-wizard-draft` y `view-switch` guardan al cambiar de paso, retoman, descartan, llevan un error a su paso y conservan lo capturado al cambiar de vista (probado en la entrega con Nueva requisición).
-- [ ] **T9 — Asistente «Nueva requisición»**
+- [x] **T9 — Asistente «Nueva requisición»**
   - RF: RF-9, RF-23, RF-28, RF-29
   - Depende de: T1, T8
   - Hecho cuando: la página abre el asistente con Almacén, De dónde agregar, Productos y cantidades (por proveedor, con existencia, mínimo y máximo), Nota y Resumen, y la vista completa sigue funcionando.
-- [ ] **T10 — E2E de la entrega 1**
+- [x] **T10 — E2E de la entrega 1**
   - RF: RF-1, RF-5, RF-7, RF-8, RF-12, RF-14, RF-18, RF-19, RF-24, RF-26, RF-27, RF-28
   - Depende de: T9
   - Hecho cuando: `e2e/asistentes-requisiciones.spec.ts` (nueva) y los E2E de requisiciones existentes en verde, con medidas a 390 × 844.

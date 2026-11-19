@@ -169,4 +169,35 @@ export const requisitions = {
   homeLabel: "Compras",
   homeDetail: (toApprove: number | null, toReceive: number) =>
     [toApprove !== null ? (toApprove === 1 ? "1 por aprobar" : `${toApprove} por aprobar`) : null, toReceive === 1 ? "1 por recibir" : `${toReceive} por recibir`].filter(Boolean).join(" · "),
+  // Spec 015: asistente «Nueva requisición».
+  wizard: {
+    steps: { warehouse: "Almacén", source: "De dónde agregar", products: "Productos y cantidades", note: "Nota" },
+    hints: {
+      warehouse: "Elige el almacén donde se va a recibir lo que se compre.",
+      source: "Elige de dónde tomar los productos; después puedes cambiar cantidades, quitar o agregar más.",
+      products: "Revisa cada producto y su cantidad; están agrupados por proveedor, con lo que hay, el mínimo y el máximo.",
+      note: "Si hace falta, escribe una indicación para quien aprueba o compra.",
+    },
+    examples: {
+      warehouse: (name: string) => name,
+      source: "«Bajo el mínimo» agrega lo que hace falta para llegar al máximo.",
+      products: (qty: string, unit: string, product: string) => `${qty} ${unit} de ${product}`,
+      productsGeneric: "4 Caja de Leche",
+      note: "Que el pan llegue antes de las 9:00.",
+    },
+    sourceManual: "Los agrego yo, uno por uno",
+    sourceLabel: "Agregar productos desde",
+    chooseSource: "Elige la plantilla o el cálculo.",
+    noProducts: "Agrega al menos un producto con su cantidad.",
+    missingQuantity: (product: string) => `Falta la cantidad de ${product}.`,
+    pendingUnusual: "Confirma las cantidades marcadas como fuera de lo normal.",
+    quantityOf: (product: string) => `La cantidad de ${product}`,
+    expectedMax: (max: string, unit: string) => `hasta el doble del máximo (${max} ${unit})`,
+    linesSummary: (n: number) => (n === 1 ? "1 producto" : `${n} productos`),
+    supplierSummary: (supplier: string, n: number) => `${supplier}: ${n === 1 ? "1 producto" : `${n} productos`}`,
+    noNote: "Sin nota",
+    done: (folio: number) => `Se envió la requisición REQ-${folio}.`,
+    doneOwner: (folio: number) => `Se registró la requisición REQ-${folio}, ya aprobada.`,
+    another: "Hacer otra",
+  },
 };

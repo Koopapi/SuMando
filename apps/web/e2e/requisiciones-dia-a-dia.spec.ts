@@ -64,7 +64,7 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
 
   await test.step("RF-29 RF-30 RF-31 RF-32 el administrador arma desde mínimos y busca un producto", async () => {
     await login(page, ADMIN.email, ADMIN.password);
-    await page.goto("/requisiciones/nueva");
+    await page.goto("/requisiciones/nueva?vista=completa");
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregaron 2 productos.")).toBeVisible();
     await expect(page.getByRole("region", { name: "Sams" })).toContainText("Hay 1 Bulto · mínimo 2 · máximo 5");

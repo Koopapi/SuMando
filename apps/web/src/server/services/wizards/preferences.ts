@@ -23,3 +23,10 @@ export async function setWizardView(ctx: Ctx, actor: PublicUser, kind: unknown, 
   await ctx.store.wizards.preferences.set(actor.id, kind, view, ctx.ports.clock.now());
   return view;
 }
+
+/** Vista de una página: `?vista=completa|asistente` manda; si no, la que eligió la persona (RF-23, RF-26). */
+export async function pageView(ctx: Ctx, actor: PublicUser, kind: WizardKind, param: string | undefined): Promise<WizardView> {
+  if (param === "completa") return "full";
+  if (param === "asistente") return "wizard";
+  return wizardView(ctx, actor, kind);
+}

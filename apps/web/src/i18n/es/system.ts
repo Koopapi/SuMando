@@ -104,5 +104,8 @@ export const system = {
     counted: "Efectivo contado",
     total: "Total del corte",
     finished: "Ejemplo terminado: no se guardó nada.",
+    fullViewDemo: "En una tarea real, aquí se abre la pantalla completa con lo capturado.",
+    hints: { fund: "Escribe con cuánto dinero abrió la caja.", cards: "Suma los vouchers de cada terminal y las transferencias del turno." },
+    examples: { fund: "$1,500", cash: "3 billetes de $500 y 12 monedas de $10" },
   },
 } as const;

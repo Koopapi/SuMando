@@ -36,6 +36,9 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
     await login(page, ADMIN.email, ADMIN.password);
     await page.getByRole("navigation").getByRole("link", { name: "Requisiciones" }).first().click();
     await page.getByRole("link", { name: "Nueva requisición" }).click();
+    // Spec 015: abre el asistente; esta prueba recorre la pantalla completa.
+    await page.getByRole("button", { name: "Vista completa" }).click();
+    await page.waitForURL(/vista=completa/);
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregó 1 producto.")).toBeVisible();
     // Spec 014 (RF-20): lo agregado se ve como una franja que se abre para editar.

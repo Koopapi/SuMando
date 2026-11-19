@@ -117,3 +117,13 @@ Ninguna nueva.
 5. **Altas**: producto, proveedor, empleado y plantilla de checklist.
 6. **Teléfono de piso**: Checklist y Corte ciego.
 7. **Cierre**: E2E, barrido, validación y documentos.
+
+## Ajustes al construir
+
+- «Vista completa» es un botón, no un enlace: primero guarda lo capturado y la preferencia, y luego cambia de pantalla.
+- La pantalla completa de «Nueva requisición» carga el borrador siempre que exista (salvo al editar o al empezar con
+  una plantilla), así «Paso a paso» nunca lo pisa con una pantalla vacía.
+- La validación de un paso puede esperar al servidor: «De dónde agregar» trae las sugerencias al tocar «Siguiente» y
+  no las repite si se va y se vuelve con la misma fuente.
+- Lo capturado se guarda al cambiar de paso y además 0.8 s después de cada cambio, para no perder lo del paso actual.
+- Los renglones de la requisición viven en `features/requisitions/requisition-lines.tsx`, compartidos por las dos vistas.

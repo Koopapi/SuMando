@@ -126,7 +126,7 @@ test("pulido visual: menú, filtros, grupos, captura, encabezados y logo", async
 
   await test.step("RF-6 RF-23 RF-20 RF-21 RF-22 en el teléfono: barra diaria, encabezado bajo y 6 renglones de requisición a la vista", async () => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/requisiciones/nueva");
+    await page.goto("/requisiciones/nueva?vista=completa");
     await expect(page.getByRole("navigation", { name: "Navegación" }).getByRole("link")).toHaveText(["Inicio", "Inventario", "Requisiciones", "Checklists"]);
     expect(await headerHeight(page)).toBeLessThanOrEqual(160);
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
