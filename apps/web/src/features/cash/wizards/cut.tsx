@@ -215,7 +215,7 @@ export function CutWizard({ cut, autoResume }: { cut: CutView; autoResume: boole
                 <SectionLabel as="h3">{w.newExpenses}</SectionLabel>
                 {d.expenses.map((e, i) => (
                   <div key={e.key} className="flex flex-wrap items-end gap-2 border-b border-line pb-3" data-testid="new-expense">
-                    <TextField label={w.expenseConcept(i + 1)} maxLength={80} className="min-w-0 flex-1" value={e.concept} onChange={(ev) => setExpense(e.key, { concept: ev.target.value })} />
+                    <TextField label={w.expenseConcept(i + 1)} maxLength={80} className="min-w-0 flex-1 basis-48" value={e.concept} onChange={(ev) => setExpense(e.key, { concept: ev.target.value })} />
                     <MoneyField label={w.expenseAmount(i + 1)} className="w-36" value={e.amount} onChange={(ev) => setExpense(e.key, { amount: ev.target.value })} />
                     <IconButton label={w.removeExpense(e.concept)} onClick={() => set({ expenses: d.expenses.filter((x) => x.key !== e.key) })}>
                       <Icon name="close" />

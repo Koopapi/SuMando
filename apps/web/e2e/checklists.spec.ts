@@ -2,7 +2,7 @@
 // el empleado llena con foto, el administrador cierra con pendientes y lo ve en el historial), en escritorio.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner, preferFullView } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.checklists@mando.test", password: "admin-checklists-1" };
@@ -28,6 +28,8 @@ test("checklists: plantilla, teléfono de piso, foto, cierre con pendientes e hi
 
   await test.step("RF-6 RF-9 RF-10 RF-11 el dueño arma la plantilla con clave y foto", async () => {
     await login(page, OWNER.email, OWNER.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto("/checklists/plantillas/nueva");
     await page.getByLabel("Nombre", { exact: true }).fill("Apertura");
@@ -56,6 +58,8 @@ test("checklists: plantilla, teléfono de piso, foto, cierre con pendientes e hi
 
   await test.step("RF-37 un administrador habilita el teléfono de piso y su sesión se cierra en él", async () => {
     await login(page, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
     await page.goto("/checklists/telefonos");
     await page.getByLabel("Nombre del teléfono").fill("Tablet de cocina");
     await page.getByRole("button", { name: "Habilitar este teléfono" }).click();
@@ -92,6 +96,8 @@ test("checklists: plantilla, teléfono de piso, foto, cierre con pendientes e hi
   await test.step("RF-32 RF-33 RF-46 RF-47 el administrador cierra con pendientes y lo ve en el historial", async () => {
     const admin = await browser.newPage({ viewport: { width: 1360, height: 950 } });
     await login(admin, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(admin, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
     await admin.goto("/checklists");
     await admin.getByRole("link", { name: /Apertura/ }).click();
     await expect(section(admin, "Cocina")).toContainText("Cocinera de Prueba");
@@ -120,6 +126,8 @@ test("checklists: volumen de 150 puntos", async ({ page }) => {
   const { template } = await call("/api/checklist-templates", { name: "Grande", days: [0, 1, 2, 3, 4, 5, 6], branchIds: [w.branchId], sections });
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas.
+  await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
   await page.goto("/checklists");
   const href = await page.getByRole("link", { name: /Grande/ }).getAttribute("href");

@@ -107,8 +107,10 @@ test("barrido de todas las pantallas", async ({ browser }) => {
   const cutId = await seedCashCut(pastatti.branches[0].id);
   const catalog = [
     "/productos",
+    "/productos/nuevo",
     `/productos/${productId}`,
     "/proveedores",
+    "/proveedores/nuevo",
     "/almacenes",
     "/recetas",
     `/recetas/${recipeId}`,
@@ -144,6 +146,7 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/requisiciones/plantillas",
     "/personal",
     "/personal/nuevo",
+    "/personal/nuevo?vista=completa",
     `/personal/${employeeId}`,
     "/personal/documentos",
     "/personal/puestos",
@@ -157,6 +160,7 @@ test("barrido de todas las pantallas", async ({ browser }) => {
     "/checklists/historial",
     "/checklists/plantillas",
     "/checklists/plantillas/nueva",
+    "/checklists/plantillas/nueva?vista=completa",
     `/checklists/plantillas/${sheet.templateId}`,
     "/checklists/telefonos",
     "/caja",

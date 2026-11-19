@@ -160,3 +160,17 @@ Ninguna nueva.
 - El resumen del reporte muestra lo que no cuadra con otra **vista previa del servidor** (acción `pos-preview`,
   `previewPos`), solo para personas; el teléfono de piso la recibe como prohibida (RF-16). El conteo a ciegas del
   teléfono sigue con su asistente de la spec 011 hasta la entrega 6.
+- Parecidos (RF-44): el nombre igual según `catalogKey` (sin acentos, mayúsculas ni espacios sobrantes) ya existe y el
+  servidor no lo deja repetir, así que el asistente lo dice y no avanza; «parecido» es el que solo cambia en los
+  espacios entre palabras (`similarKey`), y ese pide confirmar que es otro. Se usa también en «Nuevo proveedor».
+- «Nuevo producto» y «Nuevo proveedor» viven en `/productos/nuevo` y `/proveedores/nuevo`; su vista completa es el
+  diálogo de siempre de la lista, que trae nombre, unidad y proveedor (o nombre, teléfono y notas) de lo capturado.
+  Si algo falla después de crear el producto (una presentación o un nivel), el asistente lo avisa y manda a la ficha.
+- El comprador del proveedor nuevo se elige en la sucursal activa: la ruta de la spec 013 trabaja sobre ella, y en
+  otra sucursal se elige desde ella.
+- «Nuevo empleado» abre en `/personal/nuevo`; el paso del sueldo solo existe para el dueño. Los archivos de los
+  documentos no van en lo guardado a medias (es JSON en el servidor): se eligen en el paso y se suben al confirmar.
+- «Nueva plantilla» abre en `/checklists/plantillas/nueva` y tiene un paso de puntos por cada sección con nombre;
+  guarda de una vez con la ruta del editor.
+- Renglones con varios campos a ancho de teléfono: el texto lleva un ancho base para pasar a su propia línea en lugar
+  de quedarse en cero (también en el editor de plantillas de la spec 010).

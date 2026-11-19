@@ -104,19 +104,19 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 5 — Altas
 
-- [ ] **T23 — Parecidos de nombre**
+- [x] **T23 — Parecidos de nombre**
   - RF: RF-44
   - Depende de: —
   - Hecho cuando: test unitario de nombres iguales sin acentos, mayúsculas ni espacios en verde.
-- [ ] **T24 — Asistentes «Nuevo producto» y «Nuevo proveedor»**
+- [x] **T24 — Asistentes «Nuevo producto» y «Nuevo proveedor»**
   - RF: RF-43, RF-44, RF-45
   - Depende de: T10, T23
   - Hecho cuando: producto con presentaciones, proveedor y niveles por almacén; proveedor con comprador por sucursal.
-- [ ] **T25 — Asistentes «Nuevo empleado» y «Nueva plantilla de checklist»**
+- [x] **T25 — Asistentes «Nuevo empleado» y «Nueva plantilla de checklist»**
   - RF: RF-11, RF-46, RF-47
   - Depende de: T10
   - Hecho cuando: el sueldo solo aparece al dueño; la plantilla se arma por secciones y puntos.
-- [ ] **T26 — E2E de altas**
+- [x] **T26 — E2E de altas**
   - RF: RF-43, RF-44, RF-45, RF-46, RF-47
   - Depende de: T24, T25
   - Hecho cuando: `e2e/asistentes-altas.spec.ts` y los E2E de catálogo, personal y checklists existentes en verde.

@@ -1,7 +1,7 @@
 // Criterios de la spec 008: personal (expediente, documentos, sueldo solo del dueño, baja y reingreso), en escritorio.
 import postgres from "postgres";
 import { expect, test } from "./fixtures";
-import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner, preferFullView } from "./helpers";
 import { BASE, DB } from "./warm";
 
 const ADMIN = { email: "admin.personal@mando.test", password: "admin-personal-1" };
@@ -25,6 +25,8 @@ test("personal: alta, documentos, sueldo del dueño, baja y reingreso", async ({
 
   await test.step("RF-39 RF-9 el administrador da de alta desde Personal", async () => {
     await login(page, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
     await page.getByRole("navigation").getByRole("link", { name: "Personal" }).first().click();
     await page.getByRole("link", { name: "Nuevo empleado" }).click();
     await expect(page.getByLabel("Sueldo por día")).toHaveCount(0);
@@ -60,6 +62,8 @@ test("personal: alta, documentos, sueldo del dueño, baja y reingreso", async ({
 
   await test.step("RF-13 RF-36 el dueño fija el sueldo y lo ve en la tabla", async () => {
     await login(page, OWNER.email, OWNER.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto(url);
     await page.getByLabel("Sueldo por día").fill("450");
@@ -112,6 +116,8 @@ test("personal: volumen de 200 empleados", async ({ page }) => {
   }
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas.
+  await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
   await test.step("la tabla de 200 empleados abre en menos de 2 segundos", async () => {
     await page.goto("/personal");
