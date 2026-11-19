@@ -23,6 +23,14 @@ export async function login(page: Page, email: string, password: string) {
   await Promise.race([page.waitForURL((u) => !u.pathname.endsWith("/login")), alertBox(page).waitFor()]);
 }
 
+/** Spec 015: las pruebas que recorren la pantalla completa de una tarea eligen esa vista (la persona ya conectada). */
+export async function preferFullView(page: Page, kinds: string[]) {
+  for (const kind of kinds) {
+    const res = await page.request.put(`${BASE}/api/wizards/${kind}/view`, { data: { view: "full" } });
+    if (!res.ok()) throw new Error(`No se pudo elegir la vista completa de ${kind}: ${res.status()}`);
+  }
+}
+
 /** Botón «Más» de la barra inferior del teléfono (spec 002, RF-16 y RF-46). */
 const moreButton = (page: Page) => page.getByRole("navigation", { name: "Navegación" }).getByRole("button", { name: "Más" });
 

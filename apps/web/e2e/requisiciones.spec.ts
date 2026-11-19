@@ -2,7 +2,7 @@
 import postgres from "postgres";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, logout, preferFullView, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
 import { BASE, DB } from "./warm";
 
 const ADMIN = { email: "admin.sendero@mando.test", password: "admin-sendero-1" };
@@ -34,11 +34,9 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
 
   await test.step("RF-48 RF-14 RF-15 el administrador arma desde lo que está bajo el mínimo", async () => {
     await login(page, ADMIN.email, ADMIN.password);
+    await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
     await page.getByRole("navigation").getByRole("link", { name: "Requisiciones" }).first().click();
     await page.getByRole("link", { name: "Nueva requisición" }).click();
-    // Spec 015: abre el asistente; esta prueba recorre la pantalla completa.
-    await page.getByRole("button", { name: "Vista completa" }).click();
-    await page.waitForURL(/vista=completa/);
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregó 1 producto.")).toBeVisible();
     // Spec 014 (RF-20): lo agregado se ve como una franja que se abre para editar.
@@ -64,28 +62,29 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
 
   await test.step("RF-24 RF-25 el dueño ajusta una cantidad y la aprueba", async () => {
     await login(page, OWNER.email, OWNER.password);
+    await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto(url);
     await page.getByRole("link", { name: "Editar" }).click();
     await page.getByRole("group", { name: "Producto 1" }).getByRole("button", { name: /^Editar Producto 1/ }).click();
     await page.getByRole("group", { name: "Producto 1" }).getByLabel("Cantidad").fill("4");
     await page.getByRole("button", { name: "Guardar cambios" }).click();
-    await page.getByRole("button", { name: "Aprobar" }).click();
+    await page.getByRole("button", { name: "Aprobar", exact: true }).click();
     await expect(page.getByText("Aprobada", { exact: true })).toBeVisible();
     await expect(page.getByTestId("req-history")).toContainText("Editada");
   });
 
   // RF-27 (quién compra) lo sustituye la spec 013: se elige de Personal y lo recorre su propio E2E.
   await test.step("RF-29 RF-30 se marca comprado con total", async () => {
-    await group(page, "Heineken").getByRole("button", { name: "Marcar comprado" }).click();
+    await group(page, "Heineken").getByRole("button", { name: "Marcar comprado", exact: true }).click();
     await page.getByLabel("Total pagado ($)").fill("1,200");
-    await page.getByRole("dialog").getByRole("button", { name: "Marcar comprado" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Marcar comprado", exact: true }).click();
     await expect(group(page, "Heineken")).toContainText("Comprado");
     await expect(group(page, "Heineken")).toContainText("$1,200.00");
   });
 
   await test.step("RF-34 RF-35 RF-38 se recibe en parte y lo demás queda pendiente", async () => {
-    await group(page, "Heineken").getByRole("button", { name: "Recibir" }).click();
+    await group(page, "Heineken").getByRole("button", { name: "Recibir", exact: true }).click();
     await page.getByLabel("Llegó de Cerveza").fill("3");
     await page.getByRole("button", { name: "Guardar recepción" }).click();
     await expect(group(page, "Heineken")).toContainText("Recibido en parte");
@@ -100,9 +99,9 @@ test("requisiciones: desde mínimos, aprobada con cambio, comprada, recibida en 
   });
 
   await test.step("RF-40 al recibir todo lo demás la requisición queda cerrada", async () => {
-    await group(page, "Sams").getByRole("button", { name: "Marcar comprado" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Marcar comprado" }).click();
-    await group(page, "Sams").getByRole("button", { name: "Recibir" }).click();
+    await group(page, "Sams").getByRole("button", { name: "Marcar comprado", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Marcar comprado", exact: true }).click();
+    await group(page, "Sams").getByRole("button", { name: "Recibir", exact: true }).click();
     await page.getByRole("button", { name: "Guardar recepción" }).click();
     await expect(page.getByText("Cerrada", { exact: true })).toBeVisible();
   });
@@ -134,6 +133,7 @@ test("requisiciones: volumen de 300 renglones", async ({ page }) => {
     await sql.end();
   }
   await login(page, OWNER.email, OWNER.password);
+  await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
 
   await test.step("se arma desde los mínimos y se recibe en menos de 2 segundos cada paso", async () => {

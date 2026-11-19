@@ -47,19 +47,19 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 2 — Resto de requisiciones
 
-- [ ] **T11 — Asistente «Aprobar requisición»**
+- [x] **T11 — Asistente «Aprobar requisición»**
   - RF: RF-21, RF-30
   - Depende de: T10
   - Hecho cuando: revisar por proveedor, decidir (con motivo al rechazar) y resumen; si otra persona ya decidió, el paso lo marca.
-- [ ] **T12 — Asistente «Comprar»**
+- [x] **T12 — Asistente «Comprar»**
   - RF: RF-31
   - Depende de: T10
   - Hecho cuando: el comprador recorre un paso por proveedor de su lista con lo comprado y lo pagado, y confirma.
-- [ ] **T13 — Asistente «Recibir»**
+- [x] **T13 — Asistente «Recibir»**
   - RF: RF-32
   - Depende de: T10
   - Hecho cuando: proveedor, cantidades (propone lo pendiente) y resumen; la entrada queda en el inventario.
-- [ ] **T14 — E2E de la entrega 2**
+- [x] **T14 — E2E de la entrega 2**
   - RF: RF-10, RF-21, RF-30, RF-31, RF-32
   - Depende de: T11, T12, T13
   - Hecho cuando: el E2E de requisiciones cubre aprobar, comprar, recibir, un error del servidor que vuelve al paso y una decisión tomada por otra persona.

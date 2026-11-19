@@ -2,7 +2,7 @@
 // resumen, guardar y retomar en otra sesión, y cambio a la vista completa sin perder nada.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { login, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, alertBox, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.asistente@mando.test", password: "admin-asistente-1" };
@@ -125,4 +125,83 @@ test("asistente de nueva requisición: pasos, dato raro, retomar, vista completa
     await expect(other.getByTestId("resume-prompt")).toHaveCount(0);
   });
   await otherContext.close();
+});
+
+test("asistentes de aprobar, comprar y recibir; error del servidor y decisión de otra persona", async ({ page }) => {
+  test.setTimeout(120_000);
+  const w = await world();
+  await page.setViewportSize({ width: 390, height: 844 });
+  // El encargado pide dos requisiciones; el dueño decide.
+  await login(page, ADMIN.email, ADMIN.password);
+  const warehouseId = (await (await page.request.get(`${BASE}/api/warehouses`)).json()).warehouses[0].id as string;
+  const products = (await (await page.request.get(`${BASE}/api/products`)).json()).products as { id: string; name: string; supplier: { id: string } | null }[];
+  const cerveza = products.find((p) => p.name === "Cerveza")!;
+  const make = async () => (await (await page.request.post(`${BASE}/api/requisitions`, { data: { warehouseId, lines: [{ productId: cerveza.id, quantity: "5", presentationId: null, supplierId: cerveza.supplier?.id }] } })).json()).requisition.id as string;
+  const first = await make();
+  const second = await make();
+  await page.request.post(`${BASE}/api/auth/logout`);
+  await login(page, OWNER.email, OWNER.password);
+  await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
+
+  await test.step("RF-30 aprobar: revisar por proveedor, cambiar una cantidad, decidir y ver el resumen", async () => {
+    await page.goto(`/requisiciones/${first}`);
+    await page.getByRole("link", { name: "Aprobar", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Revisar por proveedor" })).toBeVisible();
+    await page.getByLabel("Cantidad · Cerveza").fill("4");
+    await next(page).click();
+    await page.getByLabel("Decisión").selectOption({ label: "Aprobar para comprar" });
+    await next(page).click();
+    await expect(page.locator('[data-summary="review"]')).toContainText("1 cambio");
+    await expect(page.locator('[data-summary="review"]')).toContainText("Cerveza: 5 pz → 4 pz");
+    await page.getByRole("button", { name: "Aprobar", exact: true }).click();
+    await expect(page.getByTestId("wizard-done")).toContainText("Se aprobó la REQ-1.");
+    await page.getByRole("link", { name: "Mandar las listas a los compradores" }).click();
+    await expect(page.getByText("Aprobada", { exact: true })).toBeVisible();
+  });
+
+  await test.step("RF-31 comprar: quién compra, un paso por proveedor y resumen", async () => {
+    await page.getByRole("link", { name: "Marcar comprado", exact: true }).click();
+    await page.getByLabel("Quién compra").selectOption({ label: "Sin comprador" });
+    await next(page).click();
+    await expect(page.getByRole("heading", { name: "Heineken" })).toBeVisible();
+    await page.getByLabel("Se compró en Heineken").check();
+    await page.getByLabel("Cuánto se pagó (opcional)").fill("1200");
+    await next(page).click();
+    await expect(page.locator('[data-summary]').filter({ hasText: "Heineken" })).toContainText("Comprado, $1,200.00");
+    await page.getByRole("button", { name: "Registrar lo comprado" }).click();
+    await expect(page.getByTestId("wizard-done")).toContainText("Se registró 1 proveedor como comprado.");
+    await page.getByRole("link", { name: "Recibir lo comprado" }).click();
+  });
+
+  await test.step("RF-32 recibir: propone lo pendiente, se corrige y entra al inventario", async () => {
+    await expect(page.getByLabel("Proveedor")).toHaveValue(/.+/);
+    await next(page).click();
+    await expect(page.getByLabel("Llegó de Cerveza")).toHaveValue("4");
+    await page.getByLabel("Llegó de Cerveza").fill("3");
+    await next(page).click();
+    await expect(page.locator('[data-summary="quantities"]')).toContainText("Cerveza: 3 pz");
+    await page.getByRole("button", { name: "Registrar la entrada" }).click();
+    await expect(page.getByTestId("wizard-done")).toContainText("Se registró lo recibido de Heineken");
+    await page.getByRole("link", { name: "Ver la requisición" }).click();
+    await expect(page.getByRole("region", { name: "Heineken" })).toContainText("Recibido en parte");
+  });
+
+  await test.step("RF-10 si el servidor rechaza al confirmar, se ve el mensaje y no se pierde lo capturado", async () => {
+    await page.goto(`/requisiciones/${second}/aprobar`);
+    await next(page).click();
+    await page.getByLabel("Decisión").selectOption({ label: "Aprobar para comprar" });
+    await next(page).click();
+    // Mientras tanto otra persona la cancela.
+    await page.request.post(`${BASE}/api/requisitions/${second}/cancel`, { data: { reason: "Ya no hace falta" } });
+    await page.getByRole("button", { name: "Aprobar", exact: true }).click();
+    await expect(alertBox(page)).toContainText("cancelada");
+    await expect(progress(page)).toHaveText("Paso 3 de 3");
+    await expect(page.locator('[data-summary="decision"]')).toContainText("Aprobar para comprar");
+  });
+
+  await test.step("RF-21 al volver, el asistente avisa que otra persona ya la decidió y no deja confirmar", async () => {
+    await page.reload();
+    await expect(page.getByText("Esta requisición ya está cancelada: otra persona la decidió mientras tanto.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Aprobar", exact: true })).toHaveCount(0);
+  });
 });

@@ -127,3 +127,9 @@ Ninguna nueva.
   no las repite si se va y se vuelve con la misma fuente.
 - Lo capturado se guarda al cambiar de paso y además 0.8 s después de cada cambio, para no perder lo del paso actual.
 - Los renglones de la requisición viven en `features/requisitions/requisition-lines.tsx`, compartidos por las dos vistas.
+- Aprobar, Comprar y Recibir viven en `/requisiciones/[id]/aprobar`, `/comprar` y `/recibir`. El detalle de la
+  requisición abre el asistente o el diálogo de siempre según la vista que eligió la persona para cada tarea, y en la
+  vista completa ofrece «Aprobar paso a paso», «Comprar paso a paso» y «Recibir paso a paso» (RF-25). Los diálogos de
+  la vista completa no leen el borrador: lo capturado en el asistente se conserva y se retoma al volver a él (RF-27).
+- «Comprar» no pide un comprador con cuenta: quien opera elige de qué comprador es la lista (los compradores son de
+  Personal, spec 013) y recorre sus proveedores pendientes.
