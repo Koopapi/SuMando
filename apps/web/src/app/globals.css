@@ -6,3 +6,9 @@ html {
   background: var(--page);
   -webkit-text-size-adjust: 100%;
 }
+
+/* Un fieldset mide por defecto lo que su contenido (min-width: min-content): un nombre de producto largo
+   ensanchaba la pantalla del teléfono y el recorte con «…» no se aplicaba. */
+fieldset {
+  min-width: 0;
+}

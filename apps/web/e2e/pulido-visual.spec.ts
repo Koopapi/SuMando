@@ -43,7 +43,7 @@ async function world(page: Page) {
   expect(res.ok()).toBe(true);
   await call("/api/requisitions", { warehouseId: warehouse.id, lines: [{ productId: (await call("/api/products")).products[0].id, quantity: "1" }] });
   await seedEmployee(branchId);
-  return { branchId, warehouseId: warehouse.id as string };
+  return { branchId, warehouseId: warehouse.id as string, call };
 }
 
 const headerHeight = (page: Page) => page.getByTestId("page-title").evaluate((el) => el.getBoundingClientRect().height);
@@ -126,6 +126,9 @@ test("pulido visual: menú, filtros, grupos, captura, encabezados y logo", async
 
   await test.step("RF-6 RF-23 RF-20 RF-21 RF-22 en el teléfono: barra diaria, encabezado bajo y 6 renglones de requisición a la vista", async () => {
     await page.setViewportSize({ width: 390, height: 844 });
+    // Un nombre real largo (como los del inventario de Pirrus) se recorta en la franja y no ensancha la pantalla.
+    const last = (await w.call("/api/products")).products.find((p: { name: string }) => p.name === "Producto 60");
+    await w.call(`/api/products/${last.id}`, { name: "Producto 60 CLEMENTE JACQUES VINAGRE BLANCO 2 PZAS DE 3.8 L CADA UNA" }, "PATCH");
     await page.goto("/requisiciones/nueva?vista=completa");
     await expect(page.getByRole("navigation", { name: "Navegación" }).getByRole("link")).toHaveText(["Inicio", "Inventario", "Requisiciones", "Checklists"]);
     expect(await headerHeight(page)).toBeLessThanOrEqual(160);
@@ -137,6 +140,12 @@ test("pulido visual: menú, filtros, grupos, captura, encabezados y logo", async
     const first = (await strips.nth(0).boundingBox())!;
     const sixth = (await strips.nth(5).boundingBox())!;
     expect(sixth.y + sixth.height - first.y).toBeLessThanOrEqual(844 - 64 - 120);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    const long = strips.filter({ hasText: "CLEMENTE JACQUES" });
+    await long.scrollIntoViewIfNeeded();
+    const trash = (await long.getByRole("button").last().boundingBox())!;
+    expect(trash.x + trash.width).toBeLessThanOrEqual(390);
+    await page.evaluate(() => window.scrollTo(0, 0));
     await strips.nth(0).getByRole("button", { name: /^Editar Producto 1/ }).click();
     await expect(page.locator("[data-capture-row=open]")).toHaveCount(1);
     await strips.nth(1).getByRole("button", { name: /^Editar/ }).click();
