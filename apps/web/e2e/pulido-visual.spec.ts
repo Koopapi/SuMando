@@ -129,7 +129,7 @@ test("pulido visual: menú, filtros, grupos, captura, encabezados y logo", async
     // Un nombre real largo (como los del inventario de Pirrus) se recorta en la franja y no ensancha la pantalla.
     const last = (await w.call("/api/products")).products.find((p: { name: string }) => p.name === "Producto 60");
     await w.call(`/api/products/${last.id}`, { name: "Producto 60 CLEMENTE JACQUES VINAGRE BLANCO 2 PZAS DE 3.8 L CADA UNA" }, "PATCH");
-    await page.goto("/requisiciones/nueva");
+    await page.goto("/requisiciones/nueva?vista=completa");
     await expect(page.getByRole("navigation", { name: "Navegación" }).getByRole("link")).toHaveText(["Inicio", "Inventario", "Requisiciones", "Checklists"]);
     expect(await headerHeight(page)).toBeLessThanOrEqual(160);
     await page.getByRole("button", { name: "Agregar", exact: true }).click();

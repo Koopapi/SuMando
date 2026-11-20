@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { db } from "@/db/client";
 import { auditEntriesFor } from "@/server/adapters/drizzle/store";
-import { addMovement, cancelMovement, capturePos, closeCut, currentCut, cutDetail, cutHistory, deliverCount, openCut, reopenCut, saveCount } from "@/server/services/cash/cuts";
+import { addMovement, cancelMovement, capturePos, closeCut, currentCut, cutDetail, cutHistory, deliverCount, openCut, previewPos, reopenCut, saveCount } from "@/server/services/cash/cuts";
 import { cashSettingsView, saveCashSettings } from "@/server/services/cash/settings";
 import { deviceActor, type ChecklistActor } from "@/server/services/checklists/actor";
 import { enableFloorDevice, floorDeviceFromToken } from "@/server/services/checklists/floor";
@@ -253,5 +253,32 @@ describe("spec 011 — teléfono de piso a ciegas", () => {
     expect(await code(currentCut(w.ctx, await as()))).toBe("floor_not_allowed");
     expect(await code(addMovement(w.ctx, await as(), cut.id, { kind: "expense", concept: "Hielo", amount: "1" }))).toBe("floor_not_allowed");
     expect((await currentCut(w.ctx, w.user()))!.id).toBe(cut.id);
+  });
+});
+
+describe("spec 015 — vista previa del reporte del punto de venta", () => {
+  it("test_s015_rf42_muestra_lo_que_no_cuadra_sin_guardar", async () => {
+    const w = await world();
+    const c = await w.counted();
+    const amounts = { [w.methodId(c, "Efectivo")]: "1000", [w.methodId(c, "BBVA 1")]: "2100", [w.methodId(c, "Transferencias")]: "300" };
+    const v = await previewPos(w.ctx, w.user(), c.id, amounts);
+    expect(v.methods.map((m) => [m.name, m.pos, m.difference])).toEqual([
+      ["Efectivo", "1000.00", "50.00"],
+      ["BBVA 1", "2100.00", "-100.00"],
+      ["Transferencias", "300.00", "0.00"],
+    ]);
+    expect(v.figures).toMatchObject({ totalDifference: "-50.00" });
+    // Nada se guardó: el corte sigue sin reporte.
+    const saved = (await currentCut(w.ctx, w.user()))!;
+    expect(saved.posCaptured).toBe(false);
+    expect(saved.methods.every((m) => m.pos === null)).toBe(true);
+    expect(await code(previewPos(w.ctx, w.user(), c.id, { [w.methodId(c, "Efectivo")]: "1000" }))).toBe("invalid_amount");
+  });
+
+  it("test_s015_rf16_rf42_el_telefono_de_piso_no_puede_pedirla", async () => {
+    const w = await world({ floor: true });
+    const c = await w.counted();
+    const device = await (await w.phone())();
+    expect(await code(previewPos(w.ctx, device, c.id, {}))).toBe("forbidden");
   });
 });

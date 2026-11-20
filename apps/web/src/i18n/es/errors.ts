@@ -59,6 +59,8 @@ export const errors = {
   buyer_too_long: "El nombre de quien compra no puede pasar de 60 caracteres.",
   logo_invalid: "El logo tiene que ser una imagen PNG, JPG o WEBP de hasta 2 MB.",
   buyer_not_in_branch: "Quien compra tiene que ser alguien activo del personal de esta sucursal.",
+  wizard_unknown: "Ese asistente no existe.",
+  draft_too_large: "Lo capturado es demasiado grande para guardarlo.",
   employee_exists: (p: { name: string }) => `Ya hay un empleado activo llamado «${p.name}» en esta sucursal. ¿Es otra persona?`,
   invalid_pay: "El sueldo por día debe ser en pesos, mayor que cero y con hasta 2 decimales.",
   invalid_date: "Escribe una fecha válida.",

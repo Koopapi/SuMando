@@ -2,7 +2,7 @@
 import postgres from "postgres";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, seedBusiness, seedOwner, preferFullView } from "./helpers";
 import { DB } from "./warm";
 
 async function workIn(page: Page, label: string) {
@@ -21,6 +21,8 @@ test("catálogo: flujo principal y consulta", async ({ page }) => {
   await seedBusiness("Pirrus", ["Centro"], "rojo");
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas.
+  await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
   await workIn(page, "Pastatti · Sendero");
 
   await test.step("RF-27 alta de proveedor con teléfono", async () => {
@@ -222,6 +224,8 @@ test("catálogo: volumen de 1,000 productos", async ({ page }) => {
   }
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas.
+  await preferFullView(page, ["new-product", "new-supplier", "new-employee", "new-checklist"]);
 
   await test.step("la tabla de 1,000 productos abre en menos de 2 segundos", async () => {
     await page.goto("/productos");

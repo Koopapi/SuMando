@@ -2,7 +2,7 @@
 import postgres from "postgres";
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, ownerApiAt, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, ownerApiAt, preferFullView, seedBusiness, seedOwner } from "./helpers";
 import { BASE, DB } from "./warm";
 
 async function world() {
@@ -37,6 +37,8 @@ test("inventario: área, entradas, salidas, traspasos, conteo, historial y cance
   const w = await world();
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas; los asistentes tienen la suya.
+  await preferFullView(page, ["inv-count", "inv-entry", "inv-exit", "inv-transfer", "inv-transfer-receive"]);
   await workAt(page, w.pastatti.branches[0].id);
 
   await test.step("RF-67 Inventario está en el menú lateral y en el inicio", async () => {
@@ -162,6 +164,8 @@ test("inventario: recepción con diferencia y conteo con borrador", async ({ pag
   const { product: lechePirrus } = await call("/api/products", { name: "Leche entera", baseUnit: "ml" });
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas; los asistentes tienen la suya.
+  await preferFullView(page, ["inv-count", "inv-entry", "inv-exit", "inv-transfer", "inv-transfer-receive"]);
   await workAt(page, w.pastatti.branches[0].id);
   const inPastatti = await ownerApiAt(w.pastatti.branches[0].id);
   const { products } = await inPastatti("/api/inventory/products");
@@ -268,6 +272,8 @@ test("inventario: volumen de 1,000 productos y 50,000 movimientos", async ({ pag
   await call(`/api/areas/${area.id}/products`, { warehouseId: warehouse.id, productIds: productIds.slice(0, 200) }, "PUT");
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas; los asistentes tienen la suya.
+  await preferFullView(page, ["inv-count", "inv-entry", "inv-exit", "inv-transfer", "inv-transfer-receive"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: pastatti.branches[0].id } });
 
   await test.step("las existencias de un almacén abren en menos de 2 segundos", async () => {

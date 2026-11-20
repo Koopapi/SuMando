@@ -2,27 +2,39 @@
 
 // Spec 011: el corte de caja. Lo usan las personas (`/caja`, `/caja/[id]`) y el teléfono de piso (`/piso/caja`); la
 // vista del teléfono llega ciega del servidor (sin reporte, esperado ni diferencias). Cada acción vuelve con el corte.
+// Spec 015 RF-25, RF-41, RF-42: para personas, «Contar» y el reporte abren su asistente o lo de siempre según la vista
+// que eligió cada quien, y lo de siempre ofrece «paso a paso».
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DENOMINATIONS } from "@/domain/payroll/cash";
 import { es } from "@/i18n";
 import type { CutView } from "@/server/services/cash/cuts";
-import { Alert, Button, Dialog, EmptyState, IconButton, Icon, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextArea, TextField, Wizard, formatDateTime, formatMoney, useToast } from "@/ui";
+import { Alert, Button, Dialog, EmptyState, IconButton, Icon, LinkButton, MoneyField, NumberField, SectionLabel, SelectField, StatusBadge, TextArea, TextField, Wizard, formatDateTime, formatMoney, useToast } from "@/ui";
 import { api, formValues } from "../api";
 import { showDate } from "../personnel/dates";
+import { readFloorView, writeFloorView } from "../wizards/floor-view";
+import { StepByStepButton } from "../wizards/step-by-step-button";
+import { draftPath } from "../wizards/use-wizard-draft";
+import { FLOOR_CUT_STEPS, FloorCutWizard, floorCountOf, type FloorCount } from "./wizards/floor-cut";
+
+type View = "wizard" | "full";
 
 const t = es.cash;
 const money = (text: string | null | undefined) => (text === null || text === undefined ? "—" : formatMoney(Number(text)));
 const at = (iso: string) => formatDateTime(new Date(iso));
 const pesos = (cents: bigint) => formatMoney(Number(cents) / 100);
 
-export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { cut: CutView | null; mode: "user" | "device"; employeeId?: string; canOpen?: boolean }) {
+export function CutBoard({ cut: initial, mode, employeeId, canOpen = true, wizards }: { cut: CutView | null; mode: "user" | "device"; employeeId?: string; canOpen?: boolean; wizards?: { cut: View; pos: View; open: View } }) {
   const router = useRouter();
   const toast = useToast();
   const [cut, setCut] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [counting, setCounting] = useState(false);
+  // Teléfono de piso (spec 015, RF-50): el conteo abre el asistente «Corte ciego» o el de siempre según lo que eligió
+  // ese empleado en ese teléfono; al cambiar de vista se conserva lo contado (RF-27).
+  const [floor, setFloor] = useState<{ view: "wizard" | "full"; seed: FloorCount | null; resume: boolean }>({ view: "wizard", seed: null, resume: false });
+  const [delivered, setDelivered] = useState(false);
   const [modal, setModal] = useState<{ kind: "cancel"; id: string; concept: string } | { kind: "close" | "reopen" } | null>(null);
 
   async function call(path: string, body: Record<string, unknown>, done?: () => void) {
@@ -57,6 +69,7 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
             <Button type="submit" loading={busy}>
               {t.open}
             </Button>
+            {wizards ? <StepByStepButton kind="cash-open" href="/caja" /> : null}
           </form>
         ) : null}
       </div>
@@ -130,12 +143,54 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
         ) : null}
       </section>
 
-      {open && !counting ? (
-        <Button className="self-start" onClick={() => (setError(null), setCounting(true))}>
-          {t.count}
-        </Button>
+      {open && !counting && wizards?.cut === "wizard" ? (
+        <div>
+          <LinkButton href={`/caja/${cut.id}/corte`}>{t.count}</LinkButton>
+        </div>
       ) : null}
-      {open && counting ? <CountWizard cut={cut} busy={busy} error={error} onExit={() => setCounting(false)} onDeliver={(body) => act("deliver", body, () => setCounting(false))} /> : null}
+      {open && !counting && wizards?.cut !== "wizard" ? (
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => (setError(null), !person && employeeId ? setFloor({ view: readFloorView("floor-cash", employeeId), seed: null, resume: false }) : null, setCounting(true))}>{t.count}</Button>
+          {wizards ? <StepByStepButton kind="cash-cut" href={`/caja/${cut.id}/corte`} label={t.cutWizard.stepByStep} /> : null}
+        </div>
+      ) : null}
+      {open && counting && !person && employeeId && floor.view === "wizard" ? (
+        <FloorCutWizard
+          cut={cut}
+          employee={employeeId}
+          autoResume={floor.resume}
+          onExit={() => setCounting(false)}
+          onFullView={(seed) => (writeFloorView("floor-cash", employeeId, "full"), setFloor({ view: "full", seed, resume: false }))}
+          onDelivered={(c) => (setCut(c), setCounting(false), setDelivered(true))}
+        />
+      ) : null}
+      {open && counting && (person || floor.view === "full") ? (
+        <CountWizard
+          cut={cut}
+          busy={busy}
+          error={error}
+          initial={floor.seed}
+          onExit={() => setCounting(false)}
+          onDeliver={(body) => act("deliver", body, () => (setCounting(false), setDelivered(!person)))}
+          onWizard={
+            !person && employeeId
+              ? async (count) => {
+                  await api(draftPath("floor-cash", cut.id, employeeId), { method: "PUT", body: { step: FLOOR_CUT_STEPS[0], data: count } });
+                  writeFloorView("floor-cash", employeeId, "wizard");
+                  setFloor({ view: "wizard", seed: null, resume: true });
+                }
+              : undefined
+          }
+        />
+      ) : null}
+      {delivered && !person && cut.status !== "open" ? (
+        <div className="flex flex-col gap-3" data-testid="wizard-done">
+          <Alert tone="success">{t.cutWizard.done}</Alert>
+          <div>
+            <LinkButton href="/piso">{es.common.then.backToFloor}</LinkButton>
+          </div>
+        </div>
+      ) : null}
 
       {cut.status !== "open" ? (
         <section aria-label={t.countTitle} className="flex flex-col gap-2">
@@ -153,7 +208,18 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
 
       {person && cut.status !== "open" ? <Summary cut={cut} /> : null}
 
-      {person && cut.status === "counted" ? (
+      {person && cut.status === "counted" && wizards?.pos === "wizard" ? (
+        <section aria-label={t.pos} className="flex flex-col gap-3">
+          <SectionLabel as="h2">{t.pos}</SectionLabel>
+          <div className="flex flex-wrap gap-2">
+            <LinkButton href={`/caja/${cut.id}/reporte`} variant={cut.posCaptured ? "secondary" : "primary"}>
+              {t.posWizard.open}
+            </LinkButton>
+            {cut.posCaptured ? <Button onClick={() => (setError(null), setModal({ kind: "close" }))}>{t.close}</Button> : null}
+          </div>
+        </section>
+      ) : null}
+      {person && cut.status === "counted" && wizards?.pos !== "wizard" ? (
         <section aria-label={t.pos} className="flex flex-col gap-3">
           <SectionLabel as="h2">{t.pos}</SectionLabel>
           <p className="text-sm text-ink-muted">{t.posIntro}</p>
@@ -173,6 +239,7 @@ export function CutBoard({ cut: initial, mode, employeeId, canOpen = true }: { c
               <Button type="submit" variant="secondary" loading={busy}>
                 {t.savePos}
               </Button>
+              {wizards ? <StepByStepButton kind="cash-pos" href={`/caja/${cut.id}/reporte`} label={t.posWizard.stepByStep} /> : null}
               {cut.posCaptured ? <Button onClick={() => (setError(null), setModal({ kind: "close" }))}>{t.close}</Button> : null}
             </div>
           </form>
@@ -346,16 +413,41 @@ function Summary({ cut }: { cut: CutView }) {
 }
 
 /** RF-18 a RF-22: el conteo como asistente; al terminar se entrega. */
-function CountWizard({ cut, busy, error, onExit, onDeliver }: { cut: CutView; busy: boolean; error: string | null; onExit: () => void; onDeliver: (body: Record<string, unknown>) => Promise<boolean> }) {
-  const [pieces, setPieces] = useState<Record<string, number>>(cut.pieces ?? {});
+function CountWizard({
+  cut,
+  busy,
+  error,
+  initial,
+  onExit,
+  onDeliver,
+  onWizard,
+}: {
+  cut: CutView;
+  busy: boolean;
+  error: string | null;
+  initial?: FloorCount | null;
+  onExit: () => void;
+  onDeliver: (body: Record<string, unknown>) => Promise<boolean>;
+  /** Teléfono de piso: «Paso a paso» con lo contado (spec 015, RF-25, RF-27). */
+  onWizard?: (count: FloorCount) => Promise<void>;
+}) {
+  const start = initial ?? floorCountOf(cut);
+  const [pieces, setPieces] = useState<Record<string, number>>(start.pieces);
   const others = cut.methods.filter((m) => !m.isCash);
-  const [amounts, setAmounts] = useState<Record<string, string>>(Object.fromEntries(others.map((m) => [m.id, m.counted ?? ""])));
+  const [amounts, setAmounts] = useState<Record<string, string>>(start.amounts);
   const total = DENOMINATIONS.reduce((a, d) => a + d.cents * BigInt(pieces[d.cents.toString()] ?? 0), 0n);
   const setCount = (key: string, n: number) => setPieces((p) => ({ ...p, [key]: Math.max(0, Math.floor(Number.isFinite(n) ? n : 0)) }));
   const dirty = Object.values(pieces).some((n) => n > 0) || Object.values(amounts).some((a) => a !== "");
   return (
     <div className="flex flex-col gap-3" data-testid="count-wizard">
       {error ? <Alert tone="error">{error}</Alert> : null}
+      {onWizard ? (
+        <div>
+          <Button variant="secondary" onClick={() => void onWizard({ pieces, amounts })}>
+            {es.common.stepByStep}
+          </Button>
+        </div>
+      ) : null}
       <Wizard
         dirty={dirty}
         onExit={onExit}

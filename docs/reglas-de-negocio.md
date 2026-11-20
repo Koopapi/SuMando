@@ -6,7 +6,7 @@ suya. Si una regla cambia, se cambia primero la spec y después este documento.
 Estado de cada regla: **Vigente** (construida y con tests) o **Aprobada** (en una spec aprobada, pendiente de
 construir).
 
-Última actualización: 17 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF), 011 (42 RF), 013 (33 RF) y 014 (34 RF) vigentes, con test en verde.
+Última actualización: 19 de noviembre de 2026. Specs 001 (42 RF), 002 (48 RF), 003 (41 RF), 004 (55 RF), 005 (67 RF), 006 (37 RF), 007 (48 RF), 008 (42 RF), 009 (48 RF), 010 (49 RF), 011 (42 RF), 013 (33 RF), 014 (34 RF) y 015 (51 RF) vigentes, con test en verde.
 
 ---
 
@@ -64,6 +64,25 @@ Origen: spec 014 (aprobada el 17 de noviembre de 2026; construida y validada el 
   (RF-13 a RF-19).
 - **Logo de cada negocio** (solo el dueño, PNG/JPG/WEBP hasta 2 MB) en pantalla, hoja de pago y Excel de un negocio;
   sin logo, la inicial sobre su color (RF-25 a RF-34).
+
+### Asistentes paso a paso
+
+Origen: spec 015 (aprobada el 19 de noviembre de 2026; construida y validada el mismo día). Estado: **Vigente**.
+
+- Requisiciones, inventario, nómina, corte de caja, altas y el teléfono de piso se hacen por defecto en pasos, con
+  «Paso N de M», una frase de indicación y un ejemplo con datos del negocio; «Vista completa» abre la pantalla de
+  siempre y el sistema recuerda lo que eligió cada persona (RF-1 a RF-4, RF-23 a RF-27).
+- Nada se registra hasta confirmar el resumen final (RF-7, RF-8).
+- Dato raro (avisa y pide confirmar, y queda marcado en el resumen): pedir más del doble del máximo, conteo que
+  difiere más del 30 %, salida de más de la mitad de la existencia, entrada de más del triple del máximo, bono o extra
+  mayor que el sueldo de la semana; nunca en el corte ciego (RF-12 a RF-16).
+- Lo capturado se guarda en cada paso y se retoma desde cualquier dispositivo de la misma cuenta; se descarta a los
+  7 días sin cambios (RF-17 a RF-22, RF-51).
+- En el teléfono de piso lo capturado y la vista elegida van por empleado en ese teléfono (RF-22); el checklist
+  muestra las secciones del puesto de esa persona y los puntos clave uno por uno, y el corte ciego nunca muestra lo
+  esperado (RF-16, RF-48 a RF-50).
+- Los archivos (documentos del empleado, fotos del checklist) no se guardan a medias: si se retoma, se vuelven a
+  elegir.
 
 ## 3. Catálogo
 

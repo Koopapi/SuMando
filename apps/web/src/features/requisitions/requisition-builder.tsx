@@ -5,35 +5,27 @@
 // Spec 013 RF-29 a RF-32: el producto se busca escribiendo, cada renglón muestra existencia, mínimo y máximo, y los
 // renglones se ven agrupados por proveedor.
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { es } from "@/i18n";
-import type { ProductOption, WarehouseOption } from "@/server/services/inventory/views";
+import type { WarehouseOption } from "@/server/services/inventory/views";
 import type { BuilderLevels } from "@/server/services/requisitions/requisitions";
 import type { DraftLine } from "@/server/services/requisitions/views";
-import { Alert, Button, CaptureRow, ComboField, Dialog, Icon, NumberField, PageHeader, SectionLabel, SelectField, TextArea, TextField, formatQuantity } from "@/ui";
+import { Alert, Button, Dialog, Icon, PageHeader, SectionLabel, SelectField, TextArea, TextField } from "@/ui";
 import { api } from "../api";
-import { unitShort } from "../catalog/labels";
+import { RequisitionLines, blank, fromDraft, lineBody, restoreRows, type BuilderProduct, type Row } from "./requisition-lines";
+import { draftPath } from "../wizards/use-wizard-draft";
+import { switchView, viewHref } from "../wizards/view-switch";
+import type { NewRequisitionDraft } from "./wizards/new-requisition";
 import { warehouseLabel } from "../inventory/labels";
 
 const t = es.requisitions;
 
-interface Row {
-  key: number;
-  productId: string;
-  quantity: string;
-  presentationId: string;
-  supplierId: string;
-}
-
-let seq = 0;
-const blank = (): Row => ({ key: ++seq, productId: "", quantity: "", presentationId: "", supplierId: "" });
-const fromDraft = (d: { productId: string; quantity: string; presentationId: string | null; supplierId: string | null }): Row => ({ key: ++seq, productId: d.productId, quantity: d.quantity, presentationId: d.presentationId ?? "", supplierId: d.supplierId ?? "" });
 
 export interface BuilderProps {
   warehouses: WarehouseOption[];
   /** Spec 013, RF-30: existencia, mínimo y máximo por almacén, producto y presentación. */
   levels: BuilderLevels;
-  products: (ProductOption & { supplierId: string | null; purchasePresentationId: string | null })[];
+  products: BuilderProduct[];
   suppliers: { id: string; name: string }[];
   calculations: { id: string; label: string }[];
   templates: { id: string; name: string }[];
@@ -56,11 +48,34 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState<null | { name: string; exists: boolean }>(null);
-  const byId = new Map(products.map((p) => [p.id, p]));
-  const supplierName = new Map(suppliers.map((x) => [x.id, x.name]));
-  const productOptions = products.map((p) => ({ value: p.id, label: p.name, hint: p.supplierId ? supplierName.get(p.supplierId) : undefined }));
-  const set = (key: number, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
-  const body = () => rows.filter((r) => r.productId).map((r) => ({ productId: r.productId, quantity: r.quantity.trim(), presentationId: r.presentationId || null, supplierId: r.supplierId || null }));
+  const [note, setNote] = useState(editing?.note ?? "");
+  const [draft, setDraft] = useState<NewRequisitionDraft | null>(null);
+
+  // Spec 015, RF-27: lo capturado a medias (en el asistente o aquí) llega por su borrador, salvo al editar o al
+  // empezar con una plantilla.
+  useEffect(() => {
+    if (editing || initial?.length) return;
+    void api<{ draft: { data: NewRequisitionDraft } | null }>(draftPath("req-new")).then((r) => {
+      const d = r.ok ? r.data.draft?.data : null;
+      if (!d) return;
+      setDraft(d);
+      setWarehouseId(d.warehouseId);
+      setRows(d.rows.length ? restoreRows(d.rows) : [blank()]);
+      setOpenKey(null);
+      if (d.source !== "manual") setSource(d.source);
+      setSourceId(d.sourceId);
+      setNote(d.note);
+    });
+  }, [editing, initial]);
+
+  async function stepByStep() {
+    const data: NewRequisitionDraft = { warehouseId, source, sourceId, added: draft?.added ?? null, rows: rows.filter((r) => r.productId), note, confirmed: draft?.confirmed ?? [] };
+    await switchView("req-new", "wizard", async () => {
+      await api(draftPath("req-new"), { method: "PUT", body: { step: "products", data } });
+    });
+    router.push(viewHref("/requisiciones/nueva", "wizard"));
+  }
+  const body = () => lineBody(rows);
 
   async function addFrom() {
     setError(null);
@@ -71,8 +86,7 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
     setNotice([t.added(added.length), result.data.skipped.length ? t.skipped(result.data.skipped.join(", ")) : "", result.data.withoutMax ? t.withoutMax(result.data.withoutMax) : ""].filter(Boolean).join(" "));
   }
 
-  async function submit(form: HTMLFormElement) {
-    const note = String(new FormData(form).get("note") ?? "");
+  async function submit() {
     setBusy(true);
     setError(null);
     const result = editing
@@ -80,6 +94,7 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
       : await api<{ requisition: { id: string } }>("/api/requisitions", { body: { warehouseId, lines: body(), note } });
     setBusy(false);
     if (!result.ok) return setError(result.error.message);
+    if (!editing) await api(draftPath("req-new"), { method: "DELETE" });
     router.push(`/requisiciones/${result.data.requisition.id}`);
   }
 
@@ -102,7 +117,7 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
         className="flex flex-col gap-5"
         onSubmit={(e) => {
           e.preventDefault();
-          void submit(e.currentTarget);
+          void submit();
         }}
       >
         {error ? <Alert tone="error">{error}</Alert> : null}
@@ -139,65 +154,7 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
         <section aria-label={t.lines} className="flex flex-col gap-3">
           <SectionLabel as="h2">{t.lines}</SectionLabel>
           <p className="text-sm text-ink-muted">{t.repeatedHint}</p>
-          {groupsOf(rows, supplierName).map((grp) => (
-            <section key={grp.key} aria-label={grp.label ?? t.newLines} className="flex flex-col" data-testid="builder-group">
-              {grp.label ? (
-                <h3 className="flex items-baseline justify-between gap-2 border-b-2 border-line-strong pt-3 pb-1 font-brand text-lg font-bold">
-                  <span>{grp.label}</span>
-                  <span className="text-sm font-semibold text-ink-muted">{t.groupCount(grp.rows.length)}</span>
-                </h3>
-              ) : null}
-              <ol className="flex flex-col">
-                {grp.rows.map(({ row, index }) => {
-                  const product = byId.get(row.productId);
-                  const level = product ? levels[warehouseId]?.[product.id]?.[row.presentationId] : undefined;
-                  const unit = product ? (product.presentations.find((x) => (x.id ?? "") === row.presentationId)?.name ?? unitShort(product.baseUnit)) : "";
-                  return (
-                    <li key={row.key}>
-                      <CaptureRow
-                        label={t.lineN(index + 1)}
-                        summary={product ? [product.name, row.quantity ? `${formatQuantity(row.quantity)} ${unit}` : t.noQuantity, row.supplierId ? supplierName.get(row.supplierId) : t.noSupplier].filter(Boolean).join(" · ") : t.chooseProduct}
-                        detail={product ? <span data-testid="builder-level">{t.levelLine(formatQuantity(level?.stock ?? "0"), level?.min ? formatQuantity(level.min) : null, level?.max ? formatQuantity(level.max) : null, unit)}</span> : undefined}
-                        open={openKey === row.key}
-                        onOpen={() => setOpenKey(row.key)}
-                        onClose={() => setOpenKey(null)}
-                        onRemove={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}
-                        removeLabel={t.removeLine(product?.name ?? "")}
-                      >
-                        <div className="grid grid-cols-6 gap-x-3 gap-y-2 lg:grid-cols-12 lg:items-start">
-                          <ComboField
-                            label={t.product}
-                            placeholder={t.searchProduct}
-                            className="col-span-6 lg:col-span-4"
-                            value={row.productId}
-                            onChange={(id) => {
-                              const p = byId.get(id);
-                              set(row.key, { productId: id, presentationId: p?.purchasePresentationId ?? "", supplierId: p?.supplierId ?? "" });
-                            }}
-                            options={productOptions}
-                          />
-                          <NumberField label={t.quantity} className="col-span-2 lg:col-span-2" value={row.quantity} onChange={(e) => set(row.key, { quantity: e.target.value })} />
-                          <SelectField
-                            label={t.presentation}
-                            className="col-span-4 lg:col-span-3"
-                            value={row.presentationId}
-                            onChange={(e) => set(row.key, { presentationId: e.target.value })}
-                            options={(product?.presentations ?? [{ id: null, name: null, factor: "1" }]).map((p) => ({ value: p.id ?? "", label: p.id ? `${p.name} (${formatQuantity(p.factor)} ${unitShort(product!.baseUnit)})` : product ? unitShort(product.baseUnit) : "—" }))}
-                          />
-                          <SelectField label={t.supplier} className="col-span-6 lg:col-span-3" value={row.supplierId} onChange={(e) => set(row.key, { supplierId: e.target.value })} options={[{ value: "", label: t.noSupplier }, ...suppliers.map((s) => ({ value: s.id, label: s.name }))]} />
-                          {product ? (
-                            <p className="col-span-6 text-sm text-ink-muted tabular-nums lg:col-span-12">
-                              {t.levelLine(formatQuantity(level?.stock ?? "0"), level?.min ? formatQuantity(level.min) : null, level?.max ? formatQuantity(level.max) : null, unit)}
-                            </p>
-                          ) : null}
-                        </div>
-                      </CaptureRow>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ))}
+          <RequisitionLines rows={rows} setRows={setRows} warehouseId={warehouseId} levels={levels} products={products} suppliers={suppliers} openKey={openKey} setOpenKey={setOpenKey} />
           <button
             type="button"
             onClick={() => {
@@ -210,7 +167,12 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
             {t.addLine}
           </button>
         </section>
-        <TextArea label={t.note} name="note" rows={2} maxLength={200} hint={t.noteHint} defaultValue={editing?.note ?? ""} />
+        <TextArea label={t.note} name="note" rows={2} maxLength={200} hint={t.noteHint} value={note} onChange={(e) => setNote(e.target.value)} />
+        {editing ? null : (
+          <Button variant="ghost" className="self-start" onAction={stepByStep}>
+            {es.common.stepByStep}
+          </Button>
+        )}
         <div className="sticky bottom-(--nav-space) -mx-4 flex justify-end gap-2 border-t border-line bg-surface px-4 py-2 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 [&>*]:flex-1 lg:[&>*]:flex-none">
           <Button variant="secondary" onClick={() => setSaving({ name: "", exists: false })}>
             {t.saveTemplate}
@@ -240,17 +202,4 @@ export function RequisitionBuilder({ warehouses, levels, products, suppliers, ca
       </Dialog>
     </>
   );
-}
-
-/** RF-31: los renglones con producto, agrupados por proveedor en orden de nombre, con «Sin proveedor» al final; los
- * renglones aún vacíos van al final, sin título. Solo agrupa lo que ya está en pantalla. */
-function groupsOf(rows: Row[], supplierName: Map<string, string>) {
-  const groups = new Map<string, { key: string; label: string | null; rows: { row: Row; index: number }[] }>();
-  rows.forEach((row, index) => {
-    const key = !row.productId ? "blank" : row.supplierId && supplierName.has(row.supplierId) ? row.supplierId : "none";
-    if (!groups.has(key)) groups.set(key, { key, label: key === "blank" ? null : key === "none" ? t.noSupplier : supplierName.get(key)!, rows: [] });
-    groups.get(key)!.rows.push({ row, index });
-  });
-  const rank = (k: string) => (k === "blank" ? 2 : k === "none" ? 1 : 0);
-  return [...groups.values()].sort((a, b) => rank(a.key) - rank(b.key) || (a.label ?? "").localeCompare(b.label ?? "", "es"));
 }

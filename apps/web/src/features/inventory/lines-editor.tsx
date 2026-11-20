@@ -2,7 +2,7 @@
 
 // Renglones de un movimiento (spec 005, RF-7, RF-10): producto, cantidad y presentación. Las reglas y el error en
 // español los pone el servidor. Spec 014, RF-20 y RF-21: cada renglón es una franja que se abre para editarlo.
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { es } from "@/i18n";
 import type { ProductOption } from "@/server/services/inventory/views";
 import { CaptureRow, ComboField, Icon, NumberField, SectionLabel, SelectField, TextField, formatQuantity } from "@/ui";
@@ -17,12 +17,14 @@ export interface LineDraft {
   presentationId: string;
 }
 
-let seq = 0;
+// Arranca en un número distinto en cada carga: los renglones que vuelven de un borrador (spec 015) no chocan con los
+// nuevos.
+let seq = Date.now();
 export const blankLine = (): LineDraft => ({ key: ++seq, productId: "", quantity: "", presentationId: "" });
 
 export const linesBody = (rows: LineDraft[]) => rows.filter((r) => r.productId).map((r) => ({ productId: r.productId, quantity: r.quantity.trim(), presentationId: r.presentationId || null }));
 
-export function LinesEditor({ rows, onChange, products, single = false, signed = false }: { rows: LineDraft[]; onChange: (rows: LineDraft[]) => void; products: ProductOption[]; single?: boolean; signed?: boolean }) {
+export function LinesEditor({ rows, onChange, products, single = false, signed = false, after }: { rows: LineDraft[]; onChange: (rows: LineDraft[]) => void; products: ProductOption[]; single?: boolean; signed?: boolean; after?: (row: LineDraft) => ReactNode }) {
   const byId = new Map(products.map((p) => [p.id, p]));
   const options = products.map((p) => ({ value: p.id, label: p.name }));
   const [openKey, setOpenKey] = useState<number | null>(() => rows.find((r) => !r.productId)?.key ?? null);
@@ -65,6 +67,7 @@ export function LinesEditor({ rows, onChange, products, single = false, signed =
                   />
                 </div>
               </CaptureRow>
+              {after?.(row)}
             </li>
           );
         })}

@@ -2,7 +2,7 @@
 // por negocio y sucursal, cambia a un rango libre, exporta a Excel y marca un corte como revisado; el administrador
 // solo ve alertas y ventas de su sucursal).
 import { expect, test } from "./fixtures";
-import { OWNER, login, ownerApiAt, seedAdmin, seedBusiness, seedCashCut, seedCatalog, seedEmployee, seedOwner, seedPayroll } from "./helpers";
+import { OWNER, login, ownerApiAt, seedAdmin, seedBusiness, seedCashCut, seedCatalog, seedEmployee, seedOwner, seedPayroll, preferFullView } from "./helpers";
 
 const ADMIN = { email: "admin.tablero@mando.test", password: "admin-tablero-1" };
 const today = () => new Date(Date.now() - 6 * 3_600_000).toISOString().slice(0, 10);
@@ -31,6 +31,8 @@ test("tablero: alertas, ventas por negocio y sucursal, rango, Excel, revisado y 
 
   await test.step("RF-1 RF-2 RF-7 RF-16 RF-37 el dueño abre el tablero desde la navegación", async () => {
     await login(page, OWNER.email, OWNER.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await page.goto("/elegir-sucursal");
     await page.getByRole("button", { name: "Trabajar en Pastatti · Sendero" }).click();
     await page.waitForURL(/\/$/);
@@ -91,6 +93,8 @@ test("tablero: alertas, ventas por negocio y sucursal, rango, Excel, revisado y 
   await test.step("RF-3 RF-4 el administrador solo ve alertas y ventas de su sucursal", async () => {
     await page.context().clearCookies();
     await login(page, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await page.goto("/tablero?seccion=sales");
     await expect(page.getByTestId("section-alerts")).toContainText("3 alertas");
     for (const s of ["expenses", "payroll", "remaining"]) await expect(page.getByTestId(`section-${s}`)).toHaveCount(0);

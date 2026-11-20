@@ -2,7 +2,7 @@
 // buscador y existencias, aprobada y dividida por comprador, con su lista lista para WhatsApp. En escritorio.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, logout, preferFullView, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.compras@mando.test", password: "admin-compras-1" };
@@ -37,6 +37,7 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
 
   await test.step("RF-33 RF-18 RF-19 RF-22 el dueño completa máximos y mínimos en Datos de compra", async () => {
     await login(page, OWNER.email, OWNER.password);
+    await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto("/inventario");
     await page.getByRole("link", { name: "Datos de compra" }).click();
@@ -64,7 +65,8 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
 
   await test.step("RF-29 RF-30 RF-31 RF-32 el administrador arma desde mínimos y busca un producto", async () => {
     await login(page, ADMIN.email, ADMIN.password);
-    await page.goto("/requisiciones/nueva");
+    await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
+    await page.goto("/requisiciones/nueva?vista=completa");
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Se agregaron 2 productos.")).toBeVisible();
     await expect(page.getByRole("region", { name: "Sams" })).toContainText("Hay 1 Bulto · mínimo 2 · máximo 5");
@@ -87,9 +89,10 @@ test("requisiciones en el día a día: datos de compra, compradores y lista por 
 
   await test.step("RF-4 RF-8 RF-9 aprobada, se divide por comprador", async () => {
     await login(page, OWNER.email, OWNER.password);
+    await preferFullView(page, ["req-new", "req-approve", "req-buy", "req-receive"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto(url);
-    await page.getByRole("button", { name: "Aprobar" }).click();
+    await page.getByRole("button", { name: "Aprobar", exact: true }).click();
     await expect(buyer(page, "Ana Compras")).toContainText("1 proveedor");
     await expect(buyer(page, "Beto Mandados")).toContainText("1 por comprar");
   });

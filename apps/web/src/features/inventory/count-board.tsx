@@ -3,6 +3,7 @@ import Link from "next/link";
 import { es } from "@/i18n";
 import type { CountBoardView } from "@/server/services/inventory/counts";
 import { LinkButton, ListRow, PageHeader, SectionLabel, formatDateTime } from "@/ui";
+import { StepByStepButton } from "../wizards/step-by-step-button";
 
 const t = es.inventory;
 
@@ -14,9 +15,12 @@ export function CountBoard({ board }: { board: CountBoardView }) {
         title={t.countTitle}
         subtitle={t.countIntro}
         action={
-          <LinkButton href="/inventario/importar" variant="secondary" icon="upload">
-            {t.importer.link}
-          </LinkButton>
+          <div className="flex flex-wrap gap-2">
+            <StepByStepButton kind="inv-count" href="/inventario/conteo" label={t.countWizard.stepByStep} />
+            <LinkButton href="/inventario/importar" variant="secondary" icon="upload">
+              {t.importer.link}
+            </LinkButton>
+          </div>
         }
       />
       <section aria-label={t.areas} className="flex flex-col gap-1">

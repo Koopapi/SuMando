@@ -5,8 +5,9 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { parseQuantity } from "@/domain/quantity";
+import { unusual } from "@/domain/wizards/unusual";
 import { es } from "@/i18n";
-import { Button, DataTable, Dial, MoneyField, PageHeader, RowEntry, StatusBadge, Wizard, formatMoney, useToast, type Column, type Filter } from "@/ui";
+import { Button, DataTable, Dial, MoneyField, PageHeader, RowEntry, StatusBadge, Wizard, ResumePrompt, UnusualMark, UnusualNotice, formatMoney, useToast, type Column, type Filter } from "@/ui";
 import { DENOMINATIONS, SAMPLE_DISHES, SAMPLE_DISH_VALUES, SAMPLE_PRODUCTS, type SampleProduct } from "./samples";
 
 const tone = { ok: "success", low: "warning", out: "danger" } as const;
@@ -84,8 +85,10 @@ export function WizardPattern() {
   const t = es.system.wizard;
   const router = useRouter();
   const toast = useToast();
-  const empty = () => ({ fund: "", cards: "", transfers: "", cash: Object.fromEntries(DENOMINATIONS.map((d) => [d.id, "0"])) as Record<string, string> });
+  const empty = () => ({ fund: "", cards: "", transfers: "", cardsOk: false, cash: Object.fromEntries(DENOMINATIONS.map((d) => [d.id, "0"])) as Record<string, string> });
   const [data, setData] = useState(empty);
+  const [index, setIndex] = useState(0);
+  const [resume, setResume] = useState(true);
   const dirty = data.fund !== "" || data.cards !== "" || data.transfers !== "" || Object.values(data.cash).some((v) => v !== "0");
   const num = (raw: string) => {
     const p = parseQuantity(raw.replace(/,(?=\d{3})/g, ""));
@@ -93,57 +96,65 @@ export function WizardPattern() {
   };
   const counted = useMemo(() => DENOMINATIONS.reduce((s, d) => s + d.value * num(data.cash[d.id] ?? "0"), 0), [data.cash]);
   const rows = DENOMINATIONS.map((d) => ({ id: d.id, label: formatMoney(d.value).replace(".00", ""), unit: d.kind === "bill" ? t.bill : t.coin }));
+  // Ejemplo de dato raro: vouchers por más de $50,000 en un turno (en los módulos reales la regla es de la spec 015).
+  const cardsOdd = unusual("pay", data.cards || "0", "50000");
+  const money = (v: number) => <span className="font-brand font-bold">{formatMoney(v)}</span>;
   return (
     <>
       <PageHeader title={t.title} subtitle={t.subtitle} figure={formatMoney(counted).replace(".00", "")} figureLabel={t.figureLabel} />
-      <div className="lg:max-w-2xl">
+      <div className="flex flex-col gap-4 lg:max-w-2xl">
+        {resume ? <ResumePrompt updatedAt={new Date("2026-11-18T18:30:00-06:00")} stepTitle={t.steps.cash} onContinue={() => (setResume(false), setIndex(1))} onRestart={() => (setResume(false), setData(empty()), setIndex(0))} /> : null}
         <Wizard
           dirty={dirty}
+          index={index}
+          onIndexChange={setIndex}
           onExit={() => router.push("/sistema")}
+          onFullView={() => toast.success(t.fullViewDemo)}
           onFinish={() => {
             setData(empty());
+            setIndex(0);
             toast.success(t.finished);
           }}
+          review={{ extra: <p className="flex justify-between border-t border-line-strong pt-3"><span>{t.total}</span>{money(counted + num(data.cards) + num(data.transfers))}</p> }}
           steps={[
-            { id: "fund", title: t.steps.fund, content: <MoneyField label={t.fund} value={data.fund} onChange={(e) => setData((d) => ({ ...d, fund: e.target.value }))} /> },
+            {
+              id: "fund",
+              title: t.steps.fund,
+              hint: t.hints.fund,
+              example: t.examples.fund,
+              content: <MoneyField label={t.fund} value={data.fund} onChange={(e) => setData((d) => ({ ...d, fund: e.target.value }))} />,
+              summary: money(num(data.fund)),
+            },
             {
               id: "cash",
               title: t.steps.cash,
-              content: (
-                <div className="flex flex-col gap-3">
-                  <p className="text-ink-muted">{t.cashIntro}</p>
-                  <RowEntry rows={rows} values={data.cash} onChange={(id, v) => setData((d) => ({ ...d, cash: { ...d.cash, [id]: v } }))} />
-                </div>
-              ),
+              hint: t.cashIntro,
+              example: t.examples.cash,
+              content: <RowEntry rows={rows} values={data.cash} onChange={(id, v) => setData((d) => ({ ...d, cash: { ...d.cash, [id]: v } }))} />,
+              summary: money(counted),
             },
             {
               id: "cards",
               title: t.steps.cards,
+              hint: t.hints.cards,
+              validate: () => !cardsOdd.unusual || data.cardsOk,
               content: (
                 <div className="flex flex-col gap-4">
-                  <MoneyField label={t.cards} value={data.cards} onChange={(e) => setData((d) => ({ ...d, cards: e.target.value }))} />
+                  <MoneyField label={t.cards} value={data.cards} onChange={(e) => setData((d) => ({ ...d, cards: e.target.value, cardsOk: false }))} />
+                  {cardsOdd.unusual ? <UnusualNotice what={t.cards} expected={formatMoney(Number(cardsOdd.expected))} confirmed={data.cardsOk} onConfirm={() => setData((d) => ({ ...d, cardsOk: true }))} /> : null}
                   <MoneyField label={t.transfers} value={data.transfers} onChange={(e) => setData((d) => ({ ...d, transfers: e.target.value }))} />
                 </div>
               ),
-            },
-            {
-              id: "summary",
-              title: t.steps.summary,
-              content: (
-                <dl className="flex flex-col">
-                  {[
-                    [t.fund, num(data.fund)],
-                    [t.counted, counted],
-                    [t.cards, num(data.cards)],
-                    [t.transfers, num(data.transfers)],
-                    [t.total, counted + num(data.cards) + num(data.transfers)],
-                  ].map(([k, v]) => (
-                    <div key={String(k)} className="flex justify-between border-b border-line py-3">
-                      <dt className="text-ink-muted">{k}</dt>
-                      <dd className="font-brand font-bold">{formatMoney(Number(v))}</dd>
-                    </div>
-                  ))}
-                </dl>
+              summary: (
+                <div className="flex flex-col gap-1">
+                  <span>
+                    {t.cards}: {money(num(data.cards))}
+                  </span>
+                  {cardsOdd.unusual ? <UnusualMark /> : null}
+                  <span>
+                    {t.transfers}: {money(num(data.transfers))}
+                  </span>
+                </div>
               ),
             },
           ]}

@@ -132,4 +132,29 @@ export const personnel = {
 
   homeLabel: "Personal",
   homeDetail: (active: number, incomplete: number) => `${active} ${active === 1 ? "activo" : "activos"} · ${incomplete} con documentos pendientes`,
+  // Spec 015, RF-46: asistente «Nuevo empleado».
+  employeeWizard: {
+    stepByStep: "Alta paso a paso",
+    steps: { data: "Datos", position: "Puesto", pay: "Sueldo por día", documents: "Documentos" },
+    hints: {
+      data: "Escribe el nombre completo, desde cuándo trabaja aquí y su teléfono.",
+      position: "Elige el puesto que va a ocupar.",
+      pay: "Escribe lo que gana por día; se usa en la nómina. Puedes dejarlo para después.",
+      documents: "Sube los documentos que ya tengas; los que falten se suben después desde su expediente.",
+    },
+    examples: { data: "Nombre completo · entró hoy", pay: "$400 por día" },
+    nameRequired: "Escribe el nombre.",
+    hiredRequired: "Escribe la fecha de ingreso.",
+    choosePosition: "Elige el puesto.",
+    noPay: "Sin sueldo por ahora",
+    noDocumentTypes: "Este negocio aún no pide documentos.",
+    filesOf: (name: string) => `Archivos de ${name}`,
+    issuedOf: (name: string) => `Fecha de expedición de ${name}`,
+    chooseAgain: "Si saliste y volviste, elige otra vez los archivos: no se guardan hasta dar de alta.",
+    documentsLine: (n: number) => (n === 0 ? "Sin documentos por ahora" : n === 1 ? "1 documento" : `${n} documentos`),
+    duplicate: "Confirmar que es otra persona",
+    confirm: "Dar de alta",
+    done: (name: string) => `Se dio de alta ${name}.`,
+    partial: (name: string, problem: string) => `Se dio de alta ${name}, pero no se subieron todos los documentos: ${problem} Súbelos desde su expediente.`,
+  },
 };

@@ -1,7 +1,7 @@
 // Criterios de la spec 006: importar la hoja «Inventario por áreas», revisar y confirmar, en escritorio.
 import { xlsx } from "../tests/support/xlsx";
 import { expect, test } from "./fixtures";
-import { OWNER, login, ownerApiAt, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, ownerApiAt, preferFullView, seedBusiness, seedOwner } from "./helpers";
 import { BASE } from "./warm";
 
 const HEADER = ["ÁREA", "RESPONSABLE", "ARTÍCULO", "PRESENTACIÓN INDIVIDUAL", "CANT", "UNIDAD", "CONVERSIÓN", "TOTAL", "PRESENTACIÓN FINAL", "PROVEEDOR", " MÍNIMO"];
@@ -23,6 +23,8 @@ test("importar inventario: revisar, ver problemas y confirmar", async ({ page })
   const w = await world();
   await page.setViewportSize({ width: 1360, height: 950 });
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas; los asistentes tienen la suya.
+  await preferFullView(page, ["inv-count", "inv-entry", "inv-exit", "inv-transfer", "inv-transfer-receive"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.pirrus.branches[0].id } });
   const file = book([
     r("BEBIDAS", "AMSTEL ULTRA", 193, "PIEZA", 24, "CARTON", "HEINEKEN México", 12),
@@ -72,6 +74,8 @@ test("importar inventario: revisar, ver problemas y confirmar", async ({ page })
 test("importar inventario: volumen de 300 productos", async ({ page }) => {
   const w = await world();
   await login(page, OWNER.email, OWNER.password);
+  // Spec 015: estas pruebas recorren las pantallas completas; los asistentes tienen la suya.
+  await preferFullView(page, ["inv-count", "inv-entry", "inv-exit", "inv-transfer", "inv-transfer-receive"]);
   await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.pirrus.branches[0].id } });
   const rows = Array.from({ length: 300 }, (_, i) => r(`ÁREA ${(i % 10) + 1}`, `Producto ${String(i + 1).padStart(3, "0")}`, (i % 7) + 0.5, i % 3 ? "PIEZA" : "KILOGRAMO", 12, "CAJA", `Proveedor ${i % 15}`, 3));
   const file = book(rows);

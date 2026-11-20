@@ -303,6 +303,19 @@ export async function capturePos(ctx: Ctx, actor: ChecklistActor, cutId: unknown
   });
 }
 
+/** Spec 015, RF-42: el corte como quedaría con este reporte del punto de venta (diferencias por forma de pago y
+ *  cifras), sin guardar nada. Solo personas, como el reporte. */
+export async function previewPos(ctx: Ctx, actor: ChecklistActor, cutId: unknown, rawAmounts: unknown): Promise<CutView> {
+  userOnly(actor);
+  await access(ctx, actor);
+  const amounts = (typeof rawAmounts === "object" && rawAmounts !== null ? rawAmounts : {}) as Record<string, unknown>;
+  const cut = await ownCut(ctx.store, actor, cutId);
+  if (cut.status === "closed") throw new AppError("cut_state", { state: t.statuses[cut.status] });
+  const l = await load(ctx.store, cut);
+  const methods = l.methods.map((x) => ({ ...x, posCents: money(amounts[x.id]) }));
+  return viewOf(ctx, actor, { ...l, cut: { ...cut, posAt: cut.posAt ?? ctx.ports.clock.now() }, methods });
+}
+
 /** RF-34 a RF-36: cerrar con el conteo entregado y el reporte capturado; guarda lo que mostraba. */
 export async function closeCut(ctx: Ctx, actor: ChecklistActor, cutId: unknown, rawNote: unknown): Promise<CutView> {
   const a = userOnly(actor);

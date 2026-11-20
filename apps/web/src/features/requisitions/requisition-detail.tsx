@@ -11,6 +11,7 @@ import type { BuyerView, GroupView, LineView, RequisitionView } from "@/server/s
 import { Alert, Button, Dialog, LinkButton, MoneyField, NumberField, PageHeader, SectionLabel, SelectField, StatusBadge, TextArea, formatDateTime, formatMoney, formatQuantity, useToast } from "@/ui";
 import { api } from "../api";
 import { unitShort } from "../catalog/labels";
+import { switchView } from "../wizards/view-switch";
 
 const t = es.requisitions;
 const STATUS_TONE = { requested: "warning", approved: "neutral", rejected: "danger", cancelled: "danger", closed: "success" } as const;
@@ -26,8 +27,22 @@ type Modal =
   | { kind: "close"; group: GroupView }
   | null;
 
-export function RequisitionDetail({ requisition: r }: { requisition: RequisitionView }) {
+/** Spec 015, RF-23 a RF-25: qué tareas de esta pantalla abren su asistente (según lo que eligió la persona). */
+export interface DetailWizards {
+  approve: boolean;
+  buy: boolean;
+  receive: boolean;
+}
+
+export function RequisitionDetail({ requisition: r, wizards = { approve: false, buy: false, receive: false } }: { requisition: RequisitionView; wizards?: DetailWizards }) {
   const router = useRouter();
+  const base = `/requisiciones/${r.id}`;
+  const canBuy = r.canOperate && r.groups.some((g) => g.id && !g.purchasedAt && !g.anyReceived);
+  const canReceive = r.canOperate && r.groups.some((g) => g.id && g.purchasedAt && g.status !== "received");
+  async function stepByStep(kind: "req-approve" | "req-buy" | "req-receive", path: string) {
+    await switchView(kind, "wizard", async () => undefined);
+    router.push(path);
+  }
   const [modal, setModal] = useState<Modal>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -114,11 +129,15 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
         {r.canOperate && g.id ? (
           <div className="flex flex-wrap gap-2">
             {!g.anyReceived ? (
-              <Button variant={g.purchasedAt ? "secondary" : "primary"} onClick={() => setModal({ kind: "purchase", group: g })}>
-                {g.purchasedAt ? t.editAmounts : t.markPurchased}
-              </Button>
+              wizards.buy && !g.purchasedAt ? (
+                <LinkButton href={`${base}/comprar`}>{t.markPurchased}</LinkButton>
+              ) : (
+                <Button variant={g.purchasedAt ? "secondary" : "primary"} onClick={() => setModal({ kind: "purchase", group: g })}>
+                  {g.purchasedAt ? t.editAmounts : t.markPurchased}
+                </Button>
+              )
             ) : null}
-            {g.purchasedAt && g.status !== "received" ? <Button onClick={() => setModal({ kind: "receive", group: g })}>{t.receive}</Button> : null}
+            {g.purchasedAt && g.status !== "received" ? wizards.receive ? <LinkButton href={`${base}/recibir?grupo=${g.id}`}>{t.receive}</LinkButton> : <Button onClick={() => setModal({ kind: "receive", group: g })}>{t.receive}</Button> : null}
             {g.status !== "received" ? (
               <Button variant="ghost" onClick={() => setModal({ kind: "close", group: g })}>
                 {t.closePending}
@@ -141,9 +160,13 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
         action={
           <span className="flex flex-wrap gap-2">
             {r.canDecide ? (
-              <Button loading={busy} onClick={() => void call(`/api/requisitions/${r.id}/approve`, {})}>
-                {t.approve}
-              </Button>
+              wizards.approve ? (
+                <LinkButton href={`${base}/aprobar`}>{t.approve}</LinkButton>
+              ) : (
+                <Button loading={busy} onClick={() => void call(`/api/requisitions/${r.id}/approve`, {})}>
+                  {t.approve}
+                </Button>
+              )
             ) : null}
             {r.canEdit ? (
               <LinkButton href={`/requisiciones/${r.id}/editar`} variant="secondary">
@@ -168,6 +191,25 @@ export function RequisitionDetail({ requisition: r }: { requisition: Requisition
         {r.total ? <span className="text-sm font-semibold">{t.total(money(r.total))}</span> : null}
       </div>
       {r.note ? <p className="text-sm">{r.note}</p> : null}
+      {(r.canDecide && !wizards.approve) || (canBuy && !wizards.buy) || (canReceive && !wizards.receive) ? (
+        <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="step-by-step">
+          {r.canDecide && !wizards.approve ? (
+            <Button variant="ghost" onAction={() => stepByStep("req-approve", `${base}/aprobar`)}>
+              {t.stepByStep.approve}
+            </Button>
+          ) : null}
+          {canBuy && !wizards.buy ? (
+            <Button variant="ghost" onAction={() => stepByStep("req-buy", `${base}/comprar`)}>
+              {t.stepByStep.buy}
+            </Button>
+          ) : null}
+          {canReceive && !wizards.receive ? (
+            <Button variant="ghost" onAction={() => stepByStep("req-receive", `${base}/recibir`)}>
+              {t.stepByStep.receive}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       {error && !modal ? <Alert tone="error">{error}</Alert> : null}
 
       {r.buyers.length

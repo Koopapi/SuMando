@@ -14,7 +14,7 @@ const money = (text: string) => formatMoney(Number(text));
 const pesos = (cents: bigint) => formatMoney(Number(cents) / 100);
 const kindOf = (cents: bigint) => DENOMINATIONS.find((d) => d.cents === cents)?.kind ?? "coin";
 
-function Cash({ cash, testId }: { cash: { pieces: { cents: string; count: number }[]; leftover: string }; testId: string }) {
+export function Cash({ cash, testId }: { cash: { pieces: { cents: string; count: number }[]; leftover: string }; testId: string }) {
   return (
     <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums" data-testid={testId}>
       {cash.pieces.map((p) => (

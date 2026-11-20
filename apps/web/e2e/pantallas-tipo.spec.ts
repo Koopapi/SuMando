@@ -111,7 +111,7 @@ test("asistente por pasos", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 760 });
   await page.goto("/sistema/asistente");
   const next = page.getByRole("button", { name: "Siguiente" });
-  const back = page.getByRole("button", { name: "Anterior" });
+  const back = page.getByRole("button", { name: "Atrás" });
   const progress = page.getByTestId("wizard-progress");
 
   await test.step("RF-34 el asistente muestra el paso actual y el total", async () => {

@@ -1359,6 +1359,50 @@ export const cashMovements = pgTable(
   ],
 );
 
+// Spec 015: lo capturado a medias en un asistente (RF-17 a RF-22, RF-51). `data` es opaco para el servidor: nada de
+// lo que hay ahí se registra hasta confirmar con las rutas de siempre. Una persona tiene uno por sucursal, tarea y
+// objetivo; el teléfono de piso, uno por empleado, tarea y objetivo.
+export const wizardDrafts = pgTable(
+  "wizard_drafts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    branchId: uuid("branch_id")
+      .notNull()
+      .references(() => branches.id),
+    kind: text("kind").notNull(),
+    target: text("target").notNull().default(""),
+    userId: uuid("user_id").references(() => users.id),
+    floorDeviceId: uuid("floor_device_id").references(() => floorDevices.id),
+    employeeId: uuid("employee_id").references(() => employees.id),
+    step: text("step").notNull(),
+    data: jsonb("data").notNull(),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("wizard_drafts_user_unique").on(t.userId, t.branchId, t.kind, t.target).where(sql`${t.userId} is not null`),
+    uniqueIndex("wizard_drafts_floor_unique").on(t.floorDeviceId, t.employeeId, t.kind, t.target).where(sql`${t.floorDeviceId} is not null`),
+    check("wizard_drafts_one_owner", sql`(${t.userId} is null) <> (${t.floorDeviceId} is null)`),
+  ],
+);
+
+// Spec 015: vista que eligió cada persona para cada tarea (RF-23, RF-26).
+export const wizardPreferences = pgTable(
+  "wizard_preferences",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    kind: text("kind").notNull(),
+    view: text("view").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("wizard_preferences_user_kind_unique").on(t.userId, t.kind), check("wizard_preferences_view", sql`${t.view} in ('wizard', 'full')`)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Branch = typeof branches.$inferSelect;
@@ -1417,3 +1461,5 @@ export type PaymentMethod = typeof paymentMethods.$inferSelect;
 export type CashCut = typeof cashCuts.$inferSelect;
 export type CashCutMethod = typeof cashCutMethods.$inferSelect;
 export type CashMovement = typeof cashMovements.$inferSelect;
+export type WizardDraft = typeof wizardDrafts.$inferSelect;
+export type WizardPreference = typeof wizardPreferences.$inferSelect;

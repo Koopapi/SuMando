@@ -1,12 +1,16 @@
 "use client";
 
 // Spec 003 RF-9, RF-10, RF-26, RF-39 a RF-41: lista de productos con búsqueda, filtros y alta.
+// Spec 015 RF-25, RF-27, RF-43: «Nuevo producto» abre el asistente o el diálogo de siempre según la vista elegida; el
+// diálogo trae nombre, unidad y proveedor de lo capturado en el asistente y ofrece «paso a paso».
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { es } from "@/i18n";
 import type { ProductView, SupplierView, WarehouseView } from "@/server/services/catalog/views";
 import { Alert, Button, DataTable, Dialog, PageHeader, SelectField, StatusBadge, TextField, type Column, type Filter, LinkButton } from "@/ui";
 import { formValues } from "../api";
+import { discardWizardDraft, toWizard, useWizardDraftFor } from "../wizards/view-switch";
+import type { NewProductDraft } from "./wizards/new-product";
 import { countLabel, unitOptions, unitShort } from "./labels";
 import { useAction } from "./use-action";
 
@@ -15,9 +19,16 @@ const tp = es.catalog.products;
 const ALL = "*";
 const NONE = "-";
 
-export function ProductsManager({ products, suppliers, warehouses }: { products: ProductView[]; suppliers: SupplierView[]; warehouses: WarehouseView[] }) {
+export function ProductsManager({ products, suppliers, warehouses, createView = "full", resume = false }: { products: ProductView[]; suppliers: SupplierView[]; warehouses: WarehouseView[]; createView?: "wizard" | "full"; resume?: boolean }) {
   const { run, error, setError, busy, router } = useAction();
   const [creating, setCreating] = useState(false);
+  const [prefill, setPrefill] = useState<NewProductDraft | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  // RF-27: al llegar del asistente con algo capturado, se abre el diálogo con eso.
+  useWizardDraftFor<NewProductDraft>(resume ? "new-product" : null, (d) => {
+    setPrefill(d);
+    setCreating(true);
+  });
   const [supplier, setSupplier] = useState(ALL);
   const active = warehouses.filter((w) => !w.archived);
   const [warehouse, setWarehouse] = useState(active[0]?.id ?? "");
@@ -55,8 +66,15 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
     const data = await run<{ product: { id: string } }>("/api/products", { body: { name: v.name, baseUnit: v.baseUnit, supplierId: v.supplierId || null, notes: v.notes } });
     if (data) {
       setCreating(false);
+      if (prefill) await discardWizardDraft("new-product");
       router.push(`/productos/${data.product.id}`);
     }
+  }
+
+  async function stepByStep(form: HTMLFormElement | null) {
+    const v = form ? formValues(form) : {};
+    const data: NewProductDraft = { ...(prefill ?? { name: "", baseUnit: "g", confirmedName: "", presentations: [], purchaseKey: null, countKey: null, supplierId: "", levels: {} }), name: v.name ?? prefill?.name ?? "", baseUnit: v.baseUnit ?? prefill?.baseUnit ?? "g", supplierId: v.supplierId ?? prefill?.supplierId ?? "" };
+    router.push(await toWizard("new-product", "name", data, "/productos/nuevo"));
   }
 
   const supplierOptions = [{ value: ALL, label: tp.allSuppliers }, { value: NONE, label: tp.noSupplier }, ...suppliers.map((s) => ({ value: s.id, label: s.archived ? tp.supplierArchived(s.name) : s.name }))];
@@ -65,7 +83,7 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
     <>
       <PageHeader title={tp.title} subtitle={tp.intro} figure={String(products.filter((p) => !p.archived).length)} figureLabel={tp.figureLabel} action={
           <span className="flex flex-wrap gap-2">
-            <Button onClick={() => setCreating(true)}>{tp.create}</Button>
+            {createView === "wizard" ? <LinkButton href="/productos/nuevo">{tp.create}</LinkButton> : <Button onClick={() => setCreating(true)}>{tp.create}</Button>}
             <LinkButton href="/inventario/importar" variant="secondary" icon="upload">
               {es.inventory.importer.link}
             </LinkButton>
@@ -108,6 +126,8 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
         title={tp.createTitle}
       >
         <form
+          key={prefill ? "prefill" : "blank"}
+          ref={formRef}
           className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
@@ -115,12 +135,15 @@ export function ProductsManager({ products, suppliers, warehouses }: { products:
           }}
         >
           {error ? <Alert tone="error">{error}</Alert> : null}
-          <TextField label={t.name} name="name" required maxLength={80} autoFocus />
-          <SelectField label={tp.baseUnit} name="baseUnit" defaultValue="g" options={unitOptions()} />
+          <TextField label={t.name} name="name" required maxLength={80} autoFocus defaultValue={prefill?.name ?? ""} />
+          <SelectField label={tp.baseUnit} name="baseUnit" defaultValue={prefill?.baseUnit ?? "g"} options={unitOptions()} />
           <p className="-mt-2 text-sm text-ink-muted">{tp.baseUnitHint}</p>
-          <SelectField label={tp.supplier} name="supplierId" defaultValue="" options={[{ value: "", label: tp.noSupplier }, ...suppliers.filter((s) => !s.archived).map((s) => ({ value: s.id, label: s.name }))]} />
+          <SelectField label={tp.supplier} name="supplierId" defaultValue={prefill?.supplierId ?? ""} options={[{ value: "", label: tp.noSupplier }, ...suppliers.filter((s) => !s.archived).map((s) => ({ value: s.id, label: s.name }))]} />
           <TextField label={t.notes} name="notes" maxLength={500} hint={t.optional} />
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="ghost" onAction={() => stepByStep(formRef.current)}>
+              {es.common.stepByStep}
+            </Button>
             <Button variant="secondary" onClick={() => setCreating(false)}>
               {es.common.cancel}
             </Button>

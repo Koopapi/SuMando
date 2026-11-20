@@ -1,7 +1,7 @@
 // Criterios de la spec 011: corte de caja (el dueño configura, el cajero abre, gasta y cuenta a ciegas en el teléfono
 // de piso, el administrador captura el reporte del punto de venta, ve una diferencia y cierra; el dueño reabre).
 import { expect, test } from "./fixtures";
-import { OWNER, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner, preferFullView } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.caja@mando.test", password: "admin-caja-1" };
@@ -23,6 +23,8 @@ test("corte de caja: configuración, conteo a ciegas en el teléfono, diferencia
 
   await test.step("RF-6 RF-8 RF-10 el dueño configura la sucursal", async () => {
     await login(page, OWNER.email, OWNER.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(page, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await page.request.put(`${BASE}/api/session/branch`, { data: { branchId: w.branchId } });
     await page.goto("/caja/configuracion");
     await page.getByLabel("Cortes").selectOption({ label: "Varios por día" });
@@ -38,6 +40,8 @@ test("corte de caja: configuración, conteo a ciegas en el teléfono, diferencia
   const phone = await browser.newPage({ viewport: { width: 1360, height: 950 } });
   await test.step("RF-30 RF-31 el cajero abre la caja en el teléfono de piso y registra un gasto", async () => {
     await login(phone, ADMIN.email, ADMIN.password);
+    // Spec 015: estas pruebas recorren las pantallas completas.
+    await preferFullView(phone, ["pay-attendance", "pay-close", "cash-open", "cash-cut", "cash-pos"]);
     await phone.goto("/checklists/telefonos");
     await phone.getByLabel("Nombre del teléfono").fill("Tablet de caja");
     await phone.getByRole("button", { name: "Habilitar este teléfono" }).click();
@@ -54,6 +58,8 @@ test("corte de caja: configuración, conteo a ciegas en el teléfono, diferencia
 
   await test.step("RF-18 RF-20 RF-22 RF-32 cuenta a ciegas con el asistente y entrega", async () => {
     await phone.getByRole("button", { name: "Contar" }).click();
+    // Spec 015: el teléfono abre el «Corte ciego»; esta prueba recorre el conteo de siempre.
+    await phone.getByRole("button", { name: "Vista completa" }).click();
     await phone.getByLabel("Billetes de $1,000.00", { exact: true }).fill("1");
     await phone.getByRole("button", { name: "Una más: Billetes de $200.00" }).click();
     await expect(phone.getByTestId("cash-counted-total")).toContainText("$1,200.00");

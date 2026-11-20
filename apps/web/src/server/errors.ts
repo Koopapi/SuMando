@@ -61,6 +61,8 @@ const STATUS: Record<ErrorCode, number> = {
   buyer_too_long: 422,
   buyer_not_in_branch: 422,
   logo_invalid: 422,
+  wizard_unknown: 404,
+  draft_too_large: 413,
   employee_exists: 409,
   invalid_pay: 422,
   invalid_date: 422,

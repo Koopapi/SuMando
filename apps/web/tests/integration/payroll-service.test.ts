@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { auditEntriesFor } from "@/server/adapters/drizzle/store";
 import { db } from "@/db/client";
 import { createLoan, employeeLoans } from "@/server/services/payroll/loans";
-import { closeWeek, listPayrollWeeks, markDay, payrollWeek, reopenWeek, setAmounts, setLoanPayment } from "@/server/services/payroll/weeks";
+import { closeWeek, listPayrollWeeks, markDay, payrollWeek, previewClose, reopenWeek, setAmounts, setLoanPayment } from "@/server/services/payroll/weeks";
 import { createEmployee, moveEmployee, setEmployeePay, terminateEmployee } from "@/server/services/personnel/employees";
 import { createPosition } from "@/server/services/personnel/positions";
 import { catalogWorld } from "./catalog-fixture";
@@ -357,5 +357,40 @@ describe("spec 009 — casos límite", () => {
     const w = await world();
     const v = await closeWeek(w.ctx, w.ownerSendero, LAST);
     expect([v.status, v.totals?.net]).toEqual(["closed", "0.00"]);
+  });
+});
+
+describe("spec 015 — vista previa de «Cerrar la semana»", () => {
+  it("test_s015_rf39_calcula_con_lo_capturado_sin_guardar", async () => {
+    const w = await world();
+    const e = await w.hire("Empleado Uno", "400");
+    for (const d of [0, 1, 2]) await w.mark(e.id, d, "worked");
+    const [loan] = await createLoan(w.ctx, w.ownerSendero, e.id, { lentOn: "2026-10-01", amount: "1000", weekly: "300" });
+    const p = await previewClose(w.ctx, w.ownerSendero, LAST, { lines: { [e.id]: { bonus: "250", bonusConcept: "Buen servicio", meal: "50" } }, loans: { [loan.id]: "100" } });
+    const row = p.week.groups.flatMap((g) => g.rows).find((r) => r.employeeId === e.id)!;
+    // 1200 de días + 250 de bono − 50 de comida − 100 de abono.
+    expect(row.money).toMatchObject({ bonus: "250.00", bonusConcept: "Buen servicio", meal: "50.00", loans: "100.00", net: "1300.00" });
+    expect(p.cash[e.id]).toEqual({ pieces: [{ cents: "100000", count: 1 }, { cents: "20000", count: 1 }, { cents: "10000", count: 1 }], leftover: "0" });
+    expect(p.problems).toEqual([]);
+    // Nada se guardó: la semana sigue con lo de antes.
+    expect((await w.row(e.id)).money).toMatchObject({ bonus: "0.00", meal: "0.00", loans: "300.00", net: "900.00" });
+  });
+
+  it("test_s015_rf39_avisa_lo_que_impediria_cerrar", async () => {
+    const w = await world();
+    const e = await w.hire("Empleado Uno", "400");
+    await w.mark(e.id, 0, "worked");
+    const p = await previewClose(w.ctx, w.ownerSendero, LAST, { lines: { [e.id]: { meal: "500" } } });
+    expect(p.problems).toEqual(["No se puede cerrar: quedan con neto negativo Empleado Uno. Ajusta comida o abonos."]);
+    expect(await code(previewClose(w.ctx, w.ownerSendero, LAST, { lines: { [e.id]: { extras: "-5" } } }))).toBe("invalid_amount");
+  });
+
+  it("test_s015_rf39_solo_el_dueno_y_no_en_semana_cerrada", async () => {
+    const w = await world();
+    const e = await w.hire("Empleado Uno", "400");
+    await w.mark(e.id, 0, "worked");
+    expect(await code(previewClose(w.ctx, w.adminSendero, LAST, {}))).toBe("owner_only");
+    await closeWeek(w.ctx, w.ownerSendero, LAST);
+    expect(await code(previewClose(w.ctx, w.ownerSendero, LAST, {}))).toBe("week_closed");
   });
 });

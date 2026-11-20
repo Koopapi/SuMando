@@ -2,6 +2,7 @@
 
 // Spec 010 RF-6 a RF-13: armar una plantilla completa (sucursales, días, secciones y puntos en orden) y guardarla
 // de una vez; el servidor archiva lo que se quitó.
+// Spec 015 RF-25, RF-27: una plantilla nueva carga lo capturado en su asistente y ofrece «Plantilla paso a paso».
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +10,8 @@ import { es } from "@/i18n";
 import type { TemplateView } from "@/server/services/checklists/templates";
 import { Alert, Button, Checkbox, IconButton, Icon, PageHeader, SectionLabel, SelectField, TextField, useToast } from "@/ui";
 import { api } from "../api";
+import { discardWizardDraft, toWizard, useWizardDraftFor } from "../wizards/view-switch";
+import type { NewTemplateDraft } from "./wizards/new-template";
 
 const t = es.checklists;
 
@@ -49,6 +52,21 @@ export function TemplateEditor({ template, branches, positions }: { template: Te
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [fromWizard, setFromWizard] = useState(false);
+  useWizardDraftFor<NewTemplateDraft>(template ? null : "new-checklist", (d) => {
+    setFromWizard(true);
+    setName(d.name ?? "");
+    setDays(d.days ?? []);
+    setBranchIds(d.branchIds ?? []);
+    setSections((d.sections ?? []).map((s) => ({ key: `w${s.key}`, id: null, name: s.name, positionId: s.positionId, items: s.items.map((i) => ({ key: `w${i.key}`, id: null, text: i.text, kind: i.kind, isKey: i.isKey })) })));
+  });
+
+  async function stepByStep() {
+    let n = 1;
+    const data: NewTemplateDraft = { name, days, branchIds, sections: sections.map((s) => ({ key: n++, name: s.name, positionId: s.positionId, items: s.items.map((i) => ({ key: n++, text: i.text, kind: i.kind, isKey: i.isKey })) })), next: 0 };
+    data.next = n;
+    router.push(await toWizard("new-checklist", "basics", data, "/checklists/plantillas/nueva"));
+  }
 
   const toggle = <T,>(list: T[], x: T) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
   const patchSection = (k: string, patch: Partial<DraftSection>) => setSections((all) => all.map((s) => (s.key === k ? { ...s, ...patch } : s)));
@@ -66,6 +84,7 @@ export function TemplateEditor({ template, branches, positions }: { template: Te
     const r = template ? await api<{ template: TemplateView }>(`/api/checklist-templates/${template.id}`, { method: "PUT", body }) : await api<{ template: TemplateView }>("/api/checklist-templates", { body });
     setBusy(false);
     if (!r.ok) return setError(r.error.message);
+    if (!template && fromWizard) await discardWizardDraft("new-checklist");
     toast.success(t.saved);
     router.push("/checklists/plantillas");
     router.refresh();
@@ -116,7 +135,7 @@ export function TemplateEditor({ template, branches, positions }: { template: Te
           {sections.map((s, si) => (
             <div key={s.key} className="flex flex-col gap-3 border-b border-line pb-4" data-testid="template-section">
               <div className="flex flex-wrap items-end gap-2">
-                <TextField label={t.sectionName} value={s.name} maxLength={80} required onChange={(e) => patchSection(s.key, { name: e.target.value })} className="min-w-0 flex-1" />
+                <TextField label={t.sectionName} value={s.name} maxLength={80} required onChange={(e) => patchSection(s.key, { name: e.target.value })} className="min-w-0 flex-1 basis-60" />
                 <SelectField label={t.sectionPositionLabel} value={s.positionId} onChange={(e) => patchSection(s.key, { positionId: e.target.value })} options={[{ value: "", label: t.noPosition }, ...positions.map((p) => ({ value: p.id, label: p.name }))]} />
                 <IconButton label={t.moveUp(s.name)} onClick={() => setSections((all) => move(all, si, si - 1))}>
                   <Icon name="chevronUp" />
@@ -131,7 +150,7 @@ export function TemplateEditor({ template, branches, positions }: { template: Te
               <ul className="flex flex-col gap-2 lg:pl-6">
                 {s.items.map((i, ii) => (
                   <li key={i.key} className="flex flex-wrap items-end gap-2" data-testid="template-item">
-                    <TextField label={t.itemText} value={i.text} maxLength={200} required onChange={(e) => patchItem(s.key, i.key, { text: e.target.value })} className="min-w-0 flex-1" />
+                    <TextField label={t.itemText} value={i.text} maxLength={200} required onChange={(e) => patchItem(s.key, i.key, { text: e.target.value })} className="min-w-0 flex-1 basis-60" />
                     <SelectField label={t.itemKind} value={i.kind} onChange={(e) => patchItem(s.key, i.key, { kind: e.target.value as Kind })} options={(["check", "photo", "comment"] as const).map((k) => ({ value: k, label: t.kinds[k] }))} />
                     {i.kind !== "comment" ? <Checkbox label={t.itemKey} checked={i.isKey} onChange={(e) => patchItem(s.key, i.key, { isKey: e.target.checked })} /> : null}
                     <IconButton label={t.moveUp(i.text)} onClick={() => patchSection(s.key, { items: move(s.items, ii, ii - 1) })}>
@@ -157,6 +176,11 @@ export function TemplateEditor({ template, branches, positions }: { template: Te
           <Button type="submit" loading={busy}>
             {t.save}
           </Button>
+          {!template ? (
+            <Button variant="ghost" onAction={stepByStep}>
+              {t.templateWizard.stepByStep}
+            </Button>
+          ) : null}
           {template ? (
             <Button variant="ghost" onClick={() => void archive(!template.archived)}>
               {template.archived ? t.reactivate : t.archive}

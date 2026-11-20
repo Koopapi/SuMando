@@ -132,6 +132,20 @@ Lo construido en la spec 012:
   una alerta cambia la sucursal activa con `PUT /api/session/branch` antes de abrir su módulo. El corte guarda la
   marca de revisado del dueño (`reviewed_at`, `reviewed_by`), que se borra al reabrir.
 
+Lo construido en la spec 015:
+
+- **Asistentes**: `ui/wizard.tsx` (pasos con indicación, ejemplo, validación, resumen con «Cambiar» y «Vista
+  completa»); cada tarea tiene su asistente en `features/<área>/wizards/` y su pantalla completa de siempre. Ninguno
+  registra nada hasta confirmar: al confirmar usan las mismas rutas de la API que la pantalla completa, que validan
+  como siempre. Las reglas de dato raro son puras en `domain/wizards/unusual.ts`; el corte ciego no las usa.
+- **Lo guardado a medias**: tabla `wizard_drafts` por persona, tarea, objetivo y sucursal (o por teléfono de piso y
+  empleado), JSON de hasta 256 KB, descartado a los 7 días sin cambios (`server/services/wizards/drafts.ts`, rutas
+  `/api/wizards/[kind]/draft`). Los archivos (documentos, fotos) no se guardan a medias: se suben al confirmar.
+- **Vista elegida**: por persona y tarea en el servidor (`/api/wizards/[kind]/view`); en el teléfono de piso, en ese
+  teléfono por empleado (`features/wizards/floor-view.ts`). `?vista=` la fuerza y `continuar=1` retoma sin preguntar.
+- **Vistas previas del servidor** para el resumen, sin registrar: `previewClose` (nómina) y `previewPos` (corte, solo
+  personas).
+
 ## Instalación, despliegue y CI (spec 001)
 
 - **PWA**: `app/manifest.ts` (nombre, iconos, `standalone`), `public/sw.js` escrito a mano que solo precachea

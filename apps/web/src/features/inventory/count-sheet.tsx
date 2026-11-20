@@ -2,6 +2,8 @@
 
 // Spec 005 RF-44 a RF-51: conteo de un área con lo esperado a la vista, «Igual», «Lo que falta, igual» y borrador
 // en el dispositivo hasta aplicar. Si la existencia cambió mientras se contaba, el servidor pide confirmar.
+// Spec 015 RF-25, RF-27: comparte lo capturado con el asistente «Contar un área» (si el borrador es de esta área, se
+// carga) y ofrece «Paso a paso», que lo guarda y abre el asistente.
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { es } from "@/i18n";
@@ -9,6 +11,9 @@ import type { CountSheetView } from "@/server/services/inventory/counts";
 import { fillMissing } from "@/domain/inventory/count";
 import { Alert, Button, NumberField, PageHeader, SelectField, useToast } from "@/ui";
 import { api } from "../api";
+import { draftPath } from "../wizards/use-wizard-draft";
+import { switchView, viewHref } from "../wizards/view-switch";
+import type { CountDraft } from "./wizards/count-area";
 import { unitShort } from "../catalog/labels";
 import { withMeasure } from "./labels";
 
@@ -40,7 +45,12 @@ export function CountSheet({ sheet, draftKey }: { sheet: CountSheetView; draftKe
     const saved = readDraft(draftKey);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- se lee el borrador del dispositivo una sola vez al montar
     if (saved) setDraft({ values: saved.values ?? {}, presentations: { ...initialPresentations(), ...(saved.presentations ?? {}) } });
-    setLoaded(true);
+    // Lo que se capturó en el asistente para esta área manda sobre lo del dispositivo (RF-27).
+    void api<{ draft: { data: CountDraft } | null }>(draftPath("inv-count")).then((r) => {
+      const d = r.ok ? r.data.draft?.data : null;
+      if (d && d.areaId === sheet.area.id && Object.keys(d.values ?? {}).length) setDraft({ values: d.values, presentations: { ...initialPresentations(), ...(d.presentations ?? {}) } });
+      setLoaded(true);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftKey]);
   useEffect(() => {
@@ -69,6 +79,14 @@ export function CountSheet({ sheet, draftKey }: { sheet: CountSheetView; draftKe
       return { values: fillMissing(d.values, expected), presentations: { ...d.presentations, ...Object.fromEntries(missing.map((id) => [id, expectedIn(id).presentation])) } };
     });
 
+  async function stepByStep() {
+    const data: CountDraft = { areaId: sheet.area.id, values: draft.values, presentations: draft.presentations, seen: Object.fromEntries(sheet.lines.map((l) => [l.productId, l.seen])), cursor: 0, confirmed: [] };
+    await switchView("inv-count", "wizard", async () => {
+      await api(draftPath("inv-count"), { method: "PUT", body: { step: "count", data } });
+    });
+    router.push(viewHref(`/inventario/conteo?area=${sheet.area.id}`, "wizard"));
+  }
+
   const captured = sheet.lines.filter((l) => (draft.values[l.productId] ?? "").trim() !== "");
 
   async function apply(confirm: boolean) {
@@ -89,6 +107,7 @@ export function CountSheet({ sheet, draftKey }: { sheet: CountSheetView; draftKe
     try {
       window.localStorage.removeItem(draftKey);
     } catch {}
+    await api(draftPath("inv-count"), { method: "DELETE" });
     toast.success(t.applied);
     router.push("/inventario/conteo");
   }
@@ -97,6 +116,9 @@ export function CountSheet({ sheet, draftKey }: { sheet: CountSheetView; draftKe
     <>
       <PageHeader title={t.sheetTitle(sheet.area.name)} subtitle={t.sheetIntro(sheet.warehouse.name)} figure={`${captured.length}/${sheet.lines.length}`} figureLabel={t.progress(captured.length, sheet.lines.length)} />
       <p className="text-sm text-ink-muted">{t.draftKept}</p>
+      <Button variant="ghost" className="self-start" onAction={stepByStep}>
+        {es.common.stepByStep}
+      </Button>
       {sheet.lines.length === 0 ? <p className="text-sm text-ink-muted">{t.emptySheet}</p> : null}
       <ol className="flex flex-col">
         {sheet.lines.map((l) => {

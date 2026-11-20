@@ -108,4 +108,17 @@ describe("spec 009 — API de nómina", () => {
     expect((await w.sendero.call((r) => weekAction(r, p({ start: w.week, action: "reopen" })), "/x", { body: { reason: "faltó un día" } })).status).toBe(200);
     expect((await json(await w.sendero.call((r) => loansGet(r, p({ id: w.employeeId })), "/x"))).loans[0].balance).toBe("1000.00");
   });
+
+  it("test_s015_rf39_vista_previa_del_cierre_por_la_api", async () => {
+    const w = await world();
+    await w.sendero.call((r) => dayPut(r, p({ start: w.week })), "/x", { method: "PUT", body: { employeeId: w.employeeId, day: 0, state: "worked" } });
+    const res = await w.sendero.call((r) => weekAction(r, p({ start: w.week, action: "preview" })), "/x", { body: { lines: { [w.employeeId]: { bonus: "100" } } } });
+    expect(res.status).toBe(200);
+    const { preview } = await json(res);
+    expect(preview.week.totals.net).toBe("500.00");
+    expect(preview.problems).toEqual([]);
+    // No se guardó, y el administrador no la obtiene.
+    expect((await json(await w.sendero.call((r) => weekGet(r, p({ start: w.week })), "/x"))).week.totals.net).toBe("400.00");
+    expect((await w.admin.call((r) => weekAction(r, p({ start: w.week, action: "preview" })), "/x", { body: {} })).status).toBe(403);
+  });
 });
