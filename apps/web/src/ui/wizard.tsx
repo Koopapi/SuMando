@@ -75,6 +75,10 @@ export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIn
   useEffect(() => {
     if (first.current) {
       first.current = false;
+      // Si se abre debajo de otra cosa (el corte en el teléfono de piso) y sus botones no caben a la vista, se sube a él.
+      const root = rootRef.current;
+      const nav = root?.querySelector("[data-testid=wizard-nav]")?.getBoundingClientRect();
+      if (root && nav && (root.getBoundingClientRect().top < 0 || nav.bottom > window.innerHeight)) root.scrollIntoView({ block: "start" });
       return;
     }
     heading.current?.focus({ preventScroll: true });
