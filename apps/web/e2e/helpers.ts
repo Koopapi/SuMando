@@ -1,5 +1,5 @@
 // Datos de partida de los E2E: se siembran por la API de la app (mismos servicios), no recorriendo pantallas.
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { BASE } from "./warm";
 
 export const OWNER = { name: "Dueño de prueba", email: "dueno@mando.test", password: "secreta-123" };
@@ -213,3 +213,44 @@ export async function seedCashCut(branchId: string) {
   return cut.id as string;
 }
 
+
+/** Spec 015 (requisito de teléfono, T30): en cada paso que se muestra, «Atrás» y el botón para seguir quedan a la
+ *  vista sin desplazar (y sin quedar bajo el menú del teléfono) y nada ensancha la pantalla. Se instala antes de
+ *  navegar y devuelve la revisión que se llama al terminar la prueba. */
+export async function measureWizards(page: Page) {
+  const steps = new Set<string>();
+  const problems: string[] = [];
+  await page.exposeFunction("__wizardStep", (id: string, found: string[]) => {
+    steps.add(id);
+    problems.push(...found);
+  });
+  await page.addInitScript(() => {
+    const report = (window as unknown as { __wizardStep: (id: string, found: string[]) => void }).__wizardStep;
+    let last = "";
+    const check = () => {
+      const root = document.querySelector("[data-step]");
+      const nav = root?.querySelector("[data-testid=wizard-nav]");
+      if (!root || !nav) return;
+      const id = `${location.pathname} · ${root.querySelector("[data-testid=wizard-progress]")?.textContent ?? ""} · ${root.getAttribute("data-step")}`;
+      if (id === last) return;
+      last = id;
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const found: string[] = [];
+          if (document.documentElement.scrollWidth > window.innerWidth + 1) found.push(`${id}: se ensancha`);
+          for (const b of nav.querySelectorAll("button")) {
+            const r = b.getBoundingClientRect();
+            const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            if (r.top < 0 || r.bottom > window.innerHeight || !hit || !b.contains(hit)) found.push(`${id}: «${b.textContent}» no queda a la vista`);
+          }
+          void report(id, found);
+        }),
+      );
+    };
+    new MutationObserver(check).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-step"] });
+  });
+  return (minSteps = 2) => {
+    expect(problems).toEqual([]);
+    expect(steps.size).toBeGreaterThanOrEqual(minSteps);
+  };
+}

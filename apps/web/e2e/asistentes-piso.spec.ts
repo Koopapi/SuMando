@@ -4,7 +4,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { expectNoHorizontalOverflow, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { expectNoHorizontalOverflow, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner, measureWizards } from "./helpers";
 
 const ADMIN = { email: "admin.piso@mando.test", password: "admin-piso-1" };
 const JPG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 16, 74, 70, 73, 70, 0, 1]);
@@ -65,6 +65,7 @@ test("asistentes de piso: checklist por secciones con puntos clave y foto", asyn
   test.setTimeout(120_000);
   await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await enablePhone(page);
 
   await test.step("RF-48 elige tu nombre y solo sus secciones", async () => {
@@ -74,8 +75,15 @@ test("asistentes de piso: checklist por secciones con puntos clave y foto", asyn
     await expect(progress(page)).toHaveText("Paso 1 de 3");
     await expect(page.getByRole("button", { name: "Cocinera de Prueba" })).toHaveAttribute("aria-pressed", "true");
     await checkStep(page);
+  });
+
+  await test.step("RF-4 «Atrás» salvo en el primer paso y «Siguiente» en cada uno", async () => {
+    await expect(page.getByRole("button", { name: "Atrás" })).toBeDisabled();
+    await expect(next(page)).toBeEnabled();
     await next(page).click();
     await expect(heading(page, "Cocina")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Atrás" })).toBeEnabled();
+    await expect(next(page)).toBeEnabled();
   });
 
   await test.step("RF-49 RF-5 los puntos clave van uno por uno y la foto se pide", async () => {
@@ -102,7 +110,7 @@ test("asistentes de piso: checklist por secciones con puntos clave y foto", asyn
     await page.getByRole("button", { name: "Continuar" }).click();
     await expect(heading(page, "Cocina")).toBeVisible();
     await expect(page.getByLabel("Observaciones")).toHaveValue("Falta jabón");
-    await page.getByRole("button", { name: "Anterior", exact: true }).click();
+    await page.getByRole("button", { name: "Atrás" }).click();
     await page.getByRole("button", { name: "Cajero de Prueba" }).click();
     await expect(heading(page, "Elige tu nombre")).toBeVisible();
     await expect(page.getByRole("button", { name: "Continuar" })).toHaveCount(0);
@@ -142,12 +150,14 @@ test("asistentes de piso: checklist por secciones con puntos clave y foto", asyn
     await page.getByRole("link", { name: /Apertura/ }).click();
     await expect(page.getByRole("button", { name: "Paso a paso" })).toBeVisible();
   });
+  fit();
 });
 
 test("asistentes de piso: corte ciego sin lo esperado", async ({ page }) => {
   test.setTimeout(120_000);
   await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await enablePhone(page);
   await page.getByRole("button", { name: "Cajero de Prueba" }).click();
   await page.getByRole("link", { name: /Corte de caja/ }).click();
@@ -190,4 +200,5 @@ test("asistentes de piso: corte ciego sin lo esperado", async ({ page }) => {
     await expect(page.getByText("Contado", { exact: true })).toBeVisible();
     await expect(page.getByTestId("cash-summary")).toHaveCount(0);
   });
+  fit();
 });

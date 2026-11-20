@@ -57,7 +57,7 @@ export const common = {
   quantityOf: (name: string) => `Cantidad de ${name}`,
   quantityError: "Escribe un número, por ejemplo 2 o 2.5.",
   step: (n: number, total: number) => `Paso ${n} de ${total}`,
-  previous: "Anterior",
+  previous: "Atrás",
   next: "Siguiente",
   finish: "Terminar",
   exit: "Salir",

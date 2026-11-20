@@ -2,7 +2,7 @@
 // semana» con aviso de bono y billetes de cada sobre, y «Abrir caja», «Corte» y «Reporte del punto de venta».
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, lastMonday, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, lastMonday, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner, measureWizards } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.asistentes@mando.test", password: "admin-asistentes-1" };
@@ -29,6 +29,7 @@ test("asistentes de nómina: asistencia sin montos y cerrar la semana con billet
   test.setTimeout(150_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
 
   await test.step("RF-1 RF-2 RF-23 RF-38 el administrador pasa asistencia un día a la vez", async () => {
     await login(page, ADMIN.email, ADMIN.password);
@@ -102,12 +103,14 @@ test("asistentes de nómina: asistencia sin montos y cerrar la semana con billet
     await expect(page).toHaveURL(new RegExp(`/nomina/${w.week}/hoja-de-pago`));
     await expect(page.getByRole("main")).toContainText("$1,850.00");
   });
+  fit();
 });
 
 test("asistentes de caja: abrir, corte con gasto y reporte con lo que no cuadra", async ({ page }) => {
   test.setTimeout(120_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await login(page, OWNER.email, OWNER.password);
   await workAt(page, w.branchId);
 
@@ -161,4 +164,5 @@ test("asistentes de caja: abrir, corte con gasto y reporte con lo que no cuadra"
     await page.getByRole("link", { name: "Ver el corte" }).click();
     await expect(page.getByRole("button", { name: "Cerrar corte" })).toBeVisible();
   });
+  fit();
 });

@@ -60,6 +60,11 @@ Desde `apps/web` (pnpm 10 por corepack, Node 24; PostgreSQL 16 local de Homebrew
   `ComboField` de `src/ui` para buscar productos.
 - Tablero (spec 012): `domain/reports` y `server/services/reports`, la única capa que junta negocios; el administrador
   solo ve alertas y ventas, y el servidor rechaza lo demás.
+- Asistentes paso a paso (spec 015): `ui/wizard.tsx` y cada asistente en `features/<área>/wizards/`; nada se registra
+  hasta confirmar el resumen y se usan las rutas de siempre. Lo guardado a medias en `wizard_drafts`
+  (`/api/wizards/[kind]/draft`), la vista elegida por persona y tarea (`?vista=completa`); en el teléfono de piso, por
+  empleado en ese teléfono. Los E2E que recorren pantallas completas llaman `preferFullView`; los de asistentes miden
+  cada paso a 390 × 844 con `measureWizards`.
 - Next 16 genera `apps/web/AGENTS.md` con sus avisos de cambios; sus guías están en `node_modules/next/dist/docs/`.
 
 ## Estilo y convenciones

@@ -138,11 +138,11 @@ Tareas de 20 a 30 minutos, en orden de dependencia. Tests antes que el código.
 
 ## Entrega 7 — Cierre
 
-- [ ] **T30 — Medidas, barrido y accesibilidad**
+- [x] **T30 — Medidas, barrido y accesibilidad**
   - RF: RF-1, RF-4
   - Depende de: T29
   - Hecho cuando: todos los asistentes a 390 × 844 con los botones a la vista y sin ensanchar; `qa-sweep` en claro y oscuro en verde.
-- [ ] **T31 — Validación y documentos**
+- [x] **T31 — Validación y documentos**
   - RF: todos
   - Depende de: T30
   - Hecho cuando: `validation.md` 51 de 51; `pnpm test`, `typecheck` y `lint` en verde; reglas de negocio en «Vigente», arquitectura y AGENTS al día.

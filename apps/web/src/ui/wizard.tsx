@@ -58,6 +58,7 @@ export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIn
   const [own, setOwn] = useState(0);
   const [confirm, setConfirm] = useState<null | (() => void)>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const first = useRef(true);
   const all: WizardStep[] = review ? [...steps, { id: "summary", title: t.summaryTitle, hint: t.summaryHint, content: <Review steps={steps} extra={review.extra} onChange={(i) => go(i)} /> }] : steps;
   const index = Math.min(controlled ?? own, all.length - 1);
@@ -76,8 +77,10 @@ export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIn
       first.current = false;
       return;
     }
-    heading.current?.focus();
-    window.scrollTo({ top: 0 });
+    heading.current?.focus({ preventScroll: true });
+    // Al principio del asistente (no de la página: en el teléfono de piso va debajo del corte), para que el paso y sus
+    // botones queden a la vista.
+    rootRef.current?.scrollIntoView({ block: "start" });
   }, [index]);
 
   useEffect(() => {
@@ -118,7 +121,7 @@ export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIn
   const disabled = isReview ? review.busy || review.canConfirm === false : step.canContinue === false;
 
   return (
-    <div className="flex flex-col gap-4" data-step={step.id}>
+    <div ref={rootRef} className="flex scroll-mt-4 flex-col gap-4" data-step={step.id}>
       <div className="flex items-center gap-3">
         <Dial value={(index + 1) / all.length} label={t.step(index + 1, all.length)} />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -148,7 +151,7 @@ export function Wizard({ steps, dirty, onExit, onFinish, index: controlled, onIn
           </Button>
         </div>
       ) : null}
-      <div className="sticky bottom-(--nav-space) -mx-4 flex gap-3 border-t border-line-strong bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
+      <div data-testid="wizard-nav" className="sticky bottom-(--nav-space) -mx-4 flex gap-3 border-t border-line-strong bg-surface px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0">
         <Button variant="secondary" full disabled={index === 0} onClick={() => go(index - 1)}>
           {t.previous}
         </Button>

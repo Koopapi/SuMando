@@ -2,7 +2,7 @@
 // proveedor» con comprador; «Nuevo empleado» (el sueldo solo para el dueño) con un documento, y «Nueva plantilla».
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, logout, ownerApiAt, seedAdmin, seedBusiness, seedOwner, measureWizards } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.altas@mando.test", password: "admin-altas-1" };
@@ -30,6 +30,7 @@ test("asistentes de altas: producto con parecidos y proveedor con comprador", as
   test.setTimeout(120_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await login(page, OWNER.email, OWNER.password);
   await workAt(page, w.branchId);
 
@@ -91,12 +92,14 @@ test("asistentes de altas: producto con parecidos y proveedor con comprador", as
     await page.getByRole("link", { name: "Ver los proveedores" }).click();
     await expect(page.getByLabel("Comprador de SAMS en Sendero")).toHaveValue(/.+/);
   });
+  fit();
 });
 
 test("asistentes de altas: empleado con documento (sueldo solo del dueño) y plantilla de checklist", async ({ page }) => {
   test.setTimeout(120_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
 
   await test.step("RF-11 RF-46 el administrador no tiene el paso del sueldo", async () => {
     await login(page, ADMIN.email, ADMIN.password);
@@ -156,4 +159,5 @@ test("asistentes de altas: empleado con documento (sueldo solo del dueño) y pla
     await page.getByRole("link", { name: "Ver la plantilla" }).click();
     await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Apertura");
   });
+  fit();
 });

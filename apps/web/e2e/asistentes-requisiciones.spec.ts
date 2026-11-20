@@ -2,7 +2,7 @@
 // resumen, guardar y retomar en otra sesión, y cambio a la vista completa sin perder nada.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, alertBox, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, alertBox, login, ownerApiAt, seedAdmin, seedBusiness, seedOwner, measureWizards } from "./helpers";
 import { BASE } from "./warm";
 
 const ADMIN = { email: "admin.asistente@mando.test", password: "admin-asistente-1" };
@@ -32,6 +32,7 @@ test("asistente de nueva requisición: pasos, dato raro, retomar, vista completa
   test.setTimeout(120_000);
   await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await login(page, ADMIN.email, ADMIN.password);
 
   await test.step("RF-1 RF-2 RF-3 RF-23 RF-28 abre el asistente con su paso, indicación y ejemplo", async () => {
@@ -125,12 +126,14 @@ test("asistente de nueva requisición: pasos, dato raro, retomar, vista completa
     await expect(other.getByTestId("resume-prompt")).toHaveCount(0);
   });
   await otherContext.close();
+  fit();
 });
 
 test("asistentes de aprobar, comprar y recibir; error del servidor y decisión de otra persona", async ({ page }) => {
   test.setTimeout(120_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   // El encargado pide dos requisiciones; el dueño decide.
   await login(page, ADMIN.email, ADMIN.password);
   const warehouseId = (await (await page.request.get(`${BASE}/api/warehouses`)).json()).warehouses[0].id as string;
@@ -204,4 +207,5 @@ test("asistentes de aprobar, comprar y recibir; error del servidor y decisión d
     await expect(page.getByText("Esta requisición ya está cancelada: otra persona la decidió mientras tanto.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Aprobar", exact: true })).toHaveCount(0);
   });
+  fit();
 });

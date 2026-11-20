@@ -2,7 +2,7 @@
 // traspaso», con dato raro, retomar en otra sesión y cambio a la vista completa sin perder nada.
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { OWNER, login, ownerApiAt, seedBusiness, seedOwner } from "./helpers";
+import { OWNER, login, ownerApiAt, seedBusiness, seedOwner, measureWizards } from "./helpers";
 import { BASE } from "./warm";
 
 async function world() {
@@ -46,6 +46,7 @@ test("asistentes de inventario: contar un área, entrada con retomar y vista com
   test.setTimeout(150_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await login(page, OWNER.email, OWNER.password);
   await workAt(page, w.pastatti.branches[0].id);
 
@@ -158,12 +159,14 @@ test("asistentes de inventario: contar un área, entrada con retomar y vista com
     await expect(page.getByTestId("wizard-done")).toContainText("Se registró la salida.");
     expect(await stock(page, w.bodega, "Leche")).toBe("500");
   });
+  fit();
 });
 
 test("asistentes de inventario: traspaso a otro negocio y recibirlo", async ({ page }) => {
   test.setTimeout(120_000);
   const w = await world();
   await page.setViewportSize({ width: 390, height: 844 });
+  const fit = await measureWizards(page);
   await login(page, OWNER.email, OWNER.password);
   await workAt(page, w.pastatti.branches[0].id);
 
@@ -203,4 +206,5 @@ test("asistentes de inventario: traspaso a otro negocio y recibirlo", async ({ p
     await page.getByRole("link", { name: "Ver el traspaso" }).click();
     await expect(page.getByText("Llegó con diferencia")).toBeVisible();
   });
+  fit();
 });

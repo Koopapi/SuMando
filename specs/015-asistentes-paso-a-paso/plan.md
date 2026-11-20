@@ -187,3 +187,9 @@ Ninguna nueva.
   El efectivo por denominación es el mismo componente del «Corte» de las personas.
 - El resumen de `ui/wizard.tsx` pasó de `<dl>` a una lista con títulos: axe marcaba el `<dl>` (el botón «Cambiar»
   quedaba dentro del grupo de término y definición). El barrido no llegaba al resumen; el E2E de piso corre axe en él.
+- Medidas (T30): `measureWizards` (E2E) revisa en cada paso que se muestra, a 390 × 844, que «Atrás» y el botón para
+  seguir queden a la vista sin desplazar y sin quedar bajo el menú del teléfono, y que nada ensanche la pantalla. Al
+  cambiar de paso el asistente se desplaza a su propio principio y no al de la página (en el teléfono de piso el
+  conteo va debajo del corte y sus botones quedaban fuera de la vista).
+- RF-4 pide «Atrás»: el botón del asistente decía «Anterior» (spec 002) y pasó a «Atrás». En el primer paso se
+  muestra deshabilitado.
